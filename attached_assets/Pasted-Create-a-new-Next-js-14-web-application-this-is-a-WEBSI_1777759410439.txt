@@ -1,0 +1,109 @@
+Create a new Next.js 14+ web application (this is a WEBSITE viewed in browsers on desktop and mobile — NOT a mobile app) called "kala-kendra-sweden" with TypeScript, Tailwind CSS, and the App Router.
+
+VISUAL THEME — THE NATARAJA HERITAGE THEME
+
+This site honours classical South Indian dance (Bharatanatyam), Carnatic music, and Kerala temple aesthetics. The design must feel rooted in tradition, dignified, and warm — never generic, never tech-trendy.
+
+Add these custom Tailwind colors in tailwind.config.ts (theme.extend.colors):
+- maroon: { DEFAULT: '#5C1416', deep: '#3D0A0C' }
+- gold: { DEFAULT: '#B8893A', deep: '#8B6520' }
+- stone: { DEFAULT: '#8B7355', light: '#D4C4A0' }
+- parchment: '#F4EBD9'
+- ink: '#1F1612'
+- soft: '#5A4A42'
+- saffron: '#C25E1F'
+- moss: '#5F7A3F'
+- rust: '#8C2F1A'
+
+Add these custom font families (theme.extend.fontFamily):
+- display: ['Cormorant Garamond', 'serif']  — for ALL headings
+- sans: ['Manrope', 'sans-serif']  — for body text
+- hand: ['Caveat', 'cursive']  — for decorative accents
+
+Load all three fonts via next/font/google in app/layout.tsx with appropriate font-display swap.
+
+In app/globals.css:
+- Set body background to the parchment color (#F4EBD9), text to ink (#1F1612)
+- Add a fixed pseudo-element body::before with subtle radial gradient overlays of gold (6% opacity) and maroon (4% opacity) at opposite corners — this gives a soft "aged stone" texture
+- NEVER use pure white (#FFFFFF) or pure black (#000000) anywhere — substitute parchment for white and ink for black
+- Default heading style: Cormorant Garamond, weight 400 for h1/h2, weight 500 for h3
+- Default body: Manrope, weight 400, line-height 1.6
+
+Install these dependencies:
+- drizzle-orm and drizzle-kit
+- pg (postgres driver)
+- next-auth and @auth/drizzle-adapter
+- zod and @hookform/resolvers
+- react-hook-form
+- date-fns
+- exceljs (for Excel export later)
+- lucide-react (for icons)
+
+Initialize shadcn/ui with default settings.
+
+Create this folder structure:
+
+kala-kendra-sweden/
+├── app/
+│   ├── (public)/
+│   │   ├── page.tsx
+│   │   ├── about/page.tsx
+│   │   ├── programmes/page.tsx
+│   │   ├── founder/page.tsx
+│   │   ├── heritage/page.tsx
+│   │   ├── annual-event/page.tsx
+│   │   ├── apply/page.tsx
+│   │   ├── apply/success/page.tsx
+│   │   └── contact/page.tsx
+│   ├── admin/
+│   │   ├── login/page.tsx
+│   │   ├── layout.tsx
+│   │   ├── dashboard/page.tsx
+│   │   ├── admissions/page.tsx
+│   │   ├── admissions/[id]/page.tsx
+│   │   ├── students/page.tsx
+│   │   ├── batches/page.tsx
+│   │   └── settings/page.tsx
+│   ├── api/
+│   │   ├── admissions/route.ts
+│   │   ├── auth/[...nextauth]/route.ts
+│   │   └── export/admissions/route.ts
+│   ├── globals.css
+│   └── layout.tsx
+├── components/
+│   ├── ui/
+│   ├── public/
+│   ├── admin/
+│   ├── form/
+│   └── decorative/
+├── lib/
+│   ├── db/
+│   │   ├── schema.ts
+│   │   ├── client.ts
+│   │   ├── queries.ts
+│   │   └── seed.ts
+│   ├── auth.ts
+│   ├── validators.ts
+│   ├── excel/
+│   │   └── helpers.ts
+│   └── constants.ts
+├── public/
+├── tailwind.config.ts
+├── drizzle.config.ts
+├── package.json
+└── README.md
+
+Set up a .env.example file listing required environment variables: DATABASE_URL, NEXTAUTH_SECRET, NEXTAUTH_URL, EMAIL_SERVER_HOST, EMAIL_SERVER_PORT, EMAIL_SERVER_USER, EMAIL_SERVER_PASSWORD, EMAIL_FROM.
+
+Connect to the Replit PostgreSQL database (provision one if not already available).
+
+For this prompt only, build a styled placeholder home page (app/(public)/page.tsx) that demonstrates the theme is working:
+- Parchment background
+- Centered Cormorant Garamond heading "Kala Kendra Sweden" in maroon color
+- A gold ornament divider below: "❋   ❋   ❋"
+- A short Manrope intro paragraph in ink color: "A classical arts institution in Gothenburg — devoted to Bharatanatyam, Carnatic music, and the heritage of South India."
+- An italic Caveat-font decorative line: "— a living tradition."
+
+Confirm the project runs with `npm run dev` and the placeholder page displays correctly with the warm Nataraja palette and Cormorant Garamond headings.
+
+Do NOT build any other pages or features yet. This prompt is foundation only. Confirm everything works before I send the next prompt.
