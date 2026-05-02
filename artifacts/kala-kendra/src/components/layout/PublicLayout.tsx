@@ -6,6 +6,7 @@ const NAV_LINKS = [
   { href: "/about", label: "Our Lineage" },
   { href: "/heritage", label: "Heritage" },
   { href: "/programmes", label: "Programmes" },
+  { href: "/classes", label: "Classes" },
   { href: "/annual-event", label: "Annual Event" },
   { href: "/apply", label: "Apply" },
   { href: "/contact", label: "Contact" },

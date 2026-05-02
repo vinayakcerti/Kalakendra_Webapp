@@ -15,6 +15,7 @@ import AnnualEvent from "@/pages/public/AnnualEvent";
 import Apply from "@/pages/public/Apply";
 import Contact from "@/pages/public/Contact";
 import Privacy from "@/pages/public/Privacy";
+import Classes from "@/pages/public/Classes";
 
 import Dashboard from "@/pages/admin/Dashboard";
 import Admissions from "@/pages/admin/Admissions";
@@ -48,6 +49,7 @@ function PublicRoutes() {
         <Route path="/annual-event" component={AnnualEvent} />
         <Route path="/apply" component={Apply} />
         <Route path="/contact" component={Contact} />
+        <Route path="/classes" component={Classes} />
         <Route path="/privacy" component={Privacy} />
         <Route component={NotFound} />
       </Switch>
