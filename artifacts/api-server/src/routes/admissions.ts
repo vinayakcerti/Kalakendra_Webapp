@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq, desc, ilike, and } from "drizzle-orm";
-import { db, admissionsTable } from "@workspace/db";
+import { db, admissionsTable, studentsTable, batchesTable } from "@workspace/db";
 import {
   ListAdmissionsQueryParams,
   CreateAdmissionBody,
@@ -8,9 +8,22 @@ import {
   ListAdmissionsResponseItem,
   GetAdmissionResponse,
   UpdateAdmissionResponse,
+  EnrolAdmissionBody,
+  EnrolAdmissionParams,
+  GetStudentResponse,
 } from "@workspace/api-zod";
 
 const router: IRouter = Router();
+
+/** Returns the enrolledStudentId for an admission (null if not yet enrolled). */
+async function getEnrolledStudentId(admissionId: string): Promise<string | null> {
+  const [existing] = await db
+    .select({ id: studentsTable.id })
+    .from(studentsTable)
+    .where(eq(studentsTable.admissionId, admissionId))
+    .limit(1);
+  return existing?.id ?? null;
+}
 
 router.get("/admissions", async (req, res) => {
   const query = ListAdmissionsQueryParams.parse(req.query);
@@ -66,7 +79,7 @@ router.post("/admissions", async (req, res) => {
       status: "pending",
     })
     .returning();
-  res.status(201).json(GetAdmissionResponse.parse(row));
+  res.status(201).json(GetAdmissionResponse.parse({ ...row, enrolledStudentId: null }));
 });
 
 router.get("/admissions/:id", async (req, res) => {
@@ -75,7 +88,8 @@ router.get("/admissions/:id", async (req, res) => {
     .from(admissionsTable)
     .where(eq(admissionsTable.id, req.params.id));
   if (!row) { res.status(404).json({ error: "Not found" }); return; }
-  res.json(GetAdmissionResponse.parse(row));
+  const enrolledStudentId = await getEnrolledStudentId(row.id);
+  res.json(GetAdmissionResponse.parse({ ...row, enrolledStudentId }));
 });
 
 router.patch("/admissions/:id", async (req, res) => {
@@ -86,12 +100,101 @@ router.patch("/admissions/:id", async (req, res) => {
     .where(eq(admissionsTable.id, req.params.id))
     .returning();
   if (!row) { res.status(404).json({ error: "Not found" }); return; }
-  res.json(UpdateAdmissionResponse.parse(row));
+  const enrolledStudentId = await getEnrolledStudentId(row.id);
+  res.json(UpdateAdmissionResponse.parse({ ...row, enrolledStudentId }));
 });
 
 router.delete("/admissions/:id", async (req, res) => {
   await db.delete(admissionsTable).where(eq(admissionsTable.id, req.params.id));
   res.status(204).send();
+});
+
+/** POST /admissions/:id/enrol — convert an accepted admission into a student record */
+router.post("/admissions/:id/enrol", async (req, res) => {
+  const { id } = EnrolAdmissionParams.parse(req.params);
+  const body = EnrolAdmissionBody.parse(req.body);
+
+  // 1. Fetch the admission
+  const [admission] = await db
+    .select()
+    .from(admissionsTable)
+    .where(eq(admissionsTable.id, id));
+  if (!admission) { res.status(404).json({ error: "Admission not found" }); return; }
+
+  // 2. Guard: must be accepted (or at least reviewed)
+  if (!["accepted", "under_review"].includes(admission.status)) {
+    res.status(400).json({ error: "Admission must be accepted before enrolling" }); return;
+  }
+
+  // 3. Guard: check if already enrolled
+  const existing = await getEnrolledStudentId(id);
+  if (existing) {
+    res.status(400).json({ error: "Student already enrolled from this admission", studentId: existing }); return;
+  }
+
+  // 4. Resolve batch — prefer explicit override, else look up by code
+  let batchId: string | undefined = body.batchId ?? undefined;
+  if (!batchId && admission.batch) {
+    const [batch] = await db
+      .select({ id: batchesTable.id })
+      .from(batchesTable)
+      .where(eq(batchesTable.code, admission.batch))
+      .limit(1);
+    batchId = batch?.id;
+  }
+
+  // 5. Determine contact info (adult: student fields; child: parent fields)
+  const isChild = admission.applicantType === "child";
+  const contactName = isChild ? (admission.parentName ?? undefined) : undefined;
+  const contactEmail = isChild
+    ? (admission.parentEmail ?? undefined)
+    : (admission.studentEmail ?? undefined);
+  const contactPhone = isChild
+    ? (admission.parentPhone ?? undefined)
+    : (admission.studentPhone ?? undefined);
+
+  // 6. Derive dob string (could be a Date object from drizzle)
+  const dobStr = admission.studentDob instanceof Date
+    ? admission.studentDob.toISOString().split("T")[0]
+    : String(admission.studentDob);
+
+  // 7. Create the student
+  const [newStudent] = await db
+    .insert(studentsTable)
+    .values({
+      admissionId: admission.id,
+      fullName: admission.studentName,
+      dob: dobStr,
+      batchId: batchId ?? null,
+      primaryContactName: contactName,
+      primaryContactEmail: contactEmail,
+      primaryContactPhone: contactPhone,
+      status: "active",
+    })
+    .returning();
+
+  // 8. Return the full student (with batchName)
+  const [studentWithBatch] = await db
+    .select({
+      id: studentsTable.id,
+      admissionId: studentsTable.admissionId,
+      fullName: studentsTable.fullName,
+      dob: studentsTable.dob,
+      batchId: studentsTable.batchId,
+      batchName: batchesTable.name,
+      primaryContactName: studentsTable.primaryContactName,
+      primaryContactEmail: studentsTable.primaryContactEmail,
+      primaryContactPhone: studentsTable.primaryContactPhone,
+      status: studentsTable.status,
+      enrolledAt: studentsTable.enrolledAt,
+      createdAt: studentsTable.createdAt,
+      updatedAt: studentsTable.updatedAt,
+    })
+    .from(studentsTable)
+    .leftJoin(batchesTable, eq(studentsTable.batchId, batchesTable.id))
+    .where(eq(studentsTable.id, newStudent.id));
+
+  res.status(201).json(GetStudentResponse.parse(studentWithBatch));
 });
 
 export default router;

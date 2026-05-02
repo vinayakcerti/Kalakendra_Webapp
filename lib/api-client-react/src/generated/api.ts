@@ -25,6 +25,7 @@ import type {
   CreateStudentBody,
   DashboardStats,
   Enquiry,
+  EnrolAdmissionBody,
   HealthStatus,
   ListAdmissionsParams,
   ListBatchesParams,
@@ -559,6 +560,93 @@ export const useDeleteAdmission = <
   TContext
 > => {
   return useMutation(getDeleteAdmissionMutationOptions(options));
+};
+
+/**
+ * @summary Convert an accepted admission into an enrolled student record
+ */
+export const getEnrolAdmissionUrl = (id: string) => {
+  return `/api/admissions/${id}/enrol`;
+};
+
+export const enrolAdmission = async (
+  id: string,
+  enrolAdmissionBody: EnrolAdmissionBody,
+  options?: RequestInit,
+): Promise<Student> => {
+  return customFetch<Student>(getEnrolAdmissionUrl(id), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(enrolAdmissionBody),
+  });
+};
+
+export const getEnrolAdmissionMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof enrolAdmission>>,
+    TError,
+    { id: string; data: BodyType<EnrolAdmissionBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof enrolAdmission>>,
+  TError,
+  { id: string; data: BodyType<EnrolAdmissionBody> },
+  TContext
+> => {
+  const mutationKey = ["enrolAdmission"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof enrolAdmission>>,
+    { id: string; data: BodyType<EnrolAdmissionBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return enrolAdmission(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type EnrolAdmissionMutationResult = NonNullable<
+  Awaited<ReturnType<typeof enrolAdmission>>
+>;
+export type EnrolAdmissionMutationBody = BodyType<EnrolAdmissionBody>;
+export type EnrolAdmissionMutationError = ErrorType<void>;
+
+/**
+ * @summary Convert an accepted admission into an enrolled student record
+ */
+export const useEnrolAdmission = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof enrolAdmission>>,
+    TError,
+    { id: string; data: BodyType<EnrolAdmissionBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof enrolAdmission>>,
+  TError,
+  { id: string; data: BodyType<EnrolAdmissionBody> },
+  TContext
+> => {
+  return useMutation(getEnrolAdmissionMutationOptions(options));
 };
 
 /**

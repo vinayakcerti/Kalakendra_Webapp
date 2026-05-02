@@ -144,6 +144,36 @@ paths:
         "204":
           description: Deleted
 
+  /admissions/{id}/enrol:
+    post:
+      operationId: enrolAdmission
+      tags: [admissions]
+      summary: Convert an accepted admission into an enrolled student record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EnrolAdmissionBody"
+      responses:
+        "201":
+          description: Student enrolled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+        "400":
+          description: Already enrolled or admission not accepted
+        "404":
+          description: Admission not found
+
   # ─── STUDENTS ─────────────────────────────────────────────────────────────
   /students:
     get:
@@ -544,6 +574,11 @@ components:
         updatedAt:
           type: string
           format: date-time
+        enrolledStudentId:
+          type: string
+          format: uuid
+          nullable: true
+          description: Set once the application has been converted into a student record
       required:
         - id
         - applicantType
@@ -645,6 +680,15 @@ components:
           enum: [pending, under_review, accepted, waitlisted, rejected]
         adminNotes:
           type: string
+
+    EnrolAdmissionBody:
+      type: object
+      description: Optional overrides when converting an admission to a student record
+      properties:
+        batchId:
+          type: string
+          format: uuid
+          description: Override the batch assignment (if omitted, looked up by the admission's batch code)
 
     # ─── STUDENTS ───────────────────────────────────────────────────────────
     Student:

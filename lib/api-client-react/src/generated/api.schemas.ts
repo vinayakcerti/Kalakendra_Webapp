@@ -96,6 +96,8 @@ export interface Admission {
   submittedAt: string;
   createdAt: string;
   updatedAt: string;
+  /** Set once the application has been converted into a student record */
+  enrolledStudentId?: string | null;
 }
 
 export type CreateAdmissionBodyApplicantType =
@@ -184,6 +186,14 @@ export const UpdateAdmissionBodyStatus = {
 export interface UpdateAdmissionBody {
   status?: UpdateAdmissionBodyStatus;
   adminNotes?: string;
+}
+
+/**
+ * Optional overrides when converting an admission to a student record
+ */
+export interface EnrolAdmissionBody {
+  /** Override the batch assignment (if omitted, looked up by the admission's batch code) */
+  batchId?: string;
 }
 
 export type StudentStatus = (typeof StudentStatus)[keyof typeof StudentStatus];

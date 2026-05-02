@@ -4,6 +4,8 @@ import {
   useGetAdmission,
   getGetAdmissionQueryKey,
   useUpdateAdmission,
+  useEnrolAdmission,
+  getListStudentsQueryKey,
 } from "@workspace/api-client-react";
 
 type UpdateAdmissionBodyStatus = "pending" | "under_review" | "accepted" | "waitlisted" | "rejected";
@@ -16,7 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, UserCheck, ExternalLink } from "lucide-react";
 
 const STATUS_STYLES: Record<string, string> = {
   pending: "bg-amber-100 text-amber-800",
@@ -56,6 +58,7 @@ export default function AdmissionDetail() {
   });
 
   const updateAdmission = useUpdateAdmission();
+  const enrolAdmission = useEnrolAdmission();
   const [status, setStatus] = useState<UpdateAdmissionBodyStatus | "">("");
   const [notes, setNotes] = useState("");
   const initializedRef = useRef<string | null>(null);
@@ -87,6 +90,23 @@ export default function AdmissionDetail() {
           queryClient.setQueryData(getGetAdmissionQueryKey(admission.id), updated);
         },
         onError: () => toast({ title: "Update failed", variant: "destructive" }),
+      }
+    );
+  };
+
+  const handleEnrol = () => {
+    enrolAdmission.mutate(
+      { id: admission.id, data: {} },
+      {
+        onSuccess: (student) => {
+          toast({ title: `${student.fullName} enrolled as a student` });
+          queryClient.invalidateQueries({ queryKey: getGetAdmissionQueryKey(admission.id) });
+          queryClient.invalidateQueries({ queryKey: getListStudentsQueryKey() });
+        },
+        onError: (err: unknown) => {
+          const msg = (err as { message?: string })?.message ?? "Failed to enrol student";
+          toast({ title: msg, variant: "destructive" });
+        },
       }
     );
   };
@@ -164,6 +184,50 @@ export default function AdmissionDetail() {
 
         {/* Sidebar */}
         <div className="space-y-6">
+          {/* Enrol panel */}
+          {admission.enrolledStudentId ? (
+            <div className="bg-emerald-50 border border-emerald-200 p-6">
+              <div className="flex items-center gap-2 mb-3">
+                <UserCheck className="h-5 w-5 text-emerald-700" />
+                <p className="text-xs uppercase tracking-widest text-emerald-700 font-semibold">Enrolled</p>
+              </div>
+              <p className="text-sm text-emerald-800 mb-4">
+                This applicant has been enrolled as a student.
+              </p>
+              <Link href={`/admin/students/${admission.enrolledStudentId}`}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full rounded-none border-emerald-300 text-emerald-800 hover:bg-emerald-100"
+                >
+                  <ExternalLink className="h-3.5 w-3.5 mr-2" />
+                  View Student Record
+                </Button>
+              </Link>
+            </div>
+          ) : (admission.status === "accepted" || admission.status === "under_review") ? (
+            <div className="bg-card border border-secondary/20 p-6">
+              <div className="flex items-center gap-2 mb-3">
+                <UserCheck className="h-5 w-5 text-secondary" />
+                <p className="text-xs uppercase tracking-widest text-secondary font-semibold">Enrolment</p>
+              </div>
+              <p className="text-sm text-muted-foreground mb-4">
+                {admission.status === "accepted"
+                  ? "This application has been accepted. Create the student record to complete enrolment."
+                  : "This application is under review. You can pre-enrol the student now."}
+              </p>
+              <Button
+                onClick={handleEnrol}
+                disabled={enrolAdmission.isPending}
+                className="w-full bg-primary text-primary-foreground hover:bg-primary/90 rounded-none"
+              >
+                <UserCheck className="h-4 w-4 mr-2" />
+                {enrolAdmission.isPending ? "Enrolling…" : "Enrol as Student"}
+              </Button>
+            </div>
+          ) : null}
+
+          {/* Status + notes */}
           <div className="bg-card border border-secondary/20 p-6">
             <h4 className="font-serif text-xl text-primary mb-4">Administration</h4>
             <div className="space-y-4">

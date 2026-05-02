@@ -64,6 +64,13 @@ export const ListAdmissionsResponseItem = zod.object({
   submittedAt: zod.coerce.date(),
   createdAt: zod.coerce.date(),
   updatedAt: zod.coerce.date(),
+  enrolledStudentId: zod
+    .string()
+    .uuid()
+    .nullish()
+    .describe(
+      "Set once the application has been converted into a student record",
+    ),
 });
 export const ListAdmissionsResponse = zod.array(ListAdmissionsResponseItem);
 
@@ -145,6 +152,13 @@ export const GetAdmissionResponse = zod.object({
   submittedAt: zod.coerce.date(),
   createdAt: zod.coerce.date(),
   updatedAt: zod.coerce.date(),
+  enrolledStudentId: zod
+    .string()
+    .uuid()
+    .nullish()
+    .describe(
+      "Set once the application has been converted into a student record",
+    ),
 });
 
 /**
@@ -200,6 +214,13 @@ export const UpdateAdmissionResponse = zod.object({
   submittedAt: zod.coerce.date(),
   createdAt: zod.coerce.date(),
   updatedAt: zod.coerce.date(),
+  enrolledStudentId: zod
+    .string()
+    .uuid()
+    .nullish()
+    .describe(
+      "Set once the application has been converted into a student record",
+    ),
 });
 
 /**
@@ -208,6 +229,27 @@ export const UpdateAdmissionResponse = zod.object({
 export const DeleteAdmissionParams = zod.object({
   id: zod.coerce.string().uuid(),
 });
+
+/**
+ * @summary Convert an accepted admission into an enrolled student record
+ */
+export const EnrolAdmissionParams = zod.object({
+  id: zod.coerce.string().uuid(),
+});
+
+export const EnrolAdmissionBody = zod
+  .object({
+    batchId: zod
+      .string()
+      .uuid()
+      .optional()
+      .describe(
+        "Override the batch assignment (if omitted, looked up by the admission's batch code)",
+      ),
+  })
+  .describe(
+    "Optional overrides when converting an admission to a student record",
+  );
 
 /**
  * @summary List all enrolled students
@@ -516,6 +558,13 @@ export const GetDashboardStatsResponse = zod.object({
       submittedAt: zod.coerce.date(),
       createdAt: zod.coerce.date(),
       updatedAt: zod.coerce.date(),
+      enrolledStudentId: zod
+        .string()
+        .uuid()
+        .nullish()
+        .describe(
+          "Set once the application has been converted into a student record",
+        ),
     }),
   ),
 });
