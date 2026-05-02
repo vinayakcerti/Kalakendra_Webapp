@@ -1,5 +1,12 @@
 import { useState, useEffect } from "react";
-import { useListStudents, getListStudentsQueryKey, useCreateStudent, useDeleteStudent, CreateStudentBodyProgramme } from "@workspace/api-client-react";
+import {
+  useListStudents,
+  getListStudentsQueryKey,
+  useCreateStudent,
+  useDeleteStudent,
+  useListBatches,
+  getListBatchesQueryKey,
+} from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 
@@ -16,8 +23,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { Search, Plus, Trash2 } from "lucide-react";
-// A simple debounce implementation for the component
-function useLocalDebounce<T>(value: T, delay: number): T {
+
+function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
   useEffect(() => {
     const handler = setTimeout(() => setDebouncedValue(value), delay);
@@ -27,53 +34,68 @@ function useLocalDebounce<T>(value: T, delay: number): T {
 }
 
 const formSchema = z.object({
-  name: z.string().min(2, "Name required"),
-  email: z.string().email("Valid email required"),
-  phone: z.string().optional(),
-  programme: z.nativeEnum(CreateStudentBodyProgramme),
+  fullName: z.string().min(2, "Name required"),
+  dob: z.string().optional(),
+  batchId: z.string().uuid().optional(),
+  primaryContactName: z.string().optional(),
+  primaryContactEmail: z.string().email("Valid email required").optional().or(z.literal("")),
+  primaryContactPhone: z.string().optional(),
 });
+
+const STATUS_STYLES: Record<string, string> = {
+  active: "bg-emerald-100 text-emerald-800",
+  inactive: "bg-amber-100 text-amber-800",
+  withdrawn: "bg-red-100 text-red-800",
+};
 
 export default function Students() {
   const [search, setSearch] = useState("");
-  const debouncedSearch = useLocalDebounce(search, 500);
+  const debouncedSearch = useDebounce(search, 500);
   const [dialogOpen, setDialogOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const queryParams = debouncedSearch ? { search: debouncedSearch } : {};
   const { data: students, isLoading } = useListStudents(queryParams, {
-    query: { queryKey: getListStudentsQueryKey(queryParams) }
+    query: { queryKey: getListStudentsQueryKey(queryParams) },
   });
+
+  const { data: batches } = useListBatches({ query: { queryKey: getListBatchesQueryKey() } });
 
   const createStudent = useCreateStudent();
   const deleteStudent = useDeleteStudent();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { name: "", email: "", phone: "", programme: "bharatanatyam" },
+    defaultValues: {
+      fullName: "",
+      dob: "",
+      batchId: undefined,
+      primaryContactName: "",
+      primaryContactEmail: "",
+      primaryContactPhone: "",
+    },
   });
 
-  const formatProgramme = (p: string) => p.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
-
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    createStudent.mutate({ data: values }, {
+    createStudent.mutate({ data: { fullName: values.fullName, dob: values.dob || undefined, batchId: values.batchId, primaryContactName: values.primaryContactName, primaryContactEmail: values.primaryContactEmail || undefined, primaryContactPhone: values.primaryContactPhone } }, {
       onSuccess: () => {
         toast({ title: "Student added successfully" });
         setDialogOpen(false);
         form.reset();
         queryClient.invalidateQueries({ queryKey: getListStudentsQueryKey(queryParams) });
       },
-      onError: () => toast({ title: "Failed to add student", variant: "destructive" })
+      onError: () => toast({ title: "Failed to add student", variant: "destructive" }),
     });
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string) => {
     if (!confirm("Are you sure you want to remove this student?")) return;
     deleteStudent.mutate({ id }, {
       onSuccess: () => {
         toast({ title: "Student removed" });
         queryClient.invalidateQueries({ queryKey: getListStudentsQueryKey(queryParams) });
-      }
+      },
     });
   };
 
@@ -87,36 +109,45 @@ export default function Students() {
               <Plus className="mr-2 h-4 w-4" /> Add Student
             </Button>
           </DialogTrigger>
-          <DialogContent className="rounded-none border-secondary/40 bg-card">
+          <DialogContent className="rounded-none border-secondary/40 bg-card max-w-lg">
             <DialogHeader>
               <DialogTitle className="font-serif text-2xl text-primary">Add New Student</DialogTitle>
             </DialogHeader>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-4">
-                <FormField control={form.control} name="name" render={({ field }) => (
-                  <FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} className="rounded-none" /></FormControl><FormMessage /></FormItem>
+                <FormField control={form.control} name="fullName" render={({ field }) => (
+                  <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input {...field} className="rounded-none" /></FormControl><FormMessage /></FormItem>
                 )} />
-                <FormField control={form.control} name="email" render={({ field }) => (
-                  <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" {...field} className="rounded-none" /></FormControl><FormMessage /></FormItem>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={form.control} name="dob" render={({ field }) => (
+                    <FormItem><FormLabel>Date of Birth</FormLabel><FormControl><Input type="date" {...field} className="rounded-none" /></FormControl><FormMessage /></FormItem>
+                  )} />
+                  <FormField control={form.control} name="batchId" render={({ field }) => (
+                    <FormItem><FormLabel>Batch</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value ?? ""}>
+                        <FormControl><SelectTrigger className="rounded-none"><SelectValue placeholder="Select batch" /></SelectTrigger></FormControl>
+                        <SelectContent>
+                          {batches?.map((b) => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    <FormMessage /></FormItem>
+                  )} />
+                </div>
+                <FormField control={form.control} name="primaryContactName" render={({ field }) => (
+                  <FormItem><FormLabel>Contact Name</FormLabel><FormControl><Input {...field} className="rounded-none" /></FormControl><FormMessage /></FormItem>
                 )} />
-                <FormField control={form.control} name="phone" render={({ field }) => (
-                  <FormItem><FormLabel>Phone</FormLabel><FormControl><Input {...field} className="rounded-none" /></FormControl><FormMessage /></FormItem>
-                )} />
-                <FormField control={form.control} name="programme" render={({ field }) => (
-                  <FormItem><FormLabel>Programme</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl><SelectTrigger className="rounded-none"><SelectValue /></SelectTrigger></FormControl>
-                      <SelectContent>
-                        <SelectItem value="bharatanatyam">Bharatanatyam</SelectItem>
-                        <SelectItem value="carnatic_vocal">Carnatic Vocal</SelectItem>
-                        <SelectItem value="carnatic_instrumental">Carnatic Instrumental</SelectItem>
-                        <SelectItem value="kerala_arts">Kerala Arts</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  <FormMessage /></FormItem>
-                )} />
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={form.control} name="primaryContactEmail" render={({ field }) => (
+                    <FormItem><FormLabel>Contact Email</FormLabel><FormControl><Input type="email" {...field} className="rounded-none" /></FormControl><FormMessage /></FormItem>
+                  )} />
+                  <FormField control={form.control} name="primaryContactPhone" render={({ field }) => (
+                    <FormItem><FormLabel>Contact Phone</FormLabel><FormControl><Input {...field} className="rounded-none" /></FormControl><FormMessage /></FormItem>
+                  )} />
+                </div>
                 <div className="pt-4 flex justify-end">
-                  <Button type="submit" disabled={createStudent.isPending} className="rounded-none bg-primary hover:bg-primary/90 text-primary-foreground">Save</Button>
+                  <Button type="submit" disabled={createStudent.isPending} className="rounded-none bg-primary hover:bg-primary/90 text-primary-foreground">
+                    Save
+                  </Button>
                 </div>
               </form>
             </Form>
@@ -126,8 +157,8 @@ export default function Students() {
 
       <div className="flex items-center gap-2 max-w-sm">
         <Search className="h-5 w-5 text-muted-foreground" />
-        <Input 
-          placeholder="Search students..." 
+        <Input
+          placeholder="Search students..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="rounded-none border-secondary/40 bg-card"
@@ -139,55 +170,56 @@ export default function Students() {
           <TableHeader>
             <TableRow className="border-secondary/20">
               <TableHead className="font-medium text-secondary uppercase tracking-widest text-xs h-12">Name</TableHead>
+              <TableHead className="font-medium text-secondary uppercase tracking-widest text-xs h-12">Batch</TableHead>
               <TableHead className="font-medium text-secondary uppercase tracking-widest text-xs h-12">Contact</TableHead>
-              <TableHead className="font-medium text-secondary uppercase tracking-widest text-xs h-12">Programme</TableHead>
+              <TableHead className="font-medium text-secondary uppercase tracking-widest text-xs h-12">Enrolled</TableHead>
               <TableHead className="font-medium text-secondary uppercase tracking-widest text-xs h-12">Status</TableHead>
               <TableHead className="text-right"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isLoading ? (
-              Array(5).fill(0).map((_, i) => (
-                <TableRow key={i} className="border-secondary/10">
-                  <TableCell><Skeleton className="h-4 w-32 bg-secondary/20" /></TableCell>
-                  <TableCell><Skeleton className="h-4 w-40 bg-secondary/20" /></TableCell>
-                  <TableCell><Skeleton className="h-4 w-24 bg-secondary/20" /></TableCell>
-                  <TableCell><Skeleton className="h-6 w-20 bg-secondary/20" /></TableCell>
-                  <TableCell></TableCell>
+            {isLoading
+              ? Array(5).fill(0).map((_, i) => (
+                  <TableRow key={i} className="border-secondary/10">
+                    {[32, 24, 40, 24, 20, 8].map((w, j) => (
+                      <TableCell key={j}><Skeleton className={`h-4 w-${w} bg-secondary/20`} /></TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              : students?.length === 0
+              ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">No students found.</TableCell>
                 </TableRow>
-              ))
-            ) : students?.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">No students found.</TableCell>
-              </TableRow>
-            ) : (
-              students?.map((student) => (
-                <TableRow key={student.id} className="border-secondary/10 hover:bg-secondary/5">
-                  <TableCell className="font-medium">{student.name}</TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
-                    <div>{student.email}</div>
-                    {student.phone && <div className="text-xs">{student.phone}</div>}
-                  </TableCell>
-                  <TableCell>
-                    <div>{formatProgramme(student.programme)}</div>
-                    {student.batchName && <div className="text-xs text-muted-foreground">{student.batchName}</div>}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className={`rounded-none border-secondary/40 capitalize
-                      ${student.status === 'active' ? 'bg-green-100 text-green-800' : ''}
-                      ${student.status === 'inactive' ? 'bg-yellow-100 text-yellow-800' : ''}
-                    `}>
-                      {student.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="ghost" size="icon" onClick={() => handleDelete(student.id)} className="text-destructive hover:text-destructive/80 hover:bg-destructive/10 rounded-none">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
+              )
+              : students?.map((student) => (
+                  <TableRow key={student.id} className="border-secondary/10 hover:bg-secondary/5">
+                    <TableCell className="font-medium">{student.fullName}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{student.batchName ?? "—"}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      <div>{student.primaryContactEmail ?? "—"}</div>
+                      {student.primaryContactPhone && <div className="text-xs">{student.primaryContactPhone}</div>}
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {format(new Date(student.enrolledAt), "MMM d, yyyy")}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={`rounded-none border-secondary/40 capitalize ${STATUS_STYLES[student.status] ?? ""}`}>
+                        {student.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDelete(student.id)}
+                        className="text-destructive hover:text-destructive/80 hover:bg-destructive/10 rounded-none"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
           </TableBody>
         </Table>
       </div>

@@ -1,0 +1,813 @@
+# =============================================================
+# KALA KENDRA SWEDEN — COMPLETE BUILD PLAN
+# 20 Sequential Tasks across 3 Phases
+# Paste this entire document into Replit Agent
+# =============================================================
+
+You are about to build a complete web application for Kala Kendra Sweden — a classical Indian arts school in Gothenburg, Sweden. This is a WEB APPLICATION (website viewed in browsers on desktop and mobile, NOT a mobile app).
+
+# IMPORTANT INSTRUCTIONS FOR YOU (REPLIT AGENT)
+
+This document contains 20 sequential tasks across 3 phases. You MUST:
+
+1. Execute tasks STRICTLY in order — never skip ahead
+2. After completing each task, STOP and write a brief summary of what you built
+3. Wait for me to say "continue" or "next" before starting the next task
+4. If you encounter an error, STOP and tell me — do not silently work around it
+5. After Phase 1 (tasks 1-12), STOP and confirm everything works before starting Phase 2
+6. After Phase 2 (tasks 13-16), STOP and confirm before starting Phase 3
+7. Apply the visual theme (defined below) to EVERY page consistently
+
+Now — read the entire context section carefully, then begin Task 1.
+
+# =============================================================
+# CONTEXT — THE NATARAJA HERITAGE THEME
+# =============================================================
+
+This site honours classical Bharatanatyam, Carnatic music, and Kerala temple aesthetics. The design must feel rooted in tradition, dignified, and warm — never generic or tech-trendy.
+
+## Color Palette (Tailwind theme.extend.colors)
+
+```
+maroon: { DEFAULT: '#5C1416', deep: '#3D0A0C' }
+gold: { DEFAULT: '#B8893A', deep: '#8B6520' }
+stone: { DEFAULT: '#8B7355', light: '#D4C4A0' }
+parchment: '#F4EBD9'
+ink: '#1F1612'
+soft: '#5A4A42'
+saffron: '#C25E1F'
+moss: '#5F7A3F'
+rust: '#8C2F1A'
+```
+
+NEVER use pure white (#FFFFFF) or pure black (#000000). Use parchment for white and ink for black.
+
+## Typography (next/font/google)
+
+```
+display: Cormorant Garamond — for ALL headings (h1, h2, h3, h4)
+sans: Manrope — for body text, buttons, navigation
+hand: Caveat (cursive) — for occasional decorative italic accents
+```
+
+Heading weights: h1/h2 = 400, h3 = 500. Body line-height: 1.6.
+
+## Decorative Motifs
+
+- Three-star ornament dividers: ❋   ❋   ❋ (centered, gold, between sections)
+- Drop caps on opening paragraphs (large Cormorant first letter, maroon, floated left)
+- Gold border frames around photos (offset diagonally by 12-16px)
+- Section eyebrows: small uppercase gold label preceded by a short gold rule, above each heading
+- Pull quotes: italic Cormorant maroon with 2px gold left border
+- Subtle stone texture: fixed body::before with radial gradient overlays of gold (6% opacity) and maroon (4% opacity)
+
+## Layout
+
+- Generous negative space (sections: 7rem padding desktop, 5rem mobile)
+- Asymmetric over symmetric
+- Single-column on mobile (360px minimum), two-column on desktop
+- Sharp corners on buttons (border-radius: 0)
+- Slow, intentional animations (0.25s for hover, 0.4s for transitions)
+- Respect prefers-reduced-motion
+
+## Buttons
+
+```
+.btn-primary { background: maroon; color: parchment; uppercase; tracking-wider; sharp corners; 1px maroon border }
+.btn-ghost { transparent background; maroon text; maroon border; uppercase }
+```
+
+## Status badge colors (semantic)
+
+```
+pending → stone
+under_review → saffron
+accepted / active / paid → moss
+waitlisted → gold-deep
+rejected / inactive → rust
+```
+
+## Icons
+
+Use lucide-react throughout. Color them gold-deep for decorative, maroon for active.
+
+# =============================================================
+# CONTEXT — DATABASE SCHEMA (Drizzle ORM, PostgreSQL)
+# =============================================================
+
+## Phase 1 Tables
+
+### admins
+```
+id uuid PK, email varchar(160) unique, full_name varchar(120),
+role varchar(20) [owner|teacher], active boolean default true,
+last_login_at timestamp, created_at timestamp default now()
+```
+
+### admissions
+```
+id uuid PK
+applicant_type varchar(10) [adult|child]
+student_name varchar(120) NOT NULL
+student_dob date NOT NULL
+student_gender varchar(20)
+student_email varchar(160) -- if adult
+student_phone varchar(40) -- if adult
+parent_name varchar(120) -- if child
+parent_relationship varchar(20)
+parent_email varchar(160)
+parent_phone varchar(40)
+emergency_name varchar(120)
+emergency_phone varchar(40)
+address_street varchar(200) NOT NULL
+address_postal varchar(20) NOT NULL
+address_city varchar(80) NOT NULL
+batch varchar(40) NOT NULL
+experience varchar(20) [none|some|significant]
+experience_details text
+joining_date date
+medical_notes text
+will_stage_perform varchar(10) [yes|no|maybe] NOT NULL
+motivation text
+referral_source varchar(40)
+photo_consent varchar(20) [yes-all|yes-internal|no] NOT NULL
+rules_consent varchar(10) [agree|disagree] NOT NULL
+suggestions text
+status varchar(20) default 'pending' [pending|under_review|accepted|waitlisted|rejected]
+reviewed_by uuid FK admins.id
+reviewed_at timestamp
+admin_notes text
+submitted_at timestamp default now()
+created_at timestamp, updated_at timestamp
+```
+
+### students
+```
+id uuid PK, admission_id uuid FK admissions.id,
+full_name varchar(120), dob date, batch_id uuid FK batches.id,
+primary_contact_name varchar(120), primary_contact_email varchar(160),
+primary_contact_phone varchar(40), status varchar(20) [active|inactive|withdrawn],
+enrolled_at timestamp, created_at, updated_at
+```
+
+### batches
+```
+id uuid PK, code varchar(20) unique, name varchar(80),
+age_range varchar(40), description text,
+active boolean default true, display_order integer
+```
+
+### settings (single-row table, id always = 1)
+```
+id integer PK, monthly_fee_sek integer default 400,
+school_name varchar(120), contact_email varchar(160),
+contact_phone varchar(40), address_line varchar(200),
+accepting_applications boolean default true, updated_at timestamp
+```
+
+### audit_log
+```
+id uuid PK, admin_id uuid FK admins.id, action varchar(40),
+entity_type varchar(20), entity_id uuid, details jsonb,
+created_at timestamp
+```
+
+## Phase 2 Tables
+
+### schedule_slots
+```
+id uuid PK, batch_id uuid FK batches.id, weekday smallint (0=Mon, 6=Sun),
+start_time time, end_time time, location varchar(120) default 'Masala Kitchen',
+active boolean default true, effective_from date, effective_until date
+```
+
+### sessions
+```
+id uuid PK, batch_id uuid FK batches.id, schedule_slot_id uuid FK,
+session_date date, start_time time, end_time time,
+status varchar(20) [scheduled|cancelled|completed], notes text,
+created_at, updated_at
+```
+
+### attendance
+```
+id uuid PK, session_id uuid FK sessions.id, student_id uuid FK students.id,
+status varchar(15) [present|absent|excused|late], notes text,
+marked_by uuid FK admins.id, marked_at timestamp
+```
+
+### email_log
+```
+id uuid PK, recipient_email varchar(160), template varchar(40),
+subject varchar(200), status varchar(20) [sent|failed|pending],
+error text, sent_at timestamp
+```
+
+## Phase 3 Tables
+
+### fees
+```
+id uuid PK, student_id uuid FK students.id, period_year smallint,
+period_month smallint (1-12), amount_sek integer,
+status varchar(20) [due|paid|waived|partial], paid_amount_sek integer default 0,
+paid_at timestamp, payment_method varchar(20) [cash|swish|transfer],
+notes text, created_at, updated_at
+```
+
+### events
+```
+id uuid PK, name varchar(120), event_date date, venue varchar(200),
+description text, status varchar(20) [planning|registration_open|closed|completed],
+created_at, updated_at
+```
+
+### event_participants
+```
+id uuid PK, event_id uuid FK events.id, student_id uuid FK students.id,
+role varchar(80), piece_name varchar(120), confirmed boolean default false,
+notes text, created_at, updated_at
+```
+
+# =============================================================
+# CONTEXT — FOLDER STRUCTURE
+# =============================================================
+
+```
+kala-kendra-sweden/
+├── app/
+│   ├── (public)/
+│   │   ├── page.tsx                      # Home
+│   │   ├── about/page.tsx
+│   │   ├── programmes/page.tsx
+│   │   ├── founder/page.tsx
+│   │   ├── heritage/page.tsx
+│   │   ├── annual-event/page.tsx
+│   │   ├── apply/page.tsx                # Admission form
+│   │   ├── apply/success/page.tsx
+│   │   ├── contact/page.tsx
+│   │   └── privacy/page.tsx
+│   ├── admin/
+│   │   ├── login/page.tsx
+│   │   ├── layout.tsx                    # Auth check + nav
+│   │   ├── dashboard/page.tsx
+│   │   ├── admissions/page.tsx           # List view
+│   │   ├── admissions/[id]/page.tsx      # Detail view
+│   │   ├── students/page.tsx
+│   │   ├── students/[id]/page.tsx
+│   │   ├── batches/page.tsx
+│   │   ├── settings/page.tsx
+│   │   ├── schedule/page.tsx             # P2
+│   │   ├── schedule/slots/page.tsx       # P2
+│   │   ├── schedule/sessions/[id]/page.tsx # P2
+│   │   ├── fees/page.tsx                 # P3
+│   │   ├── fees/outstanding/page.tsx     # P3
+│   │   ├── events/page.tsx               # P3
+│   │   ├── events/[id]/page.tsx          # P3
+│   │   ├── events/[id]/print/page.tsx    # P3
+│   │   └── reports/year-end/page.tsx     # P3
+│   ├── api/
+│   │   ├── admissions/route.ts
+│   │   ├── admissions/[id]/route.ts
+│   │   ├── auth/[...nextauth]/route.ts
+│   │   ├── attendance/route.ts           # P2
+│   │   ├── fees/route.ts                 # P3
+│   │   ├── events/route.ts               # P3
+│   │   └── export/
+│   │       ├── admissions/route.ts
+│   │       ├── students/route.ts
+│   │       ├── attendance/route.ts       # P2
+│   │       ├── fees/route.ts             # P3
+│   │       └── year-end/route.ts         # P3
+│   ├── globals.css
+│   └── layout.tsx
+├── components/
+│   ├── ui/                               # shadcn/ui
+│   ├── public/                           # TopNav, Footer, Hero, etc.
+│   ├── admin/                            # AdmissionsList, StatusBadge, etc.
+│   ├── form/                             # AdmissionForm sections
+│   └── decorative/                       # OrnamentDivider, GoldFrame, Eyebrow, PullQuote, DropCap
+├── lib/
+│   ├── db/
+│   │   ├── schema.ts
+│   │   ├── client.ts
+│   │   ├── queries.ts
+│   │   └── seed.ts
+│   ├── auth.ts
+│   ├── validators.ts
+│   ├── email/                            # P2
+│   │   ├── client.ts
+│   │   ├── send.ts
+│   │   └── templates/
+│   ├── excel/
+│   │   ├── helpers.ts
+│   │   ├── admissions.ts
+│   │   ├── students.ts
+│   │   ├── attendance.ts                 # P2
+│   │   └── fees.ts                       # P3
+│   └── constants.ts
+├── public/
+├── tailwind.config.ts
+├── drizzle.config.ts
+├── package.json
+└── README.md
+```
+
+# =============================================================
+# PHASE 1 — FOUNDATIONS (Tasks 1-12)
+# =============================================================
+
+# TASK 1 — Project setup with Nataraja theme
+
+Create the Next.js project with TypeScript, Tailwind CSS, App Router. Apply the full color palette and font configuration as specified above. Create the body::before stone-texture overlay in globals.css.
+
+Install all dependencies: drizzle-orm, drizzle-kit, pg, next-auth, @auth/drizzle-adapter, zod, @hookform/resolvers, react-hook-form, date-fns, exceljs, lucide-react. Initialize shadcn/ui.
+
+Create the full folder structure listed above (empty files where appropriate, just to establish structure).
+
+Set up .env.example with: DATABASE_URL, NEXTAUTH_SECRET, NEXTAUTH_URL, EMAIL_SERVER_HOST, EMAIL_SERVER_PORT, EMAIL_SERVER_USER, EMAIL_SERVER_PASSWORD, EMAIL_FROM.
+
+Connect to Replit PostgreSQL.
+
+Build a styled placeholder home page demonstrating the theme: parchment background, centered Cormorant Garamond "Kala Kendra Sweden" heading in maroon, gold "❋ ❋ ❋" ornament divider, Manrope intro paragraph in ink, italic Caveat decorative line "— a living tradition."
+
+Confirm `npm run dev` shows the styled page. STOP and report.
+
+# TASK 2 — Database schema and seed (Phase 1 only)
+
+Create lib/db/schema.ts with the Phase 1 tables only: admins, admissions, students, batches, settings, audit_log. Use Drizzle ORM with proper types, FK constraints, defaults.
+
+Generate migration with drizzle-kit and run it.
+
+Create lib/db/seed.ts that inserts:
+
+5 batches:
+1. {code: 'carnatic', name: 'Carnatic Classical Music', age_range: 'All Ages', description: 'Structured Carnatic vocal training: swaras, varnams, kritis, bhajans, and compositional understanding.', active: true, display_order: 1}
+2. {code: 'bn-kids', name: 'Bharatanatyam — Kids', age_range: '3 to 7 years', description: 'Introduction to adavus, tala, mudras, and foundational movement through play-based learning.', active: true, display_order: 2}
+3. {code: 'bn-junior', name: 'Bharatanatyam — Junior', age_range: '8 to 12 years', description: 'Intermediate adavus, abhinaya, alarippu, jatiswaram, and ensemble discipline.', active: true, display_order: 3}
+4. {code: 'bn-senior', name: 'Bharatanatyam — Senior', age_range: '12 years and above', description: 'Advanced repertoire including varnam, padam, tillana, and stage performance preparation.', active: true, display_order: 4}
+5. {code: 'moh-kuch', name: 'Mohiniyattam / Kuchipudi', age_range: 'Open / By Assessment', description: 'Classical Kerala and Andhra dance forms taught to students with prior dance foundation.', active: true, display_order: 5}
+
+Settings row (id=1): monthly_fee_sek: 400, school_name: 'Kala Kendra Sweden', contact_email: 'kalakendrasweden@gmail.com', contact_phone: '+46 769 649 871', address_line: 'Theres Svenssons gata 6, 417 55 Göteborg', accepting_applications: true.
+
+Owner admin: email: 'kalakendrasweden@gmail.com', full_name: 'Noopura Parvathi A', role: 'owner', active: true.
+
+Run seed. Verify with SELECT queries. STOP and report.
+
+# TASK 3 — Public website (8 pages)
+
+Build all public pages under app/(public)/ with the Nataraja theme.
+
+First create components/decorative/:
+- OrnamentDivider.tsx — centered "❋ ❋ ❋" in gold
+- GoldFrame.tsx — wraps children with offset gold border (use CSS ::before pseudo-element)
+- Eyebrow.tsx — small uppercase gold label with leading short rule
+- PullQuote.tsx — italic Cormorant maroon with 2px gold left border
+- DropCap.tsx — large Cormorant first letter, maroon, floated left
+
+Then components/public/:
+- TopNav.tsx — sticky top, parchment bg, brand "Kala Kendra Sweden" in Cormorant maroon left, nav links right (About, Programmes, Founder, Heritage, Annual Event, Contact, Apply CTA), gold underline on scroll, mobile hamburger menu
+- Footer.tsx — maroon-deep background, parchment text, address, contact info, social icons (Instagram + Facebook + WhatsApp from lucide-react), Privacy Policy link
+- Hero.tsx — two-column desktop layout: left = eyebrow + heading + tagline + 2 buttons (Apply primary, Programmes ghost), right = founder photo in GoldFrame; mobile = stacks
+- ProgrammeCard.tsx — parchment card with gold accents
+- FounderBlock.tsx — image + bio with DropCap
+- TimelineStep.tsx — for heritage page
+
+Pages to build:
+
+1. Home (/) — Hero, About preview (3 paragraphs + 4 stat cards: 5 batches, 35+ performers, 21+ years, 2nd franchise), Programmes preview grid, Founder preview, Annual Event teaser, Contact CTA band
+
+2. About (/about) — Institution story, mission, vision, with DropCap on opening paragraph, OrnamentDivider between sections
+
+3. Programmes (/programmes) — Read batches from DB where active=true, render ProgrammeCard grid
+
+4. Founder (/founder) — Mrs. Noopura full bio (use content from KalaKendra documentation), with photos in GoldFrame, PullQuote with her vision statement
+
+5. Heritage (/heritage) — Timeline 1999 Kerala → 2016 Kochi → 2024 Sweden with TimelineStep components, then full bios of Padmashree Kaithapram (with photo) and Deepankuran Kaithapuram (with photo)
+
+6. Annual Event (/annual-event) — Description and significance of the flagship event
+
+7. Contact (/contact) — Address, embedded Google Map iframe for "Theres Svenssons gata 6, 417 55 Göteborg, Sweden", phone, email, social links, contact form (later)
+
+8. Privacy (/privacy) — Plain English privacy policy covering: what data is collected, why, how long retained, who has access, how to request access/deletion, that data is stored on Replit (EU-compatible)
+
+For now use placeholder photos in /public/photos/ — I'll add real ones later.
+
+Apply the design system rigorously: Cormorant headings, eyebrows above each, generous padding, gold ornaments between sections, drop caps on opening paragraphs of About/Founder/Heritage, GoldFrame on all photos, mobile-responsive at 360px minimum.
+
+STOP and report.
+
+# TASK 4 — Admission form frontend
+
+Build app/(public)/apply/page.tsx with react-hook-form + Zod.
+
+Create lib/validators.ts with the admissionFormSchema covering all fields.
+
+10 sections:
+
+1. Smart routing — Radio: applicant_type (adult|child)
+2. Student details — student_name, student_dob, student_gender; if adult also student_email + student_phone
+3. Parent / guardian (shown only if applicantType='child') — parent_name, parent_relationship (mother|father|guardian|other), parent_email, parent_phone, emergency_name, emergency_phone
+4. Address — address_street, address_postal (Swedish format), address_city (default 'Göteborg')
+5. Programme of interest — batch (radio of 5 + 'undecided'), experience (none|some|significant), experience_details (textarea), joining_date
+6. Health & safety — medical_notes (textarea, optional, placeholder 'None')
+7. About your interest — will_stage_perform (yes|no|maybe), motivation (textarea), referral_source (select: friend|instagram|facebook|google|event|other)
+8. Photo & video consent — explanatory text block + radio (yes-all|yes-internal|no)
+9. Rules, fees & consent — show this exact text with the FEE READ FROM settings.monthly_fee_sek (not hardcoded):
+
+"Kalakendra Class Guidelines (at Masala Kitchen):
+• Only the allocated classroom, toilets, and waiting area for parents may be used.
+• Parents are requested to wait outside in the waiting area during class. For a student's first session, parents are welcome to observe.
+• If a student feels any discomfort during class, the teacher will inform you, or the student will come to you.
+• You may bring your own food/snacks, but please ensure there is no spillage and clean up before leaving.
+• Monthly fee: [DYNAMIC FEE FROM DB] SEK for all batches. Short absences (1-2 days) are not eligible for fee deduction unless the student is travelling to India with prior notice.
+These rules apply to all Kalakendra batches. Thank you for your cooperation and support!"
+
+Then radio: rules_consent (agree|disagree)
+10. Anything else? — suggestions (textarea, optional)
+
+Conditional logic:
+- If applicantType='child': show Section 3, hide adult email/phone, age must be < 18
+- If applicantType='adult': hide Section 3, show adult email/phone, age must be >= 18
+
+Validation:
+- Email valid format
+- Phone min 7 digits, max 15
+- DOB in past, age >= 3
+- Postal code: 5 digits with optional space (Swedish format)
+- rules_consent must be 'agree' to enable submit
+- photo_consent required (any of three values)
+
+Apply Nataraja theme:
+- Parchment card sections, gold left border 3px
+- Maroon section headings with eyebrow
+- Form fields: parchment background, gold focus border
+- Submit button: maroon primary
+- Errors in rust color, never bright red
+- Mobile-responsive at 360px
+
+On valid submit: POST to /api/admissions, redirect to /apply/success?name=[firstName].
+
+STOP and report.
+
+# TASK 5 — Admission API and storage
+
+Create app/api/admissions/route.ts (POST handler):
+
+1. Parse JSON body
+2. Validate with Zod (same schema as frontend)
+3. Server-side cross-field validation:
+   - If applicant_type='child': verify age < 18 from DOB, verify parent_* fields present
+   - If applicant_type='adult': verify age >= 18, verify adult contact present
+   - Verify rules_consent='agree'
+4. Read settings.accepting_applications. If false, return 503 with friendly message
+5. Insert into admissions table with status='pending'
+6. Return 201 with {id}
+
+Build app/(public)/apply/success/page.tsx:
+- Heritage-themed thank-you card on parchment
+- Heading "Thank you, [name]" using ?name= query
+- Body: "We've received your application. Mrs. Noopura will review and respond within a few days."
+- Contact info
+- Link back to home
+
+Build the closed state: when settings.accepting_applications=false, /apply renders a heritage-themed "Applications temporarily closed" page instead of the form.
+
+Test: submit both adult and child apps, verify rows in DB.
+
+STOP and report.
+
+# TASK 6 — Authentication
+
+Set up NextAuth.js with email magic link provider, Drizzle adapter against admins table.
+
+signIn callback: check email exists in admins AND active=true. If not, reject with "Email not authorised".
+
+Build app/admin/login/page.tsx:
+- Centered parchment card with maroon top border
+- Single email input
+- "Send magic link" primary button
+- After submit: "Check your email for the login link"
+
+Create middleware.ts protecting all /admin/* except /admin/login. Unauthenticated → redirect to /admin/login.
+
+Build app/admin/layout.tsx:
+- Side navigation (collapsible on mobile): Dashboard, Admissions, Students, Batches, Settings, Logout
+- Use lucide-react icons in gold-deep
+- Top bar shows logged-in admin name in Cormorant
+- Logout button in nav clears session
+
+Test: log in as kalakendrasweden@gmail.com (use the test email or local SMTP for now), access /admin/dashboard, log out, verify redirect.
+
+STOP and report.
+
+# TASK 7 — Admin dashboard
+
+Build app/admin/dashboard/page.tsx.
+
+4 stat cards in grid (parchment, gold top border, large Cormorant number, Manrope label):
+1. Pending applications (count where status='pending')
+2. Under review (count where status='under_review')
+3. Active students (count where students.status='active')
+4. This month (count of admissions this month)
+
+"Recent Applications" panel — last 5 admissions, each row clickable to detail.
+
+3 quick action buttons: Review pending → /admin/admissions?status=pending; View students → /admin/students; Settings → /admin/settings.
+
+Top welcome line: "Namaste, [admin first name]." in Cormorant italic gold.
+
+Mobile-responsive: cards stack vertically.
+
+STOP and report.
+
+# TASK 8 — Admissions list with filters
+
+Build app/admin/admissions/page.tsx.
+
+Table columns: Date submitted, Student name, Age (calculated from DOB), Batch, Type, Status badge.
+Default sort: submitted_at DESC.
+
+Filters (URL-persisted via search params):
+- Status: dropdown of 5 + 'all'
+- Batch: dropdown of all batches + 'all'
+- Type: adult|child|all
+- Search input: matches student_name, parent_name, student_email, parent_email (case-insensitive)
+Pagination: 25 per page.
+
+Status badges using semantic colors: pending=stone, under_review=saffron, accepted=moss, waitlisted=gold-deep, rejected=rust.
+
+Top right: "Export to Excel" button (lucide FileDown icon) → calls /api/export/admissions?[current filters].
+
+Each row clickable to /admin/admissions/[id].
+
+STOP and report.
+
+# TASK 9 — Excel export endpoints
+
+Implement Excel export with ExcelJS.
+
+Create lib/excel/helpers.ts:
+- styleHeaderRow(worksheet) — applies maroon (#5C1416) fill, white bold text, frozen pane row 1
+- formatTimestamp(date) → 'YYYY-MM-DD HH:mm'
+- buildFilename(prefix) → e.g. 'admissions_2026-05-02_223045.xlsx'
+
+Create lib/excel/admissions.ts:
+- buildAdmissionsWorkbook(filters) — query admissions with filters, return Workbook with one worksheet 'Admissions', columns: Submitted, Status, Type, Student Name, DOB, Age, Email, Phone, Parent Name, Parent Email, Parent Phone, Address, Batch, Joining Date, Photo Consent, Rules Consent, Reviewed By, Admin Notes. Auto-fit column widths.
+
+Create lib/excel/students.ts → buildStudentsWorkbook(filters).
+
+Create app/api/export/admissions/route.ts (GET) — read query params, build workbook, stream as .xlsx download.
+Create app/api/export/students/route.ts.
+
+Test: from admissions list, click Export. Verify .xlsx downloads correctly with proper formatting.
+
+STOP and report.
+
+# TASK 10 — Admission detail and status workflow
+
+Build app/admin/admissions/[id]/page.tsx.
+
+Display every submitted field organised in sections (Cormorant headings, eyebrows):
+Student / Parent (if child) / Address / Programme / Health / Consent / Suggestions
+
+Status change panel (sticky on desktop, parchment, gold border):
+- Dropdown of 5 statuses
+- Save button → PATCH /api/admissions/[id]
+
+Special workflow when status changes to 'accepted':
+1. Modal: "Which batch should the student be assigned to?" (parchment styling)
+2. Dropdown of active batches
+3. On confirm: PATCH endpoint updates admission AND inserts into students table (copy student_name, dob, primary contact info, set batch_id, status='active', enrolled_at=now())
+
+Admin notes textarea: free-text, save on blur via PATCH.
+
+Audit log section at bottom: list entries from audit_log where entity_id matches. Format: "[admin name] changed status from X to Y on [date]"
+
+Every status change writes a row to audit_log.
+Back button preserves filter state from list page.
+
+Build app/api/admissions/[id]/route.ts (PATCH handler) for status changes and admin notes updates.
+
+STOP and report.
+
+# TASK 11 — Students, Batches, Settings
+
+Build app/admin/students/page.tsx:
+- Columns: Name, Age, Batch, Status, Enrolled date
+- Filters: batch, status. Search by name.
+- "Export to Excel" button → /api/export/students
+
+Build app/admin/students/[id]/page.tsx:
+- Read-only student info display
+- Buttons: Mark inactive, Mark withdrawn, Reassign batch (modal with batch dropdown)
+- Link to original admission record
+- All actions write to audit_log
+
+Build app/admin/batches/page.tsx:
+- 5 batches as cards in grid
+- Each card: name, code, age range, current student count, active toggle
+- Toggle persists immediately to DB and writes audit_log
+
+Build app/admin/settings/page.tsx with 2 tabs:
+Tab 1 (General): edit monthly_fee_sek, contact_email, contact_phone, address_line, accepting_applications. Save button writes to settings table + audit_log.
+Tab 2 (Admins, owner-only): list admins; "Add admin" form (email + name + role); deactivate button per admin. All writes to audit_log.
+
+Apply Nataraja theme throughout.
+
+STOP and report.
+
+# TASK 12 — Phase 1 polish and deploy
+
+Final polish for Phase 1:
+
+1. Custom 404 and 500 error pages styled with Nataraja theme
+2. Loading skeletons on all admin list pages
+3. Empty states (e.g. "No applications yet" with small ornament)
+4. Toast notifications for admin actions (parchment background, gold border)
+5. Verify audit_log entries written for: status changes, batch reassignments, admin additions/deactivations, settings changes
+6. Run `npm run build` to catch errors. Fix all warnings.
+7. Test full Phase 1 acceptance: adult application submit, child application submit, validation rejects invalid data, admin login works, status change works, batch assignment creates student, Excel exports work, settings updates reflect on form
+8. Deploy to Replit Deployments (Reserved VM). Set all env vars in Secrets.
+9. Test deployed URL end-to-end.
+
+PHASE 1 COMPLETE. STOP and confirm everything before I say "continue Phase 2".
+
+# =============================================================
+# PHASE 2 — DAILY OPERATIONS (Tasks 13-16)
+# =============================================================
+
+# TASK 13 — Phase 2 database tables
+
+Add the Phase 2 tables to lib/db/schema.ts:
+- schedule_slots, sessions, attendance, email_log
+
+Generate and run new migration.
+
+Create a function generateSessionsForNext8Weeks() in lib/db/queries.ts:
+- For each active schedule_slot, generate session rows for the next 8 weeks
+- Idempotent: don't create duplicates
+- Skip dates marked as cancelled
+- Call this function whenever a slot is created/modified
+
+STOP and report.
+
+# TASK 14 — Schedule management UI
+
+Build app/admin/schedule/slots/page.tsx:
+- List of all slots, grouped by batch
+- "Add slot" modal: batch dropdown, weekday selector, start/end times, location, effective_from
+- Edit slot: same fields + "apply from next session" or specific date
+- Delete slot: soft-delete (active=false)
+- After create/edit, call generateSessionsForNext8Weeks()
+
+Build app/admin/schedule/page.tsx:
+- Calendar view (week default, month toggle)
+- Each session as a card: batch name, time, location
+- Click session → /admin/schedule/sessions/[id]
+- Cancelled sessions show "Cancelled" badge
+
+Apply Nataraja theme: parchment cards, gold borders, maroon headers, mobile-responsive.
+
+STOP and report.
+
+# TASK 15 — Attendance recording
+
+Build app/admin/schedule/sessions/[id]/page.tsx:
+- Header: batch name, session date, time, location
+- Table of all students assigned to this batch (status='active')
+- Per-student: radio (Present|Absent|Excused|Late) + notes input
+- "Mark all present" button
+- Save button — saves all rows in one transaction
+- Edit lock: 7 days after session date; owner-only override
+
+Add "Attendance" tab to app/admin/students/[id]/page.tsx:
+- History list with status per session
+- Aggregate stats: total sessions, present count, absent count, present %
+- Filter by date range
+
+Build app/api/export/attendance/route.ts:
+- Filters: batch_id, date_from, date_to, student_id (optional)
+- Returns .xlsx with one row per attendance record
+
+STOP and report.
+
+# TASK 16 — Email notifications
+
+Set up email infrastructure with Resend (or similar SMTP):
+- Add RESEND_API_KEY env var
+- Create lib/email/client.ts wrapping the SDK
+
+Create email templates in lib/email/templates/ as React/HTML with inline styles using Nataraja palette:
+- admission_received.tsx — "We received your application"
+- admission_accepted.tsx — parameterised by batch name + joining instructions
+- admission_rejected.tsx — compassionate, brief
+- admin_invited.tsx — magic-link instructions
+
+Create lib/email/send.ts with sendEmail(template, recipient, params):
+- Insert email_log row before send
+- Update status after (sent|failed)
+- Retry up to 3 times with exponential backoff
+
+Hook triggers:
+- POST /api/admissions success → admission_received
+- PATCH /api/admissions/[id] status=accepted → admission_accepted
+- PATCH /api/admissions/[id] status=rejected → admission_rejected
+- POST new admin → admin_invited
+
+Build app/admin/settings/emails/page.tsx — last 100 email_log entries with status; retry button for failed.
+
+Test each trigger end-to-end.
+
+PHASE 2 COMPLETE. STOP and confirm everything before I say "continue Phase 3".
+
+# =============================================================
+# PHASE 3 — MONEY & EVENTS (Tasks 17-20)
+# =============================================================
+
+# TASK 17 — Phase 3 database tables
+
+Add Phase 3 tables to lib/db/schema.ts:
+- fees, events, event_participants
+
+Generate and run migration.
+
+Create generateMonthlyFees() function in lib/db/queries.ts:
+- For every student with status='active', create a fee row for the current month with amount=settings.monthly_fee_sek, status='due'
+- Idempotent: no duplicates if run multiple times in same month
+- Add ability to trigger manually from /admin/settings or via Replit scheduled task
+
+STOP and report.
+
+# TASK 18 — Fees tracking UI
+
+Build app/admin/fees/page.tsx (overview):
+- Default: current month, all students
+- Filters: month picker, batch, status (due|paid|waived|partial)
+- Table: Student name, Batch, Amount, Status badge, Paid date, Notes, Actions
+- Per-row "Mark paid" button → modal: payment method (cash|swish|transfer), paid date, notes
+- Bulk action: select multiple → "Mark all paid" with same payment method
+- "Export to Excel" button → /api/export/fees
+
+Build app/admin/fees/outstanding/page.tsx:
+- All fees with status 'due' or 'partial', sorted oldest first
+- Show months overdue per student
+- Email reminder button (uses Phase 2 email with new fee_reminder template)
+
+Add "Fees" tab to app/admin/students/[id]/page.tsx — full payment history.
+
+Build app/api/export/fees/route.ts — monthly summary view + per-student-yearly view.
+
+STOP and report.
+
+# TASK 19 — Annual Event management
+
+Build app/admin/events/page.tsx:
+- Card per event: name, date, venue, status, participant count
+- "Create event" button → form (name, date, venue, description, status)
+
+Build app/admin/events/[id]/page.tsx:
+- Event info at top
+- "Add participant" form: student dropdown, role (e.g. "Lead — Alarippu"), piece name, confirmed checkbox
+- "Bulk add" modal: multi-select students, assign same piece
+- Roster table: student, role, piece, parent contact, confirmed
+- "Print roster" button → /admin/events/[id]/print
+- "Export to Excel" button
+
+Build app/admin/events/[id]/print/page.tsx (print-friendly):
+- A4 portrait, parchment OFF for print, ink text
+- Event name, date, venue at top
+- Numbered participant list with role and piece
+- Cormorant headings
+
+STOP and report.
+
+# TASK 20 — Year-end reports and final polish
+
+Build app/admin/reports/year-end/page.tsx:
+- Year selector
+- Cards: total students enrolled, total fees collected, total outstanding, attendance avg per batch, events held
+- "Export full year summary" → multi-sheet .xlsx with sheets: Students, Fees, Attendance, Events
+
+Update app/admin/dashboard/page.tsx to include:
+- Outstanding fees count (linked)
+- Upcoming sessions count
+- Next event card if any in registration_open or planning
+
+Final polish:
+1. Verify all 3 phases' acceptance criteria pass
+2. Test full user flows on mobile and desktop
+3. Run `npm run build` and fix all errors/warnings
+4. Update README.md with admin usage guide
+5. Deploy to production
+
+ALL 3 PHASES COMPLETE. The system is fully built.
+
+# =============================================================
+# READY TO BEGIN
+# =============================================================
+
+Begin with TASK 1 now. After completing each task, STOP and write a brief summary of what you built. Wait for me to say "continue" or "next" before starting the next task.
+
+Apply the Nataraja Heritage Theme rigorously throughout. Never skip ahead. Never combine tasks. Test as you go.
+
+Let's begin.

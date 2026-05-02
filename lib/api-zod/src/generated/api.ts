@@ -3,7 +3,7 @@
  * Do not edit manually.
  * Api
  * Kala Kendra Sweden API
- * OpenAPI spec version: 0.1.0
+ * OpenAPI spec version: 0.2.0
  */
 import * as zod from "zod";
 
@@ -18,26 +18,50 @@ export const HealthCheckResponse = zod.object({
  * @summary List all admission applications
  */
 export const ListAdmissionsQueryParams = zod.object({
-  status: zod.enum(["pending", "reviewed", "accepted", "rejected"]).optional(),
-  programme: zod.coerce.string().optional(),
+  status: zod
+    .enum(["pending", "under_review", "accepted", "waitlisted", "rejected"])
+    .optional(),
+  batch: zod.coerce.string().optional(),
+  search: zod.coerce.string().optional(),
 });
 
 export const ListAdmissionsResponseItem = zod.object({
-  id: zod.number(),
-  applicantName: zod.string(),
-  email: zod.string(),
-  phone: zod.string().optional(),
-  programme: zod.enum([
-    "bharatanatyam",
-    "carnatic_vocal",
-    "carnatic_instrumental",
-    "kerala_arts",
+  id: zod.string().uuid(),
+  applicantType: zod.enum(["adult", "child"]),
+  studentName: zod.string(),
+  studentDob: zod.coerce.date(),
+  studentGender: zod.string().nullish(),
+  studentEmail: zod.string().nullish(),
+  studentPhone: zod.string().nullish(),
+  parentName: zod.string().nullish(),
+  parentRelationship: zod.string().nullish(),
+  parentEmail: zod.string().nullish(),
+  parentPhone: zod.string().nullish(),
+  emergencyName: zod.string().nullish(),
+  emergencyPhone: zod.string().nullish(),
+  addressStreet: zod.string(),
+  addressPostal: zod.string(),
+  addressCity: zod.string(),
+  batch: zod.string(),
+  experience: zod.enum(["none", "some", "significant"]),
+  experienceDetails: zod.string().nullish(),
+  joiningDate: zod.coerce.date().nullish(),
+  medicalNotes: zod.string().nullish(),
+  willStagePerform: zod.enum(["yes", "no", "maybe"]),
+  motivation: zod.string().nullish(),
+  referralSource: zod.string().nullish(),
+  photoConsent: zod.enum(["yes-all", "yes-internal", "no"]),
+  rulesConsent: zod.enum(["agree", "disagree"]),
+  suggestions: zod.string().nullish(),
+  status: zod.enum([
+    "pending",
+    "under_review",
+    "accepted",
+    "waitlisted",
+    "rejected",
   ]),
-  ageGroup: zod.enum(["child", "teen", "adult"]),
-  experience: zod.string().optional(),
-  motivation: zod.string().optional(),
-  status: zod.enum(["pending", "reviewed", "accepted", "rejected"]),
   adminNotes: zod.string().nullish(),
+  submittedAt: zod.coerce.date(),
   createdAt: zod.coerce.date(),
   updatedAt: zod.coerce.date(),
 });
@@ -47,43 +71,78 @@ export const ListAdmissionsResponse = zod.array(ListAdmissionsResponseItem);
  * @summary Submit a new admission application (public)
  */
 export const CreateAdmissionBody = zod.object({
-  applicantName: zod.string(),
-  email: zod.string(),
-  phone: zod.string().optional(),
-  programme: zod.enum([
-    "bharatanatyam",
-    "carnatic_vocal",
-    "carnatic_instrumental",
-    "kerala_arts",
-  ]),
-  ageGroup: zod.enum(["child", "teen", "adult"]),
-  experience: zod.string().optional(),
+  applicantType: zod.enum(["adult", "child"]),
+  studentName: zod.string(),
+  studentDob: zod.coerce.date(),
+  studentGender: zod.string().optional(),
+  studentEmail: zod.string().optional(),
+  studentPhone: zod.string().optional(),
+  parentName: zod.string().optional(),
+  parentRelationship: zod.string().optional(),
+  parentEmail: zod.string().optional(),
+  parentPhone: zod.string().optional(),
+  emergencyName: zod.string().optional(),
+  emergencyPhone: zod.string().optional(),
+  addressStreet: zod.string(),
+  addressPostal: zod.string(),
+  addressCity: zod.string(),
+  batch: zod.string(),
+  experience: zod.enum(["none", "some", "significant"]),
+  experienceDetails: zod.string().optional(),
+  joiningDate: zod.coerce.date().optional(),
+  medicalNotes: zod.string().optional(),
+  willStagePerform: zod.enum(["yes", "no", "maybe"]),
   motivation: zod.string().optional(),
+  referralSource: zod.string().optional(),
+  photoConsent: zod.enum(["yes-all", "yes-internal", "no"]),
+  rulesConsent: zod.enum(["agree", "disagree"]),
+  suggestions: zod.string().optional(),
 });
 
 /**
  * @summary Get a single admission application
  */
 export const GetAdmissionParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string().uuid(),
 });
 
 export const GetAdmissionResponse = zod.object({
-  id: zod.number(),
-  applicantName: zod.string(),
-  email: zod.string(),
-  phone: zod.string().optional(),
-  programme: zod.enum([
-    "bharatanatyam",
-    "carnatic_vocal",
-    "carnatic_instrumental",
-    "kerala_arts",
+  id: zod.string().uuid(),
+  applicantType: zod.enum(["adult", "child"]),
+  studentName: zod.string(),
+  studentDob: zod.coerce.date(),
+  studentGender: zod.string().nullish(),
+  studentEmail: zod.string().nullish(),
+  studentPhone: zod.string().nullish(),
+  parentName: zod.string().nullish(),
+  parentRelationship: zod.string().nullish(),
+  parentEmail: zod.string().nullish(),
+  parentPhone: zod.string().nullish(),
+  emergencyName: zod.string().nullish(),
+  emergencyPhone: zod.string().nullish(),
+  addressStreet: zod.string(),
+  addressPostal: zod.string(),
+  addressCity: zod.string(),
+  batch: zod.string(),
+  experience: zod.enum(["none", "some", "significant"]),
+  experienceDetails: zod.string().nullish(),
+  joiningDate: zod.coerce.date().nullish(),
+  medicalNotes: zod.string().nullish(),
+  willStagePerform: zod.enum(["yes", "no", "maybe"]),
+  motivation: zod.string().nullish(),
+  referralSource: zod.string().nullish(),
+  photoConsent: zod.enum(["yes-all", "yes-internal", "no"]),
+  rulesConsent: zod.enum(["agree", "disagree"]),
+  suggestions: zod.string().nullish(),
+  status: zod.enum([
+    "pending",
+    "under_review",
+    "accepted",
+    "waitlisted",
+    "rejected",
   ]),
-  ageGroup: zod.enum(["child", "teen", "adult"]),
-  experience: zod.string().optional(),
-  motivation: zod.string().optional(),
-  status: zod.enum(["pending", "reviewed", "accepted", "rejected"]),
   adminNotes: zod.string().nullish(),
+  submittedAt: zod.coerce.date(),
   createdAt: zod.coerce.date(),
   updatedAt: zod.coerce.date(),
 });
@@ -92,30 +151,53 @@ export const GetAdmissionResponse = zod.object({
  * @summary Update admission status or notes
  */
 export const UpdateAdmissionParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string().uuid(),
 });
 
 export const UpdateAdmissionBody = zod.object({
-  status: zod.enum(["pending", "reviewed", "accepted", "rejected"]).optional(),
+  status: zod
+    .enum(["pending", "under_review", "accepted", "waitlisted", "rejected"])
+    .optional(),
   adminNotes: zod.string().optional(),
 });
 
 export const UpdateAdmissionResponse = zod.object({
-  id: zod.number(),
-  applicantName: zod.string(),
-  email: zod.string(),
-  phone: zod.string().optional(),
-  programme: zod.enum([
-    "bharatanatyam",
-    "carnatic_vocal",
-    "carnatic_instrumental",
-    "kerala_arts",
+  id: zod.string().uuid(),
+  applicantType: zod.enum(["adult", "child"]),
+  studentName: zod.string(),
+  studentDob: zod.coerce.date(),
+  studentGender: zod.string().nullish(),
+  studentEmail: zod.string().nullish(),
+  studentPhone: zod.string().nullish(),
+  parentName: zod.string().nullish(),
+  parentRelationship: zod.string().nullish(),
+  parentEmail: zod.string().nullish(),
+  parentPhone: zod.string().nullish(),
+  emergencyName: zod.string().nullish(),
+  emergencyPhone: zod.string().nullish(),
+  addressStreet: zod.string(),
+  addressPostal: zod.string(),
+  addressCity: zod.string(),
+  batch: zod.string(),
+  experience: zod.enum(["none", "some", "significant"]),
+  experienceDetails: zod.string().nullish(),
+  joiningDate: zod.coerce.date().nullish(),
+  medicalNotes: zod.string().nullish(),
+  willStagePerform: zod.enum(["yes", "no", "maybe"]),
+  motivation: zod.string().nullish(),
+  referralSource: zod.string().nullish(),
+  photoConsent: zod.enum(["yes-all", "yes-internal", "no"]),
+  rulesConsent: zod.enum(["agree", "disagree"]),
+  suggestions: zod.string().nullish(),
+  status: zod.enum([
+    "pending",
+    "under_review",
+    "accepted",
+    "waitlisted",
+    "rejected",
   ]),
-  ageGroup: zod.enum(["child", "teen", "adult"]),
-  experience: zod.string().optional(),
-  motivation: zod.string().optional(),
-  status: zod.enum(["pending", "reviewed", "accepted", "rejected"]),
   adminNotes: zod.string().nullish(),
+  submittedAt: zod.coerce.date(),
   createdAt: zod.coerce.date(),
   updatedAt: zod.coerce.date(),
 });
@@ -124,33 +206,32 @@ export const UpdateAdmissionResponse = zod.object({
  * @summary Delete an admission application
  */
 export const DeleteAdmissionParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string().uuid(),
 });
 
 /**
  * @summary List all enrolled students
  */
 export const ListStudentsQueryParams = zod.object({
-  batchId: zod.coerce.number().optional(),
+  batchId: zod.coerce.string().uuid().optional(),
+  status: zod.enum(["active", "inactive", "withdrawn"]).optional(),
   search: zod.coerce.string().optional(),
 });
 
 export const ListStudentsResponseItem = zod.object({
-  id: zod.number(),
-  name: zod.string(),
-  email: zod.string(),
-  phone: zod.string().optional(),
-  programme: zod.enum([
-    "bharatanatyam",
-    "carnatic_vocal",
-    "carnatic_instrumental",
-    "kerala_arts",
-  ]),
-  batchId: zod.number().nullish(),
+  id: zod.string().uuid(),
+  admissionId: zod.string().uuid().nullish(),
+  fullName: zod.string(),
+  dob: zod.coerce.date().nullish(),
+  batchId: zod.string().uuid().nullish(),
   batchName: zod.string().nullish(),
-  joinedAt: zod.coerce.date(),
-  status: zod.enum(["active", "inactive", "graduated"]),
-  notes: zod.string().nullish(),
+  primaryContactName: zod.string().nullish(),
+  primaryContactEmail: zod.string().nullish(),
+  primaryContactPhone: zod.string().nullish(),
+  status: zod.enum(["active", "inactive", "withdrawn"]),
+  enrolledAt: zod.coerce.date(),
+  createdAt: zod.coerce.date(),
+  updatedAt: zod.coerce.date(),
 });
 export const ListStudentsResponse = zod.array(ListStudentsResponseItem);
 
@@ -158,112 +239,94 @@ export const ListStudentsResponse = zod.array(ListStudentsResponseItem);
  * @summary Enrol a new student
  */
 export const CreateStudentBody = zod.object({
-  name: zod.string(),
-  email: zod.string(),
-  phone: zod.string().optional(),
-  programme: zod.enum([
-    "bharatanatyam",
-    "carnatic_vocal",
-    "carnatic_instrumental",
-    "kerala_arts",
-  ]),
-  batchId: zod.number().optional(),
-  notes: zod.string().optional(),
+  admissionId: zod.string().uuid().optional(),
+  fullName: zod.string(),
+  dob: zod.coerce.date().optional(),
+  batchId: zod.string().uuid().optional(),
+  primaryContactName: zod.string().optional(),
+  primaryContactEmail: zod.string().optional(),
+  primaryContactPhone: zod.string().optional(),
 });
 
 /**
  * @summary Get a single student
  */
 export const GetStudentParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string().uuid(),
 });
 
 export const GetStudentResponse = zod.object({
-  id: zod.number(),
-  name: zod.string(),
-  email: zod.string(),
-  phone: zod.string().optional(),
-  programme: zod.enum([
-    "bharatanatyam",
-    "carnatic_vocal",
-    "carnatic_instrumental",
-    "kerala_arts",
-  ]),
-  batchId: zod.number().nullish(),
+  id: zod.string().uuid(),
+  admissionId: zod.string().uuid().nullish(),
+  fullName: zod.string(),
+  dob: zod.coerce.date().nullish(),
+  batchId: zod.string().uuid().nullish(),
   batchName: zod.string().nullish(),
-  joinedAt: zod.coerce.date(),
-  status: zod.enum(["active", "inactive", "graduated"]),
-  notes: zod.string().nullish(),
+  primaryContactName: zod.string().nullish(),
+  primaryContactEmail: zod.string().nullish(),
+  primaryContactPhone: zod.string().nullish(),
+  status: zod.enum(["active", "inactive", "withdrawn"]),
+  enrolledAt: zod.coerce.date(),
+  createdAt: zod.coerce.date(),
+  updatedAt: zod.coerce.date(),
 });
 
 /**
  * @summary Update student details
  */
 export const UpdateStudentParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string().uuid(),
 });
 
 export const UpdateStudentBody = zod.object({
-  name: zod.string().optional(),
-  email: zod.string().optional(),
-  phone: zod.string().optional(),
-  programme: zod
-    .enum([
-      "bharatanatyam",
-      "carnatic_vocal",
-      "carnatic_instrumental",
-      "kerala_arts",
-    ])
-    .optional(),
-  batchId: zod.number().nullish(),
-  status: zod.enum(["active", "inactive", "graduated"]).optional(),
-  notes: zod.string().optional(),
+  fullName: zod.string().optional(),
+  dob: zod.coerce.date().optional(),
+  batchId: zod.string().uuid().nullish(),
+  primaryContactName: zod.string().optional(),
+  primaryContactEmail: zod.string().optional(),
+  primaryContactPhone: zod.string().optional(),
+  status: zod.enum(["active", "inactive", "withdrawn"]).optional(),
 });
 
 export const UpdateStudentResponse = zod.object({
-  id: zod.number(),
-  name: zod.string(),
-  email: zod.string(),
-  phone: zod.string().optional(),
-  programme: zod.enum([
-    "bharatanatyam",
-    "carnatic_vocal",
-    "carnatic_instrumental",
-    "kerala_arts",
-  ]),
-  batchId: zod.number().nullish(),
+  id: zod.string().uuid(),
+  admissionId: zod.string().uuid().nullish(),
+  fullName: zod.string(),
+  dob: zod.coerce.date().nullish(),
+  batchId: zod.string().uuid().nullish(),
   batchName: zod.string().nullish(),
-  joinedAt: zod.coerce.date(),
-  status: zod.enum(["active", "inactive", "graduated"]),
-  notes: zod.string().nullish(),
+  primaryContactName: zod.string().nullish(),
+  primaryContactEmail: zod.string().nullish(),
+  primaryContactPhone: zod.string().nullish(),
+  status: zod.enum(["active", "inactive", "withdrawn"]),
+  enrolledAt: zod.coerce.date(),
+  createdAt: zod.coerce.date(),
+  updatedAt: zod.coerce.date(),
 });
 
 /**
  * @summary Remove a student record
  */
 export const DeleteStudentParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string().uuid(),
 });
 
 /**
  * @summary List all course batches
  */
+export const ListBatchesQueryParams = zod.object({
+  active: zod.coerce.boolean().optional(),
+});
+
 export const ListBatchesResponseItem = zod.object({
-  id: zod.number(),
+  id: zod.string().uuid(),
+  code: zod.string(),
   name: zod.string(),
-  programme: zod.enum([
-    "bharatanatyam",
-    "carnatic_vocal",
-    "carnatic_instrumental",
-    "kerala_arts",
-  ]),
-  schedule: zod.string(),
-  startDate: zod.coerce.date(),
-  endDate: zod.coerce.date().nullish(),
-  capacity: zod.number(),
-  enrolledCount: zod.number(),
-  status: zod.enum(["upcoming", "active", "completed"]),
-  notes: zod.string().nullish(),
+  ageRange: zod.string().nullish(),
+  description: zod.string().nullish(),
+  active: zod.boolean(),
+  displayOrder: zod.number(),
+  studentCount: zod.number(),
 });
 export const ListBatchesResponse = zod.array(ListBatchesResponseItem);
 
@@ -271,60 +334,45 @@ export const ListBatchesResponse = zod.array(ListBatchesResponseItem);
  * @summary Create a new batch
  */
 export const CreateBatchBody = zod.object({
+  code: zod.string(),
   name: zod.string(),
-  programme: zod.enum([
-    "bharatanatyam",
-    "carnatic_vocal",
-    "carnatic_instrumental",
-    "kerala_arts",
-  ]),
-  schedule: zod.string(),
-  startDate: zod.coerce.date(),
-  endDate: zod.coerce.date().optional(),
-  capacity: zod.number(),
-  notes: zod.string().optional(),
+  ageRange: zod.string().optional(),
+  description: zod.string().optional(),
+  active: zod.boolean().optional(),
+  displayOrder: zod.number().optional(),
 });
 
 /**
  * @summary Update a batch
  */
 export const UpdateBatchParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string().uuid(),
 });
 
 export const UpdateBatchBody = zod.object({
   name: zod.string().optional(),
-  schedule: zod.string().optional(),
-  startDate: zod.coerce.date().optional(),
-  endDate: zod.coerce.date().optional(),
-  capacity: zod.number().optional(),
-  status: zod.enum(["upcoming", "active", "completed"]).optional(),
-  notes: zod.string().optional(),
+  ageRange: zod.string().optional(),
+  description: zod.string().optional(),
+  active: zod.boolean().optional(),
+  displayOrder: zod.number().optional(),
 });
 
 export const UpdateBatchResponse = zod.object({
-  id: zod.number(),
+  id: zod.string().uuid(),
+  code: zod.string(),
   name: zod.string(),
-  programme: zod.enum([
-    "bharatanatyam",
-    "carnatic_vocal",
-    "carnatic_instrumental",
-    "kerala_arts",
-  ]),
-  schedule: zod.string(),
-  startDate: zod.coerce.date(),
-  endDate: zod.coerce.date().nullish(),
-  capacity: zod.number(),
-  enrolledCount: zod.number(),
-  status: zod.enum(["upcoming", "active", "completed"]),
-  notes: zod.string().nullish(),
+  ageRange: zod.string().nullish(),
+  description: zod.string().nullish(),
+  active: zod.boolean(),
+  displayOrder: zod.number(),
+  studentCount: zod.number(),
 });
 
 /**
  * @summary Delete a batch
  */
 export const DeleteBatchParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string().uuid(),
 });
 
 /**
@@ -335,7 +383,7 @@ export const ListEnquiriesQueryParams = zod.object({
 });
 
 export const ListEnquiriesResponseItem = zod.object({
-  id: zod.number(),
+  id: zod.string().uuid(),
   name: zod.string(),
   email: zod.string(),
   subject: zod.string(),
@@ -360,7 +408,7 @@ export const CreateEnquiryBody = zod.object({
  * @summary Mark enquiry as read or add admin notes
  */
 export const UpdateEnquiryParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string().uuid(),
 });
 
 export const UpdateEnquiryBody = zod.object({
@@ -369,7 +417,7 @@ export const UpdateEnquiryBody = zod.object({
 });
 
 export const UpdateEnquiryResponse = zod.object({
-  id: zod.number(),
+  id: zod.string().uuid(),
   name: zod.string(),
   email: zod.string(),
   subject: zod.string(),
@@ -377,6 +425,43 @@ export const UpdateEnquiryResponse = zod.object({
   isRead: zod.boolean(),
   adminNotes: zod.string().nullish(),
   createdAt: zod.coerce.date(),
+});
+
+/**
+ * @summary Get school settings
+ */
+export const GetSettingsResponse = zod.object({
+  id: zod.number(),
+  monthlyFeeSek: zod.number(),
+  schoolName: zod.string(),
+  contactEmail: zod.string().nullish(),
+  contactPhone: zod.string().nullish(),
+  addressLine: zod.string().nullish(),
+  acceptingApplications: zod.boolean(),
+  updatedAt: zod.coerce.date(),
+});
+
+/**
+ * @summary Update school settings
+ */
+export const UpdateSettingsBody = zod.object({
+  monthlyFeeSek: zod.number().optional(),
+  schoolName: zod.string().optional(),
+  contactEmail: zod.string().optional(),
+  contactPhone: zod.string().optional(),
+  addressLine: zod.string().optional(),
+  acceptingApplications: zod.boolean().optional(),
+});
+
+export const UpdateSettingsResponse = zod.object({
+  id: zod.number(),
+  monthlyFeeSek: zod.number(),
+  schoolName: zod.string(),
+  contactEmail: zod.string().nullish(),
+  contactPhone: zod.string().nullish(),
+  addressLine: zod.string().nullish(),
+  acceptingApplications: zod.boolean(),
+  updatedAt: zod.coerce.date(),
 });
 
 /**
@@ -388,31 +473,47 @@ export const GetDashboardStatsResponse = zod.object({
   totalBatches: zod.number(),
   activeBatches: zod.number(),
   pendingAdmissions: zod.number(),
+  underReviewAdmissions: zod.number(),
   totalAdmissions: zod.number(),
   unreadEnquiries: zod.number(),
-  admissionsByProgramme: zod.array(
-    zod.object({
-      programme: zod.string(),
-      count: zod.number(),
-    }),
-  ),
   recentAdmissions: zod.array(
     zod.object({
-      id: zod.number(),
-      applicantName: zod.string(),
-      email: zod.string(),
-      phone: zod.string().optional(),
-      programme: zod.enum([
-        "bharatanatyam",
-        "carnatic_vocal",
-        "carnatic_instrumental",
-        "kerala_arts",
+      id: zod.string().uuid(),
+      applicantType: zod.enum(["adult", "child"]),
+      studentName: zod.string(),
+      studentDob: zod.coerce.date(),
+      studentGender: zod.string().nullish(),
+      studentEmail: zod.string().nullish(),
+      studentPhone: zod.string().nullish(),
+      parentName: zod.string().nullish(),
+      parentRelationship: zod.string().nullish(),
+      parentEmail: zod.string().nullish(),
+      parentPhone: zod.string().nullish(),
+      emergencyName: zod.string().nullish(),
+      emergencyPhone: zod.string().nullish(),
+      addressStreet: zod.string(),
+      addressPostal: zod.string(),
+      addressCity: zod.string(),
+      batch: zod.string(),
+      experience: zod.enum(["none", "some", "significant"]),
+      experienceDetails: zod.string().nullish(),
+      joiningDate: zod.coerce.date().nullish(),
+      medicalNotes: zod.string().nullish(),
+      willStagePerform: zod.enum(["yes", "no", "maybe"]),
+      motivation: zod.string().nullish(),
+      referralSource: zod.string().nullish(),
+      photoConsent: zod.enum(["yes-all", "yes-internal", "no"]),
+      rulesConsent: zod.enum(["agree", "disagree"]),
+      suggestions: zod.string().nullish(),
+      status: zod.enum([
+        "pending",
+        "under_review",
+        "accepted",
+        "waitlisted",
+        "rejected",
       ]),
-      ageGroup: zod.enum(["child", "teen", "adult"]),
-      experience: zod.string().optional(),
-      motivation: zod.string().optional(),
-      status: zod.enum(["pending", "reviewed", "accepted", "rejected"]),
       adminNotes: zod.string().nullish(),
+      submittedAt: zod.coerce.date(),
       createdAt: zod.coerce.date(),
       updatedAt: zod.coerce.date(),
     }),

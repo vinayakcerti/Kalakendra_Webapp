@@ -3,7 +3,7 @@
  * Do not edit manually.
  * Api
  * Kala Kendra Sweden API
- * OpenAPI spec version: 0.1.0
+ * OpenAPI spec version: 0.2.0
  */
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
@@ -27,12 +27,15 @@ import type {
   Enquiry,
   HealthStatus,
   ListAdmissionsParams,
+  ListBatchesParams,
   ListEnquiriesParams,
   ListStudentsParams,
+  SchoolSettings,
   Student,
   UpdateAdmissionBody,
   UpdateBatchBody,
   UpdateEnquiryBody,
+  UpdateSettingsBody,
   UpdateStudentBody,
 } from "./api.schemas";
 
@@ -303,12 +306,12 @@ export const useCreateAdmission = <
 /**
  * @summary Get a single admission application
  */
-export const getGetAdmissionUrl = (id: number) => {
+export const getGetAdmissionUrl = (id: string) => {
   return `/api/admissions/${id}`;
 };
 
 export const getAdmission = async (
-  id: number,
+  id: string,
   options?: RequestInit,
 ): Promise<Admission> => {
   return customFetch<Admission>(getGetAdmissionUrl(id), {
@@ -317,7 +320,7 @@ export const getAdmission = async (
   });
 };
 
-export const getGetAdmissionQueryKey = (id: number) => {
+export const getGetAdmissionQueryKey = (id: string) => {
   return [`/api/admissions/${id}`] as const;
 };
 
@@ -325,7 +328,7 @@ export const getGetAdmissionQueryOptions = <
   TData = Awaited<ReturnType<typeof getAdmission>>,
   TError = ErrorType<void>,
 >(
-  id: number,
+  id: string,
   options?: {
     query?: UseQueryOptions<
       Awaited<ReturnType<typeof getAdmission>>,
@@ -368,7 +371,7 @@ export function useGetAdmission<
   TData = Awaited<ReturnType<typeof getAdmission>>,
   TError = ErrorType<void>,
 >(
-  id: number,
+  id: string,
   options?: {
     query?: UseQueryOptions<
       Awaited<ReturnType<typeof getAdmission>>,
@@ -390,12 +393,12 @@ export function useGetAdmission<
 /**
  * @summary Update admission status or notes
  */
-export const getUpdateAdmissionUrl = (id: number) => {
+export const getUpdateAdmissionUrl = (id: string) => {
   return `/api/admissions/${id}`;
 };
 
 export const updateAdmission = async (
-  id: number,
+  id: string,
   updateAdmissionBody: UpdateAdmissionBody,
   options?: RequestInit,
 ): Promise<Admission> => {
@@ -414,14 +417,14 @@ export const getUpdateAdmissionMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof updateAdmission>>,
     TError,
-    { id: number; data: BodyType<UpdateAdmissionBody> },
+    { id: string; data: BodyType<UpdateAdmissionBody> },
     TContext
   >;
   request?: SecondParameter<typeof customFetch>;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof updateAdmission>>,
   TError,
-  { id: number; data: BodyType<UpdateAdmissionBody> },
+  { id: string; data: BodyType<UpdateAdmissionBody> },
   TContext
 > => {
   const mutationKey = ["updateAdmission"];
@@ -435,7 +438,7 @@ export const getUpdateAdmissionMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof updateAdmission>>,
-    { id: number; data: BodyType<UpdateAdmissionBody> }
+    { id: string; data: BodyType<UpdateAdmissionBody> }
   > = (props) => {
     const { id, data } = props ?? {};
 
@@ -461,14 +464,14 @@ export const useUpdateAdmission = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof updateAdmission>>,
     TError,
-    { id: number; data: BodyType<UpdateAdmissionBody> },
+    { id: string; data: BodyType<UpdateAdmissionBody> },
     TContext
   >;
   request?: SecondParameter<typeof customFetch>;
 }): UseMutationResult<
   Awaited<ReturnType<typeof updateAdmission>>,
   TError,
-  { id: number; data: BodyType<UpdateAdmissionBody> },
+  { id: string; data: BodyType<UpdateAdmissionBody> },
   TContext
 > => {
   return useMutation(getUpdateAdmissionMutationOptions(options));
@@ -477,12 +480,12 @@ export const useUpdateAdmission = <
 /**
  * @summary Delete an admission application
  */
-export const getDeleteAdmissionUrl = (id: number) => {
+export const getDeleteAdmissionUrl = (id: string) => {
   return `/api/admissions/${id}`;
 };
 
 export const deleteAdmission = async (
-  id: number,
+  id: string,
   options?: RequestInit,
 ): Promise<void> => {
   return customFetch<void>(getDeleteAdmissionUrl(id), {
@@ -498,14 +501,14 @@ export const getDeleteAdmissionMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof deleteAdmission>>,
     TError,
-    { id: number },
+    { id: string },
     TContext
   >;
   request?: SecondParameter<typeof customFetch>;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof deleteAdmission>>,
   TError,
-  { id: number },
+  { id: string },
   TContext
 > => {
   const mutationKey = ["deleteAdmission"];
@@ -519,7 +522,7 @@ export const getDeleteAdmissionMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof deleteAdmission>>,
-    { id: number }
+    { id: string }
   > = (props) => {
     const { id } = props ?? {};
 
@@ -545,14 +548,14 @@ export const useDeleteAdmission = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof deleteAdmission>>,
     TError,
-    { id: number },
+    { id: string },
     TContext
   >;
   request?: SecondParameter<typeof customFetch>;
 }): UseMutationResult<
   Awaited<ReturnType<typeof deleteAdmission>>,
   TError,
-  { id: number },
+  { id: string },
   TContext
 > => {
   return useMutation(getDeleteAdmissionMutationOptions(options));
@@ -741,12 +744,12 @@ export const useCreateStudent = <
 /**
  * @summary Get a single student
  */
-export const getGetStudentUrl = (id: number) => {
+export const getGetStudentUrl = (id: string) => {
   return `/api/students/${id}`;
 };
 
 export const getStudent = async (
-  id: number,
+  id: string,
   options?: RequestInit,
 ): Promise<Student> => {
   return customFetch<Student>(getGetStudentUrl(id), {
@@ -755,7 +758,7 @@ export const getStudent = async (
   });
 };
 
-export const getGetStudentQueryKey = (id: number) => {
+export const getGetStudentQueryKey = (id: string) => {
   return [`/api/students/${id}`] as const;
 };
 
@@ -763,7 +766,7 @@ export const getGetStudentQueryOptions = <
   TData = Awaited<ReturnType<typeof getStudent>>,
   TError = ErrorType<void>,
 >(
-  id: number,
+  id: string,
   options?: {
     query?: UseQueryOptions<
       Awaited<ReturnType<typeof getStudent>>,
@@ -806,7 +809,7 @@ export function useGetStudent<
   TData = Awaited<ReturnType<typeof getStudent>>,
   TError = ErrorType<void>,
 >(
-  id: number,
+  id: string,
   options?: {
     query?: UseQueryOptions<
       Awaited<ReturnType<typeof getStudent>>,
@@ -828,12 +831,12 @@ export function useGetStudent<
 /**
  * @summary Update student details
  */
-export const getUpdateStudentUrl = (id: number) => {
+export const getUpdateStudentUrl = (id: string) => {
   return `/api/students/${id}`;
 };
 
 export const updateStudent = async (
-  id: number,
+  id: string,
   updateStudentBody: UpdateStudentBody,
   options?: RequestInit,
 ): Promise<Student> => {
@@ -852,14 +855,14 @@ export const getUpdateStudentMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof updateStudent>>,
     TError,
-    { id: number; data: BodyType<UpdateStudentBody> },
+    { id: string; data: BodyType<UpdateStudentBody> },
     TContext
   >;
   request?: SecondParameter<typeof customFetch>;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof updateStudent>>,
   TError,
-  { id: number; data: BodyType<UpdateStudentBody> },
+  { id: string; data: BodyType<UpdateStudentBody> },
   TContext
 > => {
   const mutationKey = ["updateStudent"];
@@ -873,7 +876,7 @@ export const getUpdateStudentMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof updateStudent>>,
-    { id: number; data: BodyType<UpdateStudentBody> }
+    { id: string; data: BodyType<UpdateStudentBody> }
   > = (props) => {
     const { id, data } = props ?? {};
 
@@ -899,14 +902,14 @@ export const useUpdateStudent = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof updateStudent>>,
     TError,
-    { id: number; data: BodyType<UpdateStudentBody> },
+    { id: string; data: BodyType<UpdateStudentBody> },
     TContext
   >;
   request?: SecondParameter<typeof customFetch>;
 }): UseMutationResult<
   Awaited<ReturnType<typeof updateStudent>>,
   TError,
-  { id: number; data: BodyType<UpdateStudentBody> },
+  { id: string; data: BodyType<UpdateStudentBody> },
   TContext
 > => {
   return useMutation(getUpdateStudentMutationOptions(options));
@@ -915,12 +918,12 @@ export const useUpdateStudent = <
 /**
  * @summary Remove a student record
  */
-export const getDeleteStudentUrl = (id: number) => {
+export const getDeleteStudentUrl = (id: string) => {
   return `/api/students/${id}`;
 };
 
 export const deleteStudent = async (
-  id: number,
+  id: string,
   options?: RequestInit,
 ): Promise<void> => {
   return customFetch<void>(getDeleteStudentUrl(id), {
@@ -936,14 +939,14 @@ export const getDeleteStudentMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof deleteStudent>>,
     TError,
-    { id: number },
+    { id: string },
     TContext
   >;
   request?: SecondParameter<typeof customFetch>;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof deleteStudent>>,
   TError,
-  { id: number },
+  { id: string },
   TContext
 > => {
   const mutationKey = ["deleteStudent"];
@@ -957,7 +960,7 @@ export const getDeleteStudentMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof deleteStudent>>,
-    { id: number }
+    { id: string }
   > = (props) => {
     const { id } = props ?? {};
 
@@ -983,14 +986,14 @@ export const useDeleteStudent = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof deleteStudent>>,
     TError,
-    { id: number },
+    { id: string },
     TContext
   >;
   request?: SecondParameter<typeof customFetch>;
 }): UseMutationResult<
   Awaited<ReturnType<typeof deleteStudent>>,
   TError,
-  { id: number },
+  { id: string },
   TContext
 > => {
   return useMutation(getDeleteStudentMutationOptions(options));
@@ -999,39 +1002,57 @@ export const useDeleteStudent = <
 /**
  * @summary List all course batches
  */
-export const getListBatchesUrl = () => {
-  return `/api/batches`;
+export const getListBatchesUrl = (params?: ListBatchesParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/batches?${stringifiedParams}`
+    : `/api/batches`;
 };
 
-export const listBatches = async (options?: RequestInit): Promise<Batch[]> => {
-  return customFetch<Batch[]>(getListBatchesUrl(), {
+export const listBatches = async (
+  params?: ListBatchesParams,
+  options?: RequestInit,
+): Promise<Batch[]> => {
+  return customFetch<Batch[]>(getListBatchesUrl(params), {
     ...options,
     method: "GET",
   });
 };
 
-export const getListBatchesQueryKey = () => {
-  return [`/api/batches`] as const;
+export const getListBatchesQueryKey = (params?: ListBatchesParams) => {
+  return [`/api/batches`, ...(params ? [params] : [])] as const;
 };
 
 export const getListBatchesQueryOptions = <
   TData = Awaited<ReturnType<typeof listBatches>>,
   TError = ErrorType<unknown>,
->(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof listBatches>>,
-    TError,
-    TData
-  >;
-  request?: SecondParameter<typeof customFetch>;
-}) => {
+>(
+  params?: ListBatchesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listBatches>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
   const { query: queryOptions, request: requestOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getListBatchesQueryKey();
+  const queryKey = queryOptions?.queryKey ?? getListBatchesQueryKey(params);
 
   const queryFn: QueryFunction<Awaited<ReturnType<typeof listBatches>>> = ({
     signal,
-  }) => listBatches({ signal, ...requestOptions });
+  }) => listBatches(params, { signal, ...requestOptions });
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof listBatches>>,
@@ -1052,15 +1073,18 @@ export type ListBatchesQueryError = ErrorType<unknown>;
 export function useListBatches<
   TData = Awaited<ReturnType<typeof listBatches>>,
   TError = ErrorType<unknown>,
->(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof listBatches>>,
-    TError,
-    TData
-  >;
-  request?: SecondParameter<typeof customFetch>;
-}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getListBatchesQueryOptions(options);
+>(
+  params?: ListBatchesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listBatches>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListBatchesQueryOptions(params, options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;
@@ -1158,12 +1182,12 @@ export const useCreateBatch = <
 /**
  * @summary Update a batch
  */
-export const getUpdateBatchUrl = (id: number) => {
+export const getUpdateBatchUrl = (id: string) => {
   return `/api/batches/${id}`;
 };
 
 export const updateBatch = async (
-  id: number,
+  id: string,
   updateBatchBody: UpdateBatchBody,
   options?: RequestInit,
 ): Promise<Batch> => {
@@ -1182,14 +1206,14 @@ export const getUpdateBatchMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof updateBatch>>,
     TError,
-    { id: number; data: BodyType<UpdateBatchBody> },
+    { id: string; data: BodyType<UpdateBatchBody> },
     TContext
   >;
   request?: SecondParameter<typeof customFetch>;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof updateBatch>>,
   TError,
-  { id: number; data: BodyType<UpdateBatchBody> },
+  { id: string; data: BodyType<UpdateBatchBody> },
   TContext
 > => {
   const mutationKey = ["updateBatch"];
@@ -1203,7 +1227,7 @@ export const getUpdateBatchMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof updateBatch>>,
-    { id: number; data: BodyType<UpdateBatchBody> }
+    { id: string; data: BodyType<UpdateBatchBody> }
   > = (props) => {
     const { id, data } = props ?? {};
 
@@ -1229,14 +1253,14 @@ export const useUpdateBatch = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof updateBatch>>,
     TError,
-    { id: number; data: BodyType<UpdateBatchBody> },
+    { id: string; data: BodyType<UpdateBatchBody> },
     TContext
   >;
   request?: SecondParameter<typeof customFetch>;
 }): UseMutationResult<
   Awaited<ReturnType<typeof updateBatch>>,
   TError,
-  { id: number; data: BodyType<UpdateBatchBody> },
+  { id: string; data: BodyType<UpdateBatchBody> },
   TContext
 > => {
   return useMutation(getUpdateBatchMutationOptions(options));
@@ -1245,12 +1269,12 @@ export const useUpdateBatch = <
 /**
  * @summary Delete a batch
  */
-export const getDeleteBatchUrl = (id: number) => {
+export const getDeleteBatchUrl = (id: string) => {
   return `/api/batches/${id}`;
 };
 
 export const deleteBatch = async (
-  id: number,
+  id: string,
   options?: RequestInit,
 ): Promise<void> => {
   return customFetch<void>(getDeleteBatchUrl(id), {
@@ -1266,14 +1290,14 @@ export const getDeleteBatchMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof deleteBatch>>,
     TError,
-    { id: number },
+    { id: string },
     TContext
   >;
   request?: SecondParameter<typeof customFetch>;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof deleteBatch>>,
   TError,
-  { id: number },
+  { id: string },
   TContext
 > => {
   const mutationKey = ["deleteBatch"];
@@ -1287,7 +1311,7 @@ export const getDeleteBatchMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof deleteBatch>>,
-    { id: number }
+    { id: string }
   > = (props) => {
     const { id } = props ?? {};
 
@@ -1313,14 +1337,14 @@ export const useDeleteBatch = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof deleteBatch>>,
     TError,
-    { id: number },
+    { id: string },
     TContext
   >;
   request?: SecondParameter<typeof customFetch>;
 }): UseMutationResult<
   Awaited<ReturnType<typeof deleteBatch>>,
   TError,
-  { id: number },
+  { id: string },
   TContext
 > => {
   return useMutation(getDeleteBatchMutationOptions(options));
@@ -1509,12 +1533,12 @@ export const useCreateEnquiry = <
 /**
  * @summary Mark enquiry as read or add admin notes
  */
-export const getUpdateEnquiryUrl = (id: number) => {
+export const getUpdateEnquiryUrl = (id: string) => {
   return `/api/enquiries/${id}`;
 };
 
 export const updateEnquiry = async (
-  id: number,
+  id: string,
   updateEnquiryBody: UpdateEnquiryBody,
   options?: RequestInit,
 ): Promise<Enquiry> => {
@@ -1533,14 +1557,14 @@ export const getUpdateEnquiryMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof updateEnquiry>>,
     TError,
-    { id: number; data: BodyType<UpdateEnquiryBody> },
+    { id: string; data: BodyType<UpdateEnquiryBody> },
     TContext
   >;
   request?: SecondParameter<typeof customFetch>;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof updateEnquiry>>,
   TError,
-  { id: number; data: BodyType<UpdateEnquiryBody> },
+  { id: string; data: BodyType<UpdateEnquiryBody> },
   TContext
 > => {
   const mutationKey = ["updateEnquiry"];
@@ -1554,7 +1578,7 @@ export const getUpdateEnquiryMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof updateEnquiry>>,
-    { id: number; data: BodyType<UpdateEnquiryBody> }
+    { id: string; data: BodyType<UpdateEnquiryBody> }
   > = (props) => {
     const { id, data } = props ?? {};
 
@@ -1580,17 +1604,178 @@ export const useUpdateEnquiry = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof updateEnquiry>>,
     TError,
-    { id: number; data: BodyType<UpdateEnquiryBody> },
+    { id: string; data: BodyType<UpdateEnquiryBody> },
     TContext
   >;
   request?: SecondParameter<typeof customFetch>;
 }): UseMutationResult<
   Awaited<ReturnType<typeof updateEnquiry>>,
   TError,
-  { id: number; data: BodyType<UpdateEnquiryBody> },
+  { id: string; data: BodyType<UpdateEnquiryBody> },
   TContext
 > => {
   return useMutation(getUpdateEnquiryMutationOptions(options));
+};
+
+/**
+ * @summary Get school settings
+ */
+export const getGetSettingsUrl = () => {
+  return `/api/settings`;
+};
+
+export const getSettings = async (
+  options?: RequestInit,
+): Promise<SchoolSettings> => {
+  return customFetch<SchoolSettings>(getGetSettingsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetSettingsQueryKey = () => {
+  return [`/api/settings`] as const;
+};
+
+export const getGetSettingsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getSettings>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getSettings>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetSettingsQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getSettings>>> = ({
+    signal,
+  }) => getSettings({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getSettings>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetSettingsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getSettings>>
+>;
+export type GetSettingsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Get school settings
+ */
+
+export function useGetSettings<
+  TData = Awaited<ReturnType<typeof getSettings>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getSettings>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetSettingsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Update school settings
+ */
+export const getUpdateSettingsUrl = () => {
+  return `/api/settings`;
+};
+
+export const updateSettings = async (
+  updateSettingsBody: UpdateSettingsBody,
+  options?: RequestInit,
+): Promise<SchoolSettings> => {
+  return customFetch<SchoolSettings>(getUpdateSettingsUrl(), {
+    ...options,
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(updateSettingsBody),
+  });
+};
+
+export const getUpdateSettingsMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateSettings>>,
+    TError,
+    { data: BodyType<UpdateSettingsBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateSettings>>,
+  TError,
+  { data: BodyType<UpdateSettingsBody> },
+  TContext
+> => {
+  const mutationKey = ["updateSettings"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateSettings>>,
+    { data: BodyType<UpdateSettingsBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return updateSettings(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateSettingsMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateSettings>>
+>;
+export type UpdateSettingsMutationBody = BodyType<UpdateSettingsBody>;
+export type UpdateSettingsMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Update school settings
+ */
+export const useUpdateSettings = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateSettings>>,
+    TError,
+    { data: BodyType<UpdateSettingsBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateSettings>>,
+  TError,
+  { data: BodyType<UpdateSettingsBody> },
+  TContext
+> => {
+  return useMutation(getUpdateSettingsMutationOptions(options));
 };
 
 /**

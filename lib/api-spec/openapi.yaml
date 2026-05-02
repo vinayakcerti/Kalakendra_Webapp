@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
-  version: 0.1.0
+  version: 0.2.0
   description: Kala Kendra Sweden API
 servers:
   - url: /api
@@ -20,6 +20,8 @@ tags:
     description: Public contact enquiries
   - name: stats
     description: Dashboard statistics
+  - name: settings
+    description: School settings
 
 paths:
   /healthz:
@@ -46,8 +48,12 @@ paths:
           in: query
           schema:
             type: string
-            enum: [pending, reviewed, accepted, rejected]
-        - name: programme
+            enum: [pending, under_review, accepted, waitlisted, rejected]
+        - name: batch
+          in: query
+          schema:
+            type: string
+        - name: search
           in: query
           schema:
             type: string
@@ -88,7 +94,8 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
+            format: uuid
       responses:
         "200":
           description: Admission found
@@ -107,7 +114,8 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
+            format: uuid
       requestBody:
         required: true
         content:
@@ -130,7 +138,8 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
+            format: uuid
       responses:
         "204":
           description: Deleted
@@ -145,7 +154,13 @@ paths:
         - name: batchId
           in: query
           schema:
-            type: integer
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, inactive, withdrawn]
         - name: search
           in: query
           schema:
@@ -187,7 +202,8 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
+            format: uuid
       responses:
         "200":
           description: Student found
@@ -206,7 +222,8 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
+            format: uuid
       requestBody:
         required: true
         content:
@@ -229,7 +246,8 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
+            format: uuid
       responses:
         "204":
           description: Deleted
@@ -240,6 +258,11 @@ paths:
       operationId: listBatches
       tags: [batches]
       summary: List all course batches
+      parameters:
+        - name: active
+          in: query
+          schema:
+            type: boolean
       responses:
         "200":
           description: List of batches
@@ -277,7 +300,8 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
+            format: uuid
       requestBody:
         required: true
         content:
@@ -300,7 +324,8 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
+            format: uuid
       responses:
         "204":
           description: Deleted
@@ -353,7 +378,8 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
+            format: uuid
       requestBody:
         required: true
         content:
@@ -367,6 +393,37 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Enquiry"
+
+  # ─── SETTINGS ─────────────────────────────────────────────────────────────
+  /settings:
+    get:
+      operationId: getSettings
+      tags: [settings]
+      summary: Get school settings
+      responses:
+        "200":
+          description: Settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SchoolSettings"
+    patch:
+      operationId: updateSettings
+      tags: [settings]
+      summary: Update school settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSettingsBody"
+      responses:
+        "200":
+          description: Updated settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SchoolSettings"
 
   # ─── STATS ────────────────────────────────────────────────────────────────
   /stats/dashboard:
@@ -396,29 +453,91 @@ components:
       type: object
       properties:
         id:
-          type: integer
-        applicantName:
           type: string
-        email:
+          format: uuid
+        applicantType:
           type: string
-        phone:
+          enum: [adult, child]
+        studentName:
           type: string
-        programme:
+        studentDob:
           type: string
-          enum: [bharatanatyam, carnatic_vocal, carnatic_instrumental, kerala_arts]
-        ageGroup:
+          format: date
+        studentGender:
           type: string
-          enum: [child, teen, adult]
+          nullable: true
+        studentEmail:
+          type: string
+          nullable: true
+        studentPhone:
+          type: string
+          nullable: true
+        parentName:
+          type: string
+          nullable: true
+        parentRelationship:
+          type: string
+          nullable: true
+        parentEmail:
+          type: string
+          nullable: true
+        parentPhone:
+          type: string
+          nullable: true
+        emergencyName:
+          type: string
+          nullable: true
+        emergencyPhone:
+          type: string
+          nullable: true
+        addressStreet:
+          type: string
+        addressPostal:
+          type: string
+        addressCity:
+          type: string
+        batch:
+          type: string
         experience:
           type: string
+          enum: [none, some, significant]
+        experienceDetails:
+          type: string
+          nullable: true
+        joiningDate:
+          type: string
+          format: date
+          nullable: true
+        medicalNotes:
+          type: string
+          nullable: true
+        willStagePerform:
+          type: string
+          enum: [yes, no, maybe]
         motivation:
           type: string
+          nullable: true
+        referralSource:
+          type: string
+          nullable: true
+        photoConsent:
+          type: string
+          enum: [yes-all, yes-internal, no]
+        rulesConsent:
+          type: string
+          enum: [agree, disagree]
+        suggestions:
+          type: string
+          nullable: true
         status:
           type: string
-          enum: [pending, reviewed, accepted, rejected]
+          enum: [pending, under_review, accepted, waitlisted, rejected]
         adminNotes:
           type: string
           nullable: true
+        submittedAt:
+          type: string
+          format: date-time
         createdAt:
           type: string
           format: date-time
@@ -427,41 +546,103 @@ components:
           format: date-time
       required:
         - id
-        - applicantName
-        - email
-        - programme
-        - ageGroup
+        - applicantType
+        - studentName
+        - studentDob
+        - addressStreet
+        - addressPostal
+        - addressCity
+        - batch
+        - experience
+        - willStagePerform
+        - photoConsent
+        - rulesConsent
         - status
+        - submittedAt
         - createdAt
         - updatedAt
 
     CreateAdmissionBody:
       type: object
       properties:
-        applicantName:
+        applicantType:
           type: string
-        email:
+          enum: [adult, child]
+        studentName:
           type: string
-        phone:
+        studentDob:
           type: string
-        programme:
+          format: date
+        studentGender:
           type: string
-          enum: [bharatanatyam, carnatic_vocal, carnatic_instrumental, kerala_arts]
-        ageGroup:
+        studentEmail:
           type: string
-          enum: [child, teen, adult]
+        studentPhone:
+          type: string
+        parentName:
+          type: string
+        parentRelationship:
+          type: string
+        parentEmail:
+          type: string
+        parentPhone:
+          type: string
+        emergencyName:
+          type: string
+        emergencyPhone:
+          type: string
+        addressStreet:
+          type: string
+        addressPostal:
+          type: string
+        addressCity:
+          type: string
+        batch:
+          type: string
         experience:
           type: string
+          enum: [none, some, significant]
+        experienceDetails:
+          type: string
+        joiningDate:
+          type: string
+          format: date
+        medicalNotes:
+          type: string
+        willStagePerform:
+          type: string
+          enum: [yes, no, maybe]
         motivation:
           type: string
-      required: [applicantName, email, programme, ageGroup]
+        referralSource:
+          type: string
+        photoConsent:
+          type: string
+          enum: [yes-all, yes-internal, no]
+        rulesConsent:
+          type: string
+          enum: [agree, disagree]
+        suggestions:
+          type: string
+      required:
+        - applicantType
+        - studentName
+        - studentDob
+        - addressStreet
+        - addressPostal
+        - addressCity
+        - batch
+        - experience
+        - willStagePerform
+        - photoConsent
+        - rulesConsent
 
     UpdateAdmissionBody:
       type: object
       properties:
         status:
           type: string
-          enum: [pending, reviewed, accepted, rejected]
+          enum: [pending, under_review, accepted, waitlisted, rejected]
         adminNotes:
           type: string
 
@@ -470,153 +651,161 @@ components:
       type: object
       properties:
         id:
-          type: integer
-        name:
           type: string
-        email:
+          format: uuid
+        admissionId:
           type: string
-        phone:
+          format: uuid
+          nullable: true
+        fullName:
           type: string
-        programme:
+        dob:
           type: string
-          enum: [bharatanatyam, carnatic_vocal, carnatic_instrumental, kerala_arts]
+          format: date
+          nullable: true
         batchId:
-          type: integer
+          type: string
+          format: uuid
           nullable: true
         batchName:
           type: string
           nullable: true
-        joinedAt:
-          type: string
-          format: date-time
-        status:
-          type: string
-          enum: [active, inactive, graduated]
-        notes:
+        primaryContactName:
           type: string
           nullable: true
-      required: [id, name, email, programme, status, joinedAt]
+        primaryContactEmail:
+          type: string
+          nullable: true
+        primaryContactPhone:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [active, inactive, withdrawn]
+        enrolledAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - fullName
+        - status
+        - enrolledAt
+        - createdAt
+        - updatedAt
 
     CreateStudentBody:
       type: object
       properties:
-        name:
+        admissionId:
           type: string
-        email:
+          format: uuid
+        fullName:
           type: string
-        phone:
+        dob:
           type: string
-        programme:
-          type: string
-          enum: [bharatanatyam, carnatic_vocal, carnatic_instrumental, kerala_arts]
+          format: date
         batchId:
-          type: integer
-        notes:
           type: string
-      required: [name, email, programme]
+          format: uuid
+        primaryContactName:
+          type: string
+        primaryContactEmail:
+          type: string
+        primaryContactPhone:
+          type: string
+      required: [fullName]
 
     UpdateStudentBody:
       type: object
       properties:
-        name:
+        fullName:
           type: string
-        email:
+        dob:
           type: string
-        phone:
-          type: string
-        programme:
-          type: string
-          enum: [bharatanatyam, carnatic_vocal, carnatic_instrumental, kerala_arts]
+          format: date
         batchId:
-          type: integer
+          type: string
+          format: uuid
           nullable: true
+        primaryContactName:
+          type: string
+        primaryContactEmail:
+          type: string
+        primaryContactPhone:
+          type: string
         status:
           type: string
-          enum: [active, inactive, graduated]
-        notes:
-          type: string
+          enum: [active, inactive, withdrawn]
 
     # ─── BATCHES ────────────────────────────────────────────────────────────
     Batch:
       type: object
       properties:
         id:
-          type: integer
+          type: string
+          format: uuid
+        code:
+          type: string
         name:
           type: string
-        programme:
-          type: string
-          enum: [bharatanatyam, carnatic_vocal, carnatic_instrumental, kerala_arts]
-        schedule:
-          type: string
-        startDate:
-          type: string
-          format: date
-        endDate:
-          type: string
-          format: date
-          nullable: true
-        capacity:
-          type: integer
-        enrolledCount:
-          type: integer
-        status:
-          type: string
-          enum: [upcoming, active, completed]
-        notes:
+        ageRange:
           type: string
           nullable: true
-      required: [id, name, programme, schedule, startDate, capacity, enrolledCount, status]
+        description:
+          type: string
+          nullable: true
+        active:
+          type: boolean
+        displayOrder:
+          type: integer
+        studentCount:
+          type: integer
+      required: [id, code, name, active, displayOrder, studentCount]
 
     CreateBatchBody:
       type: object
       properties:
+        code:
+          type: string
         name:
           type: string
-        programme:
+        ageRange:
           type: string
-          enum: [bharatanatyam, carnatic_vocal, carnatic_instrumental, kerala_arts]
-        schedule:
+        description:
           type: string
-        startDate:
-          type: string
-          format: date
-        endDate:
-          type: string
-          format: date
-        capacity:
+        active:
+          type: boolean
+        displayOrder:
           type: integer
-        notes:
-          type: string
-      required: [name, programme, schedule, startDate, capacity]
+      required: [code, name]
 
     UpdateBatchBody:
       type: object
       properties:
         name:
           type: string
-        schedule:
+        ageRange:
           type: string
-        startDate:
+        description:
           type: string
-          format: date
-        endDate:
-          type: string
-          format: date
-        capacity:
+        active:
+          type: boolean
+        displayOrder:
           type: integer
-        status:
-          type: string
-          enum: [upcoming, active, completed]
-        notes:
-          type: string
 
     # ─── ENQUIRIES ──────────────────────────────────────────────────────────
     Enquiry:
       type: object
       properties:
         id:
-          type: integer
+          type: string
+          format: uuid
         name:
           type: string
         email:
@@ -656,6 +845,53 @@ components:
         adminNotes:
           type: string
 
+    # ─── SETTINGS ───────────────────────────────────────────────────────────
+    SchoolSettings:
+      type: object
+      properties:
+        id:
+          type: integer
+        monthlyFeeSek:
+          type: integer
+        schoolName:
+          type: string
+        contactEmail:
+          type: string
+          nullable: true
+        contactPhone:
+          type: string
+          nullable: true
+        addressLine:
+          type: string
+          nullable: true
+        acceptingApplications:
+          type: boolean
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - monthlyFeeSek
+        - schoolName
+        - acceptingApplications
+        - updatedAt
+
+    UpdateSettingsBody:
+      type: object
+      properties:
+        monthlyFeeSek:
+          type: integer
+        schoolName:
+          type: string
+        contactEmail:
+          type: string
+        contactPhone:
+          type: string
+        addressLine:
+          type: string
+        acceptingApplications:
+          type: boolean
+
     # ─── STATS ──────────────────────────────────────────────────────────────
     DashboardStats:
       type: object
@@ -670,20 +906,12 @@ components:
           type: integer
         pendingAdmissions:
           type: integer
+        underReviewAdmissions:
+          type: integer
         totalAdmissions:
           type: integer
         unreadEnquiries:
           type: integer
-        admissionsByProgramme:
-          type: array
-          items:
-            type: object
-            properties:
-              programme:
-                type: string
-              count:
-                type: integer
-            required: [programme, count]
         recentAdmissions:
           type: array
           items:
@@ -694,7 +922,7 @@ components:
         - totalBatches
         - activeBatches
         - pendingAdmissions
+        - underReviewAdmissions
         - totalAdmissions
         - unreadEnquiries
-        - admissionsByProgramme
         - recentAdmissions

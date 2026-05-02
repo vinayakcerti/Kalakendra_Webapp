@@ -1,16 +1,21 @@
 import { useState } from "react";
-import { useListBatches, getListBatchesQueryKey, useCreateBatch, useDeleteBatch, CreateBatchBodyProgramme } from "@workspace/api-client-react";
+import {
+  useListBatches,
+  getListBatchesQueryKey,
+  useCreateBatch,
+  useUpdateBatch,
+  useDeleteBatch,
+} from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { format } from "date-fns";
 
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -18,11 +23,12 @@ import { useToast } from "@/hooks/use-toast";
 import { Plus, Trash2, Users } from "lucide-react";
 
 const formSchema = z.object({
+  code: z.string().min(2, "Code required (e.g. BHAR-JUN)"),
   name: z.string().min(2, "Name required"),
-  programme: z.nativeEnum(CreateBatchBodyProgramme),
-  schedule: z.string().min(2, "Schedule required"),
-  startDate: z.string().min(10, "Valid date required (YYYY-MM-DD)"),
-  capacity: z.coerce.number().min(1, "Capacity must be at least 1"),
+  ageRange: z.string().optional(),
+  description: z.string().optional(),
+  active: z.boolean().default(true),
+  displayOrder: z.coerce.number().default(0),
 });
 
 export default function Batches() {
@@ -31,39 +37,44 @@ export default function Batches() {
   const queryClient = useQueryClient();
 
   const { data: batches, isLoading } = useListBatches({
-    query: { queryKey: getListBatchesQueryKey() }
+    query: { queryKey: getListBatchesQueryKey() },
   });
 
   const createBatch = useCreateBatch();
+  const updateBatch = useUpdateBatch();
   const deleteBatch = useDeleteBatch();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { name: "", programme: "bharatanatyam", schedule: "Saturdays 10 AM", startDate: format(new Date(), "yyyy-MM-dd"), capacity: 15 },
+    defaultValues: { code: "", name: "", ageRange: "", description: "", active: true, displayOrder: 0 },
   });
-
-  const formatProgramme = (p: string) => p.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     createBatch.mutate({ data: values }, {
       onSuccess: () => {
-        toast({ title: "Batch created successfully" });
+        toast({ title: "Batch created" });
         setDialogOpen(false);
         form.reset();
         queryClient.invalidateQueries({ queryKey: getListBatchesQueryKey() });
       },
-      onError: () => toast({ title: "Failed to create batch", variant: "destructive" })
+      onError: () => toast({ title: "Failed to create batch", variant: "destructive" }),
     });
   };
 
-  const handleDelete = (id: number) => {
-    if (!confirm("Are you sure you want to delete this batch?")) return;
+  const handleToggleActive = (id: string, active: boolean) => {
+    updateBatch.mutate({ id, data: { active: !active } }, {
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: getListBatchesQueryKey() }),
+    });
+  };
+
+  const handleDelete = (id: string) => {
+    if (!confirm("Delete this batch? Students in this batch will be unassigned.")) return;
     deleteBatch.mutate({ id }, {
       onSuccess: () => {
         toast({ title: "Batch deleted" });
         queryClient.invalidateQueries({ queryKey: getListBatchesQueryKey() });
       },
-      onError: () => toast({ title: "Cannot delete batch", description: "It might have enrolled students.", variant: "destructive" })
+      onError: () => toast({ title: "Cannot delete batch", variant: "destructive" }),
     });
   };
 
@@ -77,41 +88,39 @@ export default function Batches() {
               <Plus className="mr-2 h-4 w-4" /> Create Batch
             </Button>
           </DialogTrigger>
-          <DialogContent className="rounded-none border-secondary/40 bg-card">
+          <DialogContent className="rounded-none border-secondary/40 bg-card max-w-lg">
             <DialogHeader>
               <DialogTitle className="font-serif text-2xl text-primary">Create New Batch</DialogTitle>
             </DialogHeader>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-4">
-                <FormField control={form.control} name="name" render={({ field }) => (
-                  <FormItem><FormLabel>Batch Name</FormLabel><FormControl><Input placeholder="e.g. Beginners Fall 2024" {...field} className="rounded-none" /></FormControl><FormMessage /></FormItem>
-                )} />
-                <FormField control={form.control} name="programme" render={({ field }) => (
-                  <FormItem><FormLabel>Programme</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl><SelectTrigger className="rounded-none"><SelectValue /></SelectTrigger></FormControl>
-                      <SelectContent>
-                        <SelectItem value="bharatanatyam">Bharatanatyam</SelectItem>
-                        <SelectItem value="carnatic_vocal">Carnatic Vocal</SelectItem>
-                        <SelectItem value="carnatic_instrumental">Carnatic Instrumental</SelectItem>
-                        <SelectItem value="kerala_arts">Kerala Arts</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  <FormMessage /></FormItem>
-                )} />
-                <FormField control={form.control} name="schedule" render={({ field }) => (
-                  <FormItem><FormLabel>Schedule</FormLabel><FormControl><Input {...field} className="rounded-none" /></FormControl><FormMessage /></FormItem>
-                )} />
                 <div className="grid grid-cols-2 gap-4">
-                  <FormField control={form.control} name="startDate" render={({ field }) => (
-                    <FormItem><FormLabel>Start Date (YYYY-MM-DD)</FormLabel><FormControl><Input {...field} className="rounded-none" /></FormControl><FormMessage /></FormItem>
+                  <FormField control={form.control} name="code" render={({ field }) => (
+                    <FormItem><FormLabel>Code</FormLabel><FormControl><Input placeholder="e.g. BHAR-JUN" {...field} className="rounded-none" /></FormControl><FormMessage /></FormItem>
                   )} />
-                  <FormField control={form.control} name="capacity" render={({ field }) => (
-                    <FormItem><FormLabel>Capacity</FormLabel><FormControl><Input type="number" {...field} className="rounded-none" /></FormControl><FormMessage /></FormItem>
+                  <FormField control={form.control} name="displayOrder" render={({ field }) => (
+                    <FormItem><FormLabel>Display Order</FormLabel><FormControl><Input type="number" {...field} className="rounded-none" /></FormControl><FormMessage /></FormItem>
                   )} />
                 </div>
+                <FormField control={form.control} name="name" render={({ field }) => (
+                  <FormItem><FormLabel>Name</FormLabel><FormControl><Input placeholder="e.g. Bharatanatyam — Juniors" {...field} className="rounded-none" /></FormControl><FormMessage /></FormItem>
+                )} />
+                <FormField control={form.control} name="ageRange" render={({ field }) => (
+                  <FormItem><FormLabel>Age Range</FormLabel><FormControl><Input placeholder="e.g. 6–12 years" {...field} className="rounded-none" /></FormControl><FormMessage /></FormItem>
+                )} />
+                <FormField control={form.control} name="description" render={({ field }) => (
+                  <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea {...field} className="rounded-none" rows={3} /></FormControl><FormMessage /></FormItem>
+                )} />
+                <FormField control={form.control} name="active" render={({ field }) => (
+                  <FormItem className="flex items-center gap-3">
+                    <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                    <FormLabel className="!mt-0">Active (accepting students)</FormLabel>
+                  </FormItem>
+                )} />
                 <div className="pt-4 flex justify-end">
-                  <Button type="submit" disabled={createBatch.isPending} className="rounded-none bg-primary hover:bg-primary/90 text-primary-foreground">Create</Button>
+                  <Button type="submit" disabled={createBatch.isPending} className="rounded-none bg-primary hover:bg-primary/90 text-primary-foreground">
+                    Create
+                  </Button>
                 </div>
               </form>
             </Form>
@@ -120,56 +129,65 @@ export default function Batches() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {isLoading ? (
-          Array(3).fill(0).map((_, i) => (
-            <div key={i} className="border border-secondary/20 bg-card p-6 space-y-4">
-              <Skeleton className="h-6 w-3/4 bg-secondary/20" />
-              <Skeleton className="h-4 w-1/2 bg-secondary/20" />
-              <Skeleton className="h-10 w-full bg-secondary/20 mt-4" />
+        {isLoading
+          ? Array(3).fill(0).map((_, i) => (
+              <div key={i} className="border border-secondary/20 bg-card p-6 space-y-4">
+                <Skeleton className="h-6 w-3/4 bg-secondary/20" />
+                <Skeleton className="h-4 w-1/2 bg-secondary/20" />
+                <Skeleton className="h-10 w-full bg-secondary/20 mt-4" />
+              </div>
+            ))
+          : batches?.length === 0
+          ? (
+            <div className="col-span-full text-center py-12 text-muted-foreground border border-secondary/20 bg-card">
+              No batches found.
             </div>
-          ))
-        ) : batches?.length === 0 ? (
-          <div className="col-span-full text-center py-12 text-muted-foreground border border-secondary/20 bg-card">
-            No batches found.
-          </div>
-        ) : (
-          batches?.map((batch) => (
-            <div key={batch.id} className="border border-secondary/20 bg-card p-6 flex flex-col relative group">
-              <div className="flex justify-between items-start mb-2">
-                <h3 className="font-serif text-xl text-primary">{batch.name}</h3>
-                <Badge variant="outline" className={`rounded-none border-secondary/40 capitalize
-                  ${batch.status === 'active' ? 'bg-green-100 text-green-800' : ''}
-                  ${batch.status === 'upcoming' ? 'bg-yellow-100 text-yellow-800' : ''}
-                `}>
-                  {batch.status}
-                </Badge>
-              </div>
-              <p className="text-sm font-medium text-secondary uppercase tracking-widest mb-4">{formatProgramme(batch.programme)}</p>
-              
-              <div className="space-y-2 text-sm text-muted-foreground flex-1">
-                <p><strong>Schedule:</strong> {batch.schedule}</p>
-                <p><strong>Starts:</strong> {format(new Date(batch.startDate), "MMM d, yyyy")}</p>
-                <div className="flex items-center gap-2 mt-4 pt-4 border-t border-secondary/10">
-                  <Users className="h-4 w-4" />
-                  <span>{batch.enrolledCount} / {batch.capacity} Enrolled</span>
+          )
+          : batches?.map((batch) => (
+              <div key={batch.id} className="border border-secondary/20 bg-card p-6 flex flex-col relative group">
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <h3 className="font-serif text-xl text-primary">{batch.name}</h3>
+                    <p className="text-xs font-mono text-secondary/60 mt-0.5">{batch.code}</p>
+                  </div>
+                  <Badge variant="outline" className={`rounded-none border-secondary/40 ${batch.active ? "bg-emerald-100 text-emerald-800" : "bg-stone-100 text-stone-600"}`}>
+                    {batch.active ? "Active" : "Inactive"}
+                  </Badge>
                 </div>
-                {/* Visual fill indicator */}
-                <div className="w-full h-1 bg-secondary/10 mt-2">
-                  <div className="h-full bg-primary" style={{ width: `${Math.min(100, (batch.enrolledCount / batch.capacity) * 100)}%` }} />
-                </div>
-              </div>
 
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => handleDelete(batch.id)} 
-                className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive/80 hover:bg-destructive/10 rounded-none"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          ))
-        )}
+                {batch.ageRange && (
+                  <p className="text-sm text-secondary uppercase tracking-widest mb-3">{batch.ageRange}</p>
+                )}
+
+                {batch.description && (
+                  <p className="text-sm text-muted-foreground mb-4 leading-relaxed flex-1">{batch.description}</p>
+                )}
+
+                <div className="flex items-center gap-2 mt-auto pt-4 border-t border-secondary/10 text-sm text-muted-foreground">
+                  <Users className="h-4 w-4" />
+                  <span>{batch.studentCount} active student{batch.studentCount !== 1 ? "s" : ""}</span>
+                </div>
+
+                <div className="flex gap-2 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleToggleActive(batch.id, batch.active)}
+                    className="rounded-none border-secondary/40 text-xs flex-1"
+                  >
+                    {batch.active ? "Deactivate" : "Activate"}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleDelete(batch.id)}
+                    className="rounded-none text-destructive hover:text-destructive/80 hover:bg-destructive/10"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
       </div>
     </div>
   );

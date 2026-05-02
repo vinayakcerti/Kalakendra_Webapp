@@ -3,29 +3,53 @@
  * Do not edit manually.
  * Api
  * Kala Kendra Sweden API
- * OpenAPI spec version: 0.1.0
+ * OpenAPI spec version: 0.2.0
  */
 export interface HealthStatus {
   status: string;
 }
 
-export type AdmissionProgramme =
-  (typeof AdmissionProgramme)[keyof typeof AdmissionProgramme];
+export type AdmissionApplicantType =
+  (typeof AdmissionApplicantType)[keyof typeof AdmissionApplicantType];
 
-export const AdmissionProgramme = {
-  bharatanatyam: "bharatanatyam",
-  carnatic_vocal: "carnatic_vocal",
-  carnatic_instrumental: "carnatic_instrumental",
-  kerala_arts: "kerala_arts",
+export const AdmissionApplicantType = {
+  adult: "adult",
+  child: "child",
 } as const;
 
-export type AdmissionAgeGroup =
-  (typeof AdmissionAgeGroup)[keyof typeof AdmissionAgeGroup];
+export type AdmissionExperience =
+  (typeof AdmissionExperience)[keyof typeof AdmissionExperience];
 
-export const AdmissionAgeGroup = {
-  child: "child",
-  teen: "teen",
-  adult: "adult",
+export const AdmissionExperience = {
+  none: "none",
+  some: "some",
+  significant: "significant",
+} as const;
+
+export type AdmissionWillStagePerform =
+  (typeof AdmissionWillStagePerform)[keyof typeof AdmissionWillStagePerform];
+
+export const AdmissionWillStagePerform = {
+  yes: "yes",
+  no: "no",
+  maybe: "maybe",
+} as const;
+
+export type AdmissionPhotoConsent =
+  (typeof AdmissionPhotoConsent)[keyof typeof AdmissionPhotoConsent];
+
+export const AdmissionPhotoConsent = {
+  "yes-all": "yes-all",
+  "yes-internal": "yes-internal",
+  no: "no",
+} as const;
+
+export type AdmissionRulesConsent =
+  (typeof AdmissionRulesConsent)[keyof typeof AdmissionRulesConsent];
+
+export const AdmissionRulesConsent = {
+  agree: "agree",
+  disagree: "disagree",
 } as const;
 
 export type AdmissionStatus =
@@ -33,53 +57,117 @@ export type AdmissionStatus =
 
 export const AdmissionStatus = {
   pending: "pending",
-  reviewed: "reviewed",
+  under_review: "under_review",
   accepted: "accepted",
+  waitlisted: "waitlisted",
   rejected: "rejected",
 } as const;
 
 export interface Admission {
-  id: number;
-  applicantName: string;
-  email: string;
-  phone?: string;
-  programme: AdmissionProgramme;
-  ageGroup: AdmissionAgeGroup;
-  experience?: string;
-  motivation?: string;
+  id: string;
+  applicantType: AdmissionApplicantType;
+  studentName: string;
+  studentDob: string;
+  studentGender?: string | null;
+  studentEmail?: string | null;
+  studentPhone?: string | null;
+  parentName?: string | null;
+  parentRelationship?: string | null;
+  parentEmail?: string | null;
+  parentPhone?: string | null;
+  emergencyName?: string | null;
+  emergencyPhone?: string | null;
+  addressStreet: string;
+  addressPostal: string;
+  addressCity: string;
+  batch: string;
+  experience: AdmissionExperience;
+  experienceDetails?: string | null;
+  joiningDate?: string | null;
+  medicalNotes?: string | null;
+  willStagePerform: AdmissionWillStagePerform;
+  motivation?: string | null;
+  referralSource?: string | null;
+  photoConsent: AdmissionPhotoConsent;
+  rulesConsent: AdmissionRulesConsent;
+  suggestions?: string | null;
   status: AdmissionStatus;
   adminNotes?: string | null;
+  submittedAt: string;
   createdAt: string;
   updatedAt: string;
 }
 
-export type CreateAdmissionBodyProgramme =
-  (typeof CreateAdmissionBodyProgramme)[keyof typeof CreateAdmissionBodyProgramme];
+export type CreateAdmissionBodyApplicantType =
+  (typeof CreateAdmissionBodyApplicantType)[keyof typeof CreateAdmissionBodyApplicantType];
 
-export const CreateAdmissionBodyProgramme = {
-  bharatanatyam: "bharatanatyam",
-  carnatic_vocal: "carnatic_vocal",
-  carnatic_instrumental: "carnatic_instrumental",
-  kerala_arts: "kerala_arts",
+export const CreateAdmissionBodyApplicantType = {
+  adult: "adult",
+  child: "child",
 } as const;
 
-export type CreateAdmissionBodyAgeGroup =
-  (typeof CreateAdmissionBodyAgeGroup)[keyof typeof CreateAdmissionBodyAgeGroup];
+export type CreateAdmissionBodyExperience =
+  (typeof CreateAdmissionBodyExperience)[keyof typeof CreateAdmissionBodyExperience];
 
-export const CreateAdmissionBodyAgeGroup = {
-  child: "child",
-  teen: "teen",
-  adult: "adult",
+export const CreateAdmissionBodyExperience = {
+  none: "none",
+  some: "some",
+  significant: "significant",
+} as const;
+
+export type CreateAdmissionBodyWillStagePerform =
+  (typeof CreateAdmissionBodyWillStagePerform)[keyof typeof CreateAdmissionBodyWillStagePerform];
+
+export const CreateAdmissionBodyWillStagePerform = {
+  yes: "yes",
+  no: "no",
+  maybe: "maybe",
+} as const;
+
+export type CreateAdmissionBodyPhotoConsent =
+  (typeof CreateAdmissionBodyPhotoConsent)[keyof typeof CreateAdmissionBodyPhotoConsent];
+
+export const CreateAdmissionBodyPhotoConsent = {
+  "yes-all": "yes-all",
+  "yes-internal": "yes-internal",
+  no: "no",
+} as const;
+
+export type CreateAdmissionBodyRulesConsent =
+  (typeof CreateAdmissionBodyRulesConsent)[keyof typeof CreateAdmissionBodyRulesConsent];
+
+export const CreateAdmissionBodyRulesConsent = {
+  agree: "agree",
+  disagree: "disagree",
 } as const;
 
 export interface CreateAdmissionBody {
-  applicantName: string;
-  email: string;
-  phone?: string;
-  programme: CreateAdmissionBodyProgramme;
-  ageGroup: CreateAdmissionBodyAgeGroup;
-  experience?: string;
+  applicantType: CreateAdmissionBodyApplicantType;
+  studentName: string;
+  studentDob: string;
+  studentGender?: string;
+  studentEmail?: string;
+  studentPhone?: string;
+  parentName?: string;
+  parentRelationship?: string;
+  parentEmail?: string;
+  parentPhone?: string;
+  emergencyName?: string;
+  emergencyPhone?: string;
+  addressStreet: string;
+  addressPostal: string;
+  addressCity: string;
+  batch: string;
+  experience: CreateAdmissionBodyExperience;
+  experienceDetails?: string;
+  joiningDate?: string;
+  medicalNotes?: string;
+  willStagePerform: CreateAdmissionBodyWillStagePerform;
   motivation?: string;
+  referralSource?: string;
+  photoConsent: CreateAdmissionBodyPhotoConsent;
+  rulesConsent: CreateAdmissionBodyRulesConsent;
+  suggestions?: string;
 }
 
 export type UpdateAdmissionBodyStatus =
@@ -87,8 +175,9 @@ export type UpdateAdmissionBodyStatus =
 
 export const UpdateAdmissionBodyStatus = {
   pending: "pending",
-  reviewed: "reviewed",
+  under_review: "under_review",
   accepted: "accepted",
+  waitlisted: "waitlisted",
   rejected: "rejected",
 } as const;
 
@@ -97,65 +186,39 @@ export interface UpdateAdmissionBody {
   adminNotes?: string;
 }
 
-export type StudentProgramme =
-  (typeof StudentProgramme)[keyof typeof StudentProgramme];
-
-export const StudentProgramme = {
-  bharatanatyam: "bharatanatyam",
-  carnatic_vocal: "carnatic_vocal",
-  carnatic_instrumental: "carnatic_instrumental",
-  kerala_arts: "kerala_arts",
-} as const;
-
 export type StudentStatus = (typeof StudentStatus)[keyof typeof StudentStatus];
 
 export const StudentStatus = {
   active: "active",
   inactive: "inactive",
-  graduated: "graduated",
+  withdrawn: "withdrawn",
 } as const;
 
 export interface Student {
-  id: number;
-  name: string;
-  email: string;
-  phone?: string;
-  programme: StudentProgramme;
-  batchId?: number | null;
+  id: string;
+  admissionId?: string | null;
+  fullName: string;
+  dob?: string | null;
+  batchId?: string | null;
   batchName?: string | null;
-  joinedAt: string;
+  primaryContactName?: string | null;
+  primaryContactEmail?: string | null;
+  primaryContactPhone?: string | null;
   status: StudentStatus;
-  notes?: string | null;
+  enrolledAt: string;
+  createdAt: string;
+  updatedAt: string;
 }
-
-export type CreateStudentBodyProgramme =
-  (typeof CreateStudentBodyProgramme)[keyof typeof CreateStudentBodyProgramme];
-
-export const CreateStudentBodyProgramme = {
-  bharatanatyam: "bharatanatyam",
-  carnatic_vocal: "carnatic_vocal",
-  carnatic_instrumental: "carnatic_instrumental",
-  kerala_arts: "kerala_arts",
-} as const;
 
 export interface CreateStudentBody {
-  name: string;
-  email: string;
-  phone?: string;
-  programme: CreateStudentBodyProgramme;
-  batchId?: number;
-  notes?: string;
+  admissionId?: string;
+  fullName: string;
+  dob?: string;
+  batchId?: string;
+  primaryContactName?: string;
+  primaryContactEmail?: string;
+  primaryContactPhone?: string;
 }
-
-export type UpdateStudentBodyProgramme =
-  (typeof UpdateStudentBodyProgramme)[keyof typeof UpdateStudentBodyProgramme];
-
-export const UpdateStudentBodyProgramme = {
-  bharatanatyam: "bharatanatyam",
-  carnatic_vocal: "carnatic_vocal",
-  carnatic_instrumental: "carnatic_instrumental",
-  kerala_arts: "kerala_arts",
-} as const;
 
 export type UpdateStudentBodyStatus =
   (typeof UpdateStudentBodyStatus)[keyof typeof UpdateStudentBodyStatus];
@@ -163,91 +226,49 @@ export type UpdateStudentBodyStatus =
 export const UpdateStudentBodyStatus = {
   active: "active",
   inactive: "inactive",
-  graduated: "graduated",
+  withdrawn: "withdrawn",
 } as const;
 
 export interface UpdateStudentBody {
-  name?: string;
-  email?: string;
-  phone?: string;
-  programme?: UpdateStudentBodyProgramme;
-  batchId?: number | null;
+  fullName?: string;
+  dob?: string;
+  batchId?: string | null;
+  primaryContactName?: string;
+  primaryContactEmail?: string;
+  primaryContactPhone?: string;
   status?: UpdateStudentBodyStatus;
-  notes?: string;
 }
-
-export type BatchProgramme =
-  (typeof BatchProgramme)[keyof typeof BatchProgramme];
-
-export const BatchProgramme = {
-  bharatanatyam: "bharatanatyam",
-  carnatic_vocal: "carnatic_vocal",
-  carnatic_instrumental: "carnatic_instrumental",
-  kerala_arts: "kerala_arts",
-} as const;
-
-export type BatchStatus = (typeof BatchStatus)[keyof typeof BatchStatus];
-
-export const BatchStatus = {
-  upcoming: "upcoming",
-  active: "active",
-  completed: "completed",
-} as const;
 
 export interface Batch {
-  id: number;
+  id: string;
+  code: string;
   name: string;
-  programme: BatchProgramme;
-  schedule: string;
-  startDate: string;
-  endDate?: string | null;
-  capacity: number;
-  enrolledCount: number;
-  status: BatchStatus;
-  notes?: string | null;
+  ageRange?: string | null;
+  description?: string | null;
+  active: boolean;
+  displayOrder: number;
+  studentCount: number;
 }
-
-export type CreateBatchBodyProgramme =
-  (typeof CreateBatchBodyProgramme)[keyof typeof CreateBatchBodyProgramme];
-
-export const CreateBatchBodyProgramme = {
-  bharatanatyam: "bharatanatyam",
-  carnatic_vocal: "carnatic_vocal",
-  carnatic_instrumental: "carnatic_instrumental",
-  kerala_arts: "kerala_arts",
-} as const;
 
 export interface CreateBatchBody {
+  code: string;
   name: string;
-  programme: CreateBatchBodyProgramme;
-  schedule: string;
-  startDate: string;
-  endDate?: string;
-  capacity: number;
-  notes?: string;
+  ageRange?: string;
+  description?: string;
+  active?: boolean;
+  displayOrder?: number;
 }
-
-export type UpdateBatchBodyStatus =
-  (typeof UpdateBatchBodyStatus)[keyof typeof UpdateBatchBodyStatus];
-
-export const UpdateBatchBodyStatus = {
-  upcoming: "upcoming",
-  active: "active",
-  completed: "completed",
-} as const;
 
 export interface UpdateBatchBody {
   name?: string;
-  schedule?: string;
-  startDate?: string;
-  endDate?: string;
-  capacity?: number;
-  status?: UpdateBatchBodyStatus;
-  notes?: string;
+  ageRange?: string;
+  description?: string;
+  active?: boolean;
+  displayOrder?: number;
 }
 
 export interface Enquiry {
-  id: number;
+  id: string;
   name: string;
   email: string;
   subject: string;
@@ -269,10 +290,25 @@ export interface UpdateEnquiryBody {
   adminNotes?: string;
 }
 
-export type DashboardStatsAdmissionsByProgrammeItem = {
-  programme: string;
-  count: number;
-};
+export interface SchoolSettings {
+  id: number;
+  monthlyFeeSek: number;
+  schoolName: string;
+  contactEmail?: string | null;
+  contactPhone?: string | null;
+  addressLine?: string | null;
+  acceptingApplications: boolean;
+  updatedAt: string;
+}
+
+export interface UpdateSettingsBody {
+  monthlyFeeSek?: number;
+  schoolName?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  addressLine?: string;
+  acceptingApplications?: boolean;
+}
 
 export interface DashboardStats {
   totalStudents: number;
@@ -280,15 +316,16 @@ export interface DashboardStats {
   totalBatches: number;
   activeBatches: number;
   pendingAdmissions: number;
+  underReviewAdmissions: number;
   totalAdmissions: number;
   unreadEnquiries: number;
-  admissionsByProgramme: DashboardStatsAdmissionsByProgrammeItem[];
   recentAdmissions: Admission[];
 }
 
 export type ListAdmissionsParams = {
   status?: ListAdmissionsStatus;
-  programme?: string;
+  batch?: string;
+  search?: string;
 };
 
 export type ListAdmissionsStatus =
@@ -296,14 +333,29 @@ export type ListAdmissionsStatus =
 
 export const ListAdmissionsStatus = {
   pending: "pending",
-  reviewed: "reviewed",
+  under_review: "under_review",
   accepted: "accepted",
+  waitlisted: "waitlisted",
   rejected: "rejected",
 } as const;
 
 export type ListStudentsParams = {
-  batchId?: number;
+  batchId?: string;
+  status?: ListStudentsStatus;
   search?: string;
+};
+
+export type ListStudentsStatus =
+  (typeof ListStudentsStatus)[keyof typeof ListStudentsStatus];
+
+export const ListStudentsStatus = {
+  active: "active",
+  inactive: "inactive",
+  withdrawn: "withdrawn",
+} as const;
+
+export type ListBatchesParams = {
+  active?: boolean;
 };
 
 export type ListEnquiriesParams = {
