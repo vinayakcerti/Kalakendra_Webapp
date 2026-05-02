@@ -18,7 +18,10 @@ import type {
 
 import type {
   Admission,
+  AttendanceRecord,
   Batch,
+  BulkCreateFeesBody,
+  BulkCreateFeesResponse,
   CreateAdmissionBody,
   CreateBatchBody,
   CreateEnquiryBody,
@@ -32,13 +35,17 @@ import type {
   HealthStatus,
   ListAdmissionsParams,
   ListAllFeesParams,
+  ListAttendanceParams,
   ListBatchesParams,
   ListEnquiriesParams,
   ListFeesParams,
   ListStudentsParams,
+  RecordAttendance201,
+  RecordAttendanceBody,
   SchoolSettings,
   Student,
   UpdateAdmissionBody,
+  UpdateAttendanceBody,
   UpdateBatchBody,
   UpdateEnquiryBody,
   UpdateFeeBody,
@@ -1379,6 +1386,443 @@ export const useCreateFee = <
   TContext
 > => {
   return useMutation(getCreateFeeMutationOptions(options));
+};
+
+/**
+ * @summary List attendance records with optional filters
+ */
+export const getListAttendanceUrl = (params?: ListAttendanceParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/attendance?${stringifiedParams}`
+    : `/api/attendance`;
+};
+
+export const listAttendance = async (
+  params?: ListAttendanceParams,
+  options?: RequestInit,
+): Promise<AttendanceRecord[]> => {
+  return customFetch<AttendanceRecord[]>(getListAttendanceUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListAttendanceQueryKey = (params?: ListAttendanceParams) => {
+  return [`/api/attendance`, ...(params ? [params] : [])] as const;
+};
+
+export const getListAttendanceQueryOptions = <
+  TData = Awaited<ReturnType<typeof listAttendance>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListAttendanceParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listAttendance>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListAttendanceQueryKey(params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listAttendance>>> = ({
+    signal,
+  }) => listAttendance(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listAttendance>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListAttendanceQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listAttendance>>
+>;
+export type ListAttendanceQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List attendance records with optional filters
+ */
+
+export function useListAttendance<
+  TData = Awaited<ReturnType<typeof listAttendance>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListAttendanceParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listAttendance>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListAttendanceQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Record attendance for a batch session (upserts existing entries)
+ */
+export const getRecordAttendanceUrl = () => {
+  return `/api/attendance`;
+};
+
+export const recordAttendance = async (
+  recordAttendanceBody: RecordAttendanceBody,
+  options?: RequestInit,
+): Promise<RecordAttendance201> => {
+  return customFetch<RecordAttendance201>(getRecordAttendanceUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(recordAttendanceBody),
+  });
+};
+
+export const getRecordAttendanceMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof recordAttendance>>,
+    TError,
+    { data: BodyType<RecordAttendanceBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof recordAttendance>>,
+  TError,
+  { data: BodyType<RecordAttendanceBody> },
+  TContext
+> => {
+  const mutationKey = ["recordAttendance"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof recordAttendance>>,
+    { data: BodyType<RecordAttendanceBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return recordAttendance(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type RecordAttendanceMutationResult = NonNullable<
+  Awaited<ReturnType<typeof recordAttendance>>
+>;
+export type RecordAttendanceMutationBody = BodyType<RecordAttendanceBody>;
+export type RecordAttendanceMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Record attendance for a batch session (upserts existing entries)
+ */
+export const useRecordAttendance = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof recordAttendance>>,
+    TError,
+    { data: BodyType<RecordAttendanceBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof recordAttendance>>,
+  TError,
+  { data: BodyType<RecordAttendanceBody> },
+  TContext
+> => {
+  return useMutation(getRecordAttendanceMutationOptions(options));
+};
+
+/**
+ * @summary Update a single attendance entry
+ */
+export const getUpdateAttendanceUrl = (id: string) => {
+  return `/api/attendance/${id}`;
+};
+
+export const updateAttendance = async (
+  id: string,
+  updateAttendanceBody: UpdateAttendanceBody,
+  options?: RequestInit,
+): Promise<AttendanceRecord> => {
+  return customFetch<AttendanceRecord>(getUpdateAttendanceUrl(id), {
+    ...options,
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(updateAttendanceBody),
+  });
+};
+
+export const getUpdateAttendanceMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateAttendance>>,
+    TError,
+    { id: string; data: BodyType<UpdateAttendanceBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateAttendance>>,
+  TError,
+  { id: string; data: BodyType<UpdateAttendanceBody> },
+  TContext
+> => {
+  const mutationKey = ["updateAttendance"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateAttendance>>,
+    { id: string; data: BodyType<UpdateAttendanceBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return updateAttendance(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateAttendanceMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateAttendance>>
+>;
+export type UpdateAttendanceMutationBody = BodyType<UpdateAttendanceBody>;
+export type UpdateAttendanceMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Update a single attendance entry
+ */
+export const useUpdateAttendance = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateAttendance>>,
+    TError,
+    { id: string; data: BodyType<UpdateAttendanceBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateAttendance>>,
+  TError,
+  { id: string; data: BodyType<UpdateAttendanceBody> },
+  TContext
+> => {
+  return useMutation(getUpdateAttendanceMutationOptions(options));
+};
+
+/**
+ * @summary Delete an attendance entry
+ */
+export const getDeleteAttendanceUrl = (id: string) => {
+  return `/api/attendance/${id}`;
+};
+
+export const deleteAttendance = async (
+  id: string,
+  options?: RequestInit,
+): Promise<void> => {
+  return customFetch<void>(getDeleteAttendanceUrl(id), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getDeleteAttendanceMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteAttendance>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteAttendance>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ["deleteAttendance"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteAttendance>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return deleteAttendance(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteAttendanceMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteAttendance>>
+>;
+
+export type DeleteAttendanceMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Delete an attendance entry
+ */
+export const useDeleteAttendance = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteAttendance>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteAttendance>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  return useMutation(getDeleteAttendanceMutationOptions(options));
+};
+
+/**
+ * @summary Create the same fee for all active students (optionally filtered by batch)
+ */
+export const getBulkCreateFeesUrl = () => {
+  return `/api/fees/bulk`;
+};
+
+export const bulkCreateFees = async (
+  bulkCreateFeesBody: BulkCreateFeesBody,
+  options?: RequestInit,
+): Promise<BulkCreateFeesResponse> => {
+  return customFetch<BulkCreateFeesResponse>(getBulkCreateFeesUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(bulkCreateFeesBody),
+  });
+};
+
+export const getBulkCreateFeesMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof bulkCreateFees>>,
+    TError,
+    { data: BodyType<BulkCreateFeesBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof bulkCreateFees>>,
+  TError,
+  { data: BodyType<BulkCreateFeesBody> },
+  TContext
+> => {
+  const mutationKey = ["bulkCreateFees"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof bulkCreateFees>>,
+    { data: BodyType<BulkCreateFeesBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return bulkCreateFees(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type BulkCreateFeesMutationResult = NonNullable<
+  Awaited<ReturnType<typeof bulkCreateFees>>
+>;
+export type BulkCreateFeesMutationBody = BodyType<BulkCreateFeesBody>;
+export type BulkCreateFeesMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Create the same fee for all active students (optionally filtered by batch)
+ */
+export const useBulkCreateFees = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof bulkCreateFees>>,
+    TError,
+    { data: BodyType<BulkCreateFeesBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof bulkCreateFees>>,
+  TError,
+  { data: BodyType<BulkCreateFeesBody> },
+  TContext
+> => {
+  return useMutation(getBulkCreateFeesMutationOptions(options));
 };
 
 /**

@@ -36,6 +36,7 @@ pnpm workspace monorepo using TypeScript. Kala Kendra Sweden — a classical Ind
 - `students` — enrolled students (linked to admissions via admissionId)
 - `batches` — course batches (e.g. "Bharatanatyam — Seniors")
 - `fees` — fee records per student (amountOre in öre = 1/100 SEK; status: pending/paid/overdue/waived)
+- `attendance` — per-student per-session attendance (status: present/absent/late; unique on studentId+batchId+date)
 - `enquiries` — public contact form submissions
 - `settings` — school-wide settings (monthlyFeeSek, acceptingApplications, etc.)
 - `admins` — admin users
@@ -50,18 +51,23 @@ Create tables directly with SQL (psql "$DATABASE_URL") or run `pnpm --filter @wo
 - `/admissions` — CRUD + `/admissions/:id/enrol` (POST, creates student from admission)
 - `/students` — CRUD
 - `/students/:studentId/fees` — list + create fees per student
+- `/fees` — GET all fees (joined with student/batch info); POST /fees/bulk (generate same fee for all students in a batch)
 - `/fees/:id` — PATCH (update fee) + DELETE
+- `/attendance` — GET (list with batchId/studentId/date/from/to filters) + POST (upsert full session, idempotent)
+- `/attendance/:id` — PATCH (update single entry) + DELETE
 - `/batches` — CRUD
 - `/enquiries` — CRUD
 - `/settings` — GET + PATCH
-- `/dashboard-stats` — GET aggregate stats
+- `/dashboard-stats` — GET aggregate stats (includes totalOutstandingOre, overdueCount)
 
 ## Admin Pages
 
-- Dashboard — overview stats + recent admissions
+- Dashboard — overview stats (active students, pending review, active batches, unread enquiries, outstanding fees) + recent admissions
 - Admissions — list with search/filter + AdmissionDetail (status update, enrol button, enrolled student link)
 - Students — list with search/filter + StudentDetail (editable form, fees section)
 - Batches — CRUD management
+- Attendance — record sessions (batch + date, per-student present/absent/late toggles), view/edit history grouped by date
+- Fees — all fees across students; summary cards; filters by status/student name; Mark Paid action; Generate Term Fees bulk dialog
 - Enquiries — list + mark read/unread, admin notes
 - Settings — school settings (acceptingApplications gates public Apply page)
 

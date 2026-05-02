@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, desc, and, ilike, or } from "drizzle-orm";
+import { eq, desc, and, ilike, or, inArray } from "drizzle-orm";
 import { db, feesTable, studentsTable, batchesTable } from "@workspace/db";
 import {
   ListFeesQueryParams,
@@ -9,6 +9,7 @@ import {
   ListFeesResponseItem,
   UpdateFeeResponse,
   ListAllFeesResponseItem,
+  BulkCreateFeesBody,
 } from "@workspace/api-zod";
 
 const router: IRouter = Router();
@@ -30,6 +31,58 @@ function feeWithStudentSelect() {
     updatedAt: feesTable.updatedAt,
   };
 }
+
+/** POST /fees/bulk — create the same fee for all active students (optionally filtered by batch) */
+router.post("/fees/bulk", async (req, res) => {
+  const body = BulkCreateFeesBody.parse(req.body);
+
+  // Fetch eligible students
+  const conditions = [eq(studentsTable.status, "active")];
+  if (body.batchId) conditions.push(eq(studentsTable.batchId, body.batchId));
+
+  const students = await db
+    .select({ id: studentsTable.id })
+    .from(studentsTable)
+    .where(and(...conditions));
+
+  if (students.length === 0) {
+    res.status(201).json({ created: 0, skipped: 0 });
+    return;
+  }
+
+  // Check for existing fees with same description to skip duplicates
+  const studentIds = students.map((s) => s.id);
+  const existing = await db
+    .select({ studentId: feesTable.studentId })
+    .from(feesTable)
+    .where(
+      and(
+        eq(feesTable.description, body.description),
+        inArray(feesTable.studentId, studentIds)
+      )
+    );
+
+  const existingStudentIds = new Set(existing.map((e) => e.studentId));
+
+  const toCreate = students.filter((s) => !existingStudentIds.has(s.id));
+  const skipped = students.length - toCreate.length;
+
+  if (toCreate.length > 0) {
+    await db.insert(feesTable).values(
+      toCreate.map((s) => ({
+        studentId: s.id,
+        description: body.description,
+        amountOre: body.amountOre,
+        currency: "SEK",
+        dueDate: body.dueDate ?? null,
+        notes: body.notes ?? null,
+        status: "pending" as const,
+      }))
+    );
+  }
+
+  res.status(201).json({ created: toCreate.length, skipped });
+});
 
 /** GET /fees — all fees across all students with optional filters */
 router.get("/fees", async (req, res) => {

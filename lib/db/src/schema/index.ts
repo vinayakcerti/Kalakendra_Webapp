@@ -3,6 +3,7 @@ export * from "./admissions";
 export * from "./students";
 export * from "./batches";
 export * from "./fees";
+export * from "./attendance";
 export * from "./settings";
 export * from "./enquiries";
 export * from "./audit_log";

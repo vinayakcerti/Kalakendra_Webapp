@@ -315,6 +315,77 @@ export interface ListFeesQueryParams {
   status?: ListFeesQueryParamsStatus;
 }
 
+export type AttendanceRecordStatus =
+  (typeof AttendanceRecordStatus)[keyof typeof AttendanceRecordStatus];
+
+export const AttendanceRecordStatus = {
+  present: "present",
+  absent: "absent",
+  late: "late",
+} as const;
+
+export interface AttendanceRecord {
+  id: string;
+  studentId: string;
+  studentName: string;
+  batchId: string;
+  batchName: string;
+  date: string;
+  status: AttendanceRecordStatus;
+  notes?: string | null;
+  createdAt: string;
+}
+
+export type AttendanceEntryStatus =
+  (typeof AttendanceEntryStatus)[keyof typeof AttendanceEntryStatus];
+
+export const AttendanceEntryStatus = {
+  present: "present",
+  absent: "absent",
+  late: "late",
+} as const;
+
+export interface AttendanceEntry {
+  studentId: string;
+  status: AttendanceEntryStatus;
+  notes?: string;
+}
+
+export interface RecordAttendanceBody {
+  batchId: string;
+  date: string;
+  entries: AttendanceEntry[];
+}
+
+export type UpdateAttendanceBodyStatus =
+  (typeof UpdateAttendanceBodyStatus)[keyof typeof UpdateAttendanceBodyStatus];
+
+export const UpdateAttendanceBodyStatus = {
+  present: "present",
+  absent: "absent",
+  late: "late",
+} as const;
+
+export interface UpdateAttendanceBody {
+  status: UpdateAttendanceBodyStatus;
+  notes?: string;
+}
+
+export interface BulkCreateFeesBody {
+  /** Limit to students in this batch; omit for all active students */
+  batchId?: string;
+  description: string;
+  amountOre: number;
+  dueDate?: string;
+  notes?: string;
+}
+
+export interface BulkCreateFeesResponse {
+  created: number;
+  /** Students already having a fee with the same description */
+  skipped: number;
+}
+
 export type ListAllFeesQueryParamsStatus =
   (typeof ListAllFeesQueryParamsStatus)[keyof typeof ListAllFeesQueryParamsStatus];
 
@@ -505,6 +576,18 @@ export const ListFeesStatus = {
   overdue: "overdue",
   waived: "waived",
 } as const;
+
+export type ListAttendanceParams = {
+  batchId?: string;
+  studentId?: string;
+  date?: string;
+  from?: string;
+  to?: string;
+};
+
+export type RecordAttendance201 = {
+  saved: number;
+};
 
 export type ListBatchesParams = {
   active?: boolean;

@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
 import { SidebarProvider, Sidebar, SidebarHeader, SidebarContent, SidebarGroup, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarTrigger, SidebarFooter } from "@/components/ui/sidebar";
-import { LayoutDashboard, Users, BookOpen, Settings, InboxIcon, MessageSquare, CreditCard } from "lucide-react";
+import { LayoutDashboard, Users, BookOpen, Settings, InboxIcon, MessageSquare, CreditCard, CalendarCheck } from "lucide-react";
 import { useListEnquiries, getListEnquiriesQueryKey } from "@workspace/api-client-react";
 
 export function AdminLayout({ children }: { children: ReactNode }) {
@@ -51,6 +51,14 @@ export function AdminLayout({ children }: { children: ReactNode }) {
                     <Link href="/admin/batches">
                       <BookOpen />
                       <span>Batches</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild isActive={location.startsWith("/admin/attendance")}>
+                    <Link href="/admin/attendance">
+                      <CalendarCheck />
+                      <span>Attendance</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

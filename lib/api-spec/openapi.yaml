@@ -22,6 +22,8 @@ tags:
     description: Dashboard statistics
   - name: settings
     description: School settings
+  - name: attendance
+    description: Student attendance records
 
 paths:
   /healthz:
@@ -363,6 +365,127 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/FeeRecord"
+
+  /attendance:
+    get:
+      operationId: listAttendance
+      tags: [attendance]
+      summary: List attendance records with optional filters
+      parameters:
+        - name: batchId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: studentId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Attendance records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AttendanceRecord"
+    post:
+      operationId: recordAttendance
+      tags: [attendance]
+      summary: Record attendance for a batch session (upserts existing entries)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecordAttendanceBody"
+      responses:
+        "201":
+          description: Attendance recorded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  saved:
+                    type: integer
+                required: [saved]
+
+  /attendance/{id}:
+    patch:
+      operationId: updateAttendance
+      tags: [attendance]
+      summary: Update a single attendance entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAttendanceBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AttendanceRecord"
+    delete:
+      operationId: deleteAttendance
+      tags: [attendance]
+      summary: Delete an attendance entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Deleted
+
+  /fees/bulk:
+    post:
+      operationId: bulkCreateFees
+      tags: [fees]
+      summary: Create the same fee for all active students (optionally filtered by batch)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BulkCreateFeesBody"
+      responses:
+        "201":
+          description: Fees created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BulkCreateFeesResponse"
 
   /fees/{id}:
     patch:
@@ -992,6 +1115,102 @@ components:
         status:
           type: string
           enum: [pending, paid, overdue, waived]
+
+    AttendanceRecord:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        studentId:
+          type: string
+          format: uuid
+        studentName:
+          type: string
+        batchId:
+          type: string
+          format: uuid
+        batchName:
+          type: string
+        date:
+          type: string
+          format: date
+        status:
+          type: string
+          enum: [present, absent, late]
+        notes:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, studentId, studentName, batchId, batchName, date, status, createdAt]
+
+    AttendanceEntry:
+      type: object
+      properties:
+        studentId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [present, absent, late]
+        notes:
+          type: string
+      required: [studentId, status]
+
+    RecordAttendanceBody:
+      type: object
+      properties:
+        batchId:
+          type: string
+          format: uuid
+        date:
+          type: string
+          format: date
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/AttendanceEntry"
+      required: [batchId, date, entries]
+
+    UpdateAttendanceBody:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [present, absent, late]
+        notes:
+          type: string
+      required: [status]
+
+    BulkCreateFeesBody:
+      type: object
+      properties:
+        batchId:
+          type: string
+          format: uuid
+          description: Limit to students in this batch; omit for all active students
+        description:
+          type: string
+        amountOre:
+          type: integer
+        dueDate:
+          type: string
+          format: date
+        notes:
+          type: string
+      required: [description, amountOre]
+
+    BulkCreateFeesResponse:
+      type: object
+      properties:
+        created:
+          type: integer
+        skipped:
+          type: integer
+          description: Students already having a fee with the same description
+      required: [created, skipped]
 
     ListAllFeesQueryParams:
       type: object

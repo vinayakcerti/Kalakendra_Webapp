@@ -423,6 +423,91 @@ export const CreateFeeBody = zod.object({
 });
 
 /**
+ * @summary List attendance records with optional filters
+ */
+export const ListAttendanceQueryParams = zod.object({
+  batchId: zod.coerce.string().uuid().optional(),
+  studentId: zod.coerce.string().uuid().optional(),
+  date: zod.date().optional(),
+  from: zod.date().optional(),
+  to: zod.date().optional(),
+});
+
+export const ListAttendanceResponseItem = zod.object({
+  id: zod.string().uuid(),
+  studentId: zod.string().uuid(),
+  studentName: zod.string(),
+  batchId: zod.string().uuid(),
+  batchName: zod.string(),
+  date: zod.coerce.date(),
+  status: zod.enum(["present", "absent", "late"]),
+  notes: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+});
+export const ListAttendanceResponse = zod.array(ListAttendanceResponseItem);
+
+/**
+ * @summary Record attendance for a batch session (upserts existing entries)
+ */
+export const RecordAttendanceBody = zod.object({
+  batchId: zod.string().uuid(),
+  date: zod.coerce.date(),
+  entries: zod.array(
+    zod.object({
+      studentId: zod.string().uuid(),
+      status: zod.enum(["present", "absent", "late"]),
+      notes: zod.string().optional(),
+    }),
+  ),
+});
+
+/**
+ * @summary Update a single attendance entry
+ */
+export const UpdateAttendanceParams = zod.object({
+  id: zod.coerce.string().uuid(),
+});
+
+export const UpdateAttendanceBody = zod.object({
+  status: zod.enum(["present", "absent", "late"]),
+  notes: zod.string().optional(),
+});
+
+export const UpdateAttendanceResponse = zod.object({
+  id: zod.string().uuid(),
+  studentId: zod.string().uuid(),
+  studentName: zod.string(),
+  batchId: zod.string().uuid(),
+  batchName: zod.string(),
+  date: zod.coerce.date(),
+  status: zod.enum(["present", "absent", "late"]),
+  notes: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+});
+
+/**
+ * @summary Delete an attendance entry
+ */
+export const DeleteAttendanceParams = zod.object({
+  id: zod.coerce.string().uuid(),
+});
+
+/**
+ * @summary Create the same fee for all active students (optionally filtered by batch)
+ */
+export const BulkCreateFeesBody = zod.object({
+  batchId: zod
+    .string()
+    .uuid()
+    .optional()
+    .describe("Limit to students in this batch; omit for all active students"),
+  description: zod.string(),
+  amountOre: zod.number(),
+  dueDate: zod.coerce.date().optional(),
+  notes: zod.string().optional(),
+});
+
+/**
  * @summary Update a fee record
  */
 export const UpdateFeeParams = zod.object({
