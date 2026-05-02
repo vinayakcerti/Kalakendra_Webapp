@@ -1,90 +1,214 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
+import bharatanatyamImg from "@/assets/images/bharatanatyam.png";
+import carnaticImg from "@/assets/images/carnatic.png";
+import keralaImg from "@/assets/images/kerala-arts.png";
 
 const programmes = [
   {
     id: "bharatanatyam",
     title: "Bharatanatyam",
-    description: "One of the oldest and most widely practiced classical dance forms of India, originating in the temples of Tamil Nadu. It is known for its grace, purity, tenderness, and sculptural poses.",
+    subtitle: "Classical Dance — Tamil Nadu",
+    image: bharatanatyamImg,
+    intro:
+      "One of the oldest and most widely practiced classical dance forms of India, originating in the temples of Tamil Nadu. It is known for its grace, sculptural poses, intricate footwork, and the power of expressive storytelling (abhinaya).",
+    levels: [
+      { name: "Foundation", duration: "Years 1 – 3", desc: "Adavus, shloka, Alarippu, Jatiswaram. Building the body and understanding the grammar." },
+      { name: "Intermediate", duration: "Years 4 – 6", desc: "Varnam, Padams, and Javalis. Developing expressive depth and rhythmic independence." },
+      { name: "Advanced", duration: "Years 7+", desc: "Thillana, solo items, and preparation for Arangetram. The complete Bharatanatyam repertoire." },
+    ],
     details: [
-      "Rigorous training in adavus (basic steps)",
-      "Study of abhinaya (expressive storytelling)",
-      "Understanding of tala (rhythm) and raga (melody)",
-      "Preparation for Arangetram (solo debut)"
-    ]
+      "Rigorous training in adavus (foundational movement units)",
+      "Abhinaya — the classical grammar of expression",
+      "Tala (rhythm) and raga (melody) literacy for dancers",
+      "Preparation for Arangetram (solo public debut)",
+      "Participation in the Annual Showcase from Year 2",
+    ],
+    batches: ["Junior Batch (Ages 6–12)", "Senior Batch (Ages 13+)", "Adult Batch (18+)"],
+    batchCode: "BHAR",
   },
   {
-    id: "carnatic-vocal",
-    title: "Carnatic Vocal",
-    description: "The classical music system of South India, considered one of the oldest systems of music in the world. It is highly structured and demands deep devotion and rigorous practice.",
+    id: "carnatic",
+    title: "Carnatic Music",
+    subtitle: "Vocal & Instrumental — South India",
+    image: carnaticImg,
+    intro:
+      "The classical music system of South India — one of the oldest and most complex systems of music in the world. Highly structured, deeply devotional, and demanding of both technical rigour and intuitive freedom. Offered in both vocal and instrumental disciplines.",
+    levels: [
+      { name: "Foundation", duration: "Years 1 – 2", desc: "Swaras, sarali varisais, alankaras. Developing ear and voice/instrument control." },
+      { name: "Intermediate", duration: "Years 3 – 5", desc: "Geetam, Swarajati, and compositions of the Musical Trinity." },
+      { name: "Advanced", duration: "Years 6+", desc: "Raga alapana, neraval, kalpanaswara (manodharma). Preparation for solo kacheri." },
+    ],
     details: [
-      "Foundation in swaras and sarali varisais",
+      "Foundations in swaras and sarali varisais",
       "Mastery of complex ragas and talas",
-      "Study of compositions by the Trinity",
-      "Manodharma (improvisation) techniques"
-    ]
+      "Study of compositions by Tyagaraja, Dikshitar, and Syama Sastri",
+      "Manodharma — improvisation and creative expression",
+      "Ear training, shruti, and tala literacy",
+    ],
+    batches: ["Carnatic Vocal Batch", "Veena / Instrumental Batch"],
+    batchCode: "CARN",
   },
   {
-    id: "carnatic-instrumental",
-    title: "Carnatic Instrumental",
-    description: "Training in traditional instruments that accompany or perform solo in the Carnatic style, focusing on the Veena and the Mridangam.",
-    details: [
-      "Technique and posture for the specific instrument",
-      "Translating vocal nuances (gayaki anga) to strings/percussion",
-      "Rhythmic accompaniment patterns",
-      "Solo concert preparation"
-    ]
-  },
-  {
-    id: "kerala-arts",
+    id: "kerala",
     title: "Kerala Arts",
-    description: "A specialized programme introducing the rhythmic and performative traditions of Kerala, including Mohiniyattam and traditional percussion ensembles.",
+    subtitle: "Dance & Percussion — Kerala",
+    image: keralaImg,
+    intro:
+      "A programme introducing the rhythmic and performative traditions of Kerala — from the graceful, swaying movements of Mohiniyattam to the powerful percussion traditions of the temple festival. Kerala's arts are among the most distinctive on the subcontinent.",
+    levels: [
+      { name: "Foundation", duration: "Years 1 – 2", desc: "Basic Mohiniyattam postures, Kerala tala system, introduction to Chenda technique." },
+      { name: "Intermediate", duration: "Years 3 – 5", desc: "Solo Mohiniyattam items, ensemble percussion practice, Sopana sangeetham." },
+      { name: "Advanced", duration: "Years 6+", desc: "Performance repertoire, percussion ensemble leadership, stage experience." },
+    ],
     details: [
-      "Graceful, swaying movements of Mohiniyattam",
-      "Study of Kerala's unique rhythmic structures (talams)",
-      "Introduction to traditional instruments like the Chenda",
-      "Cultural context of temple festivals"
-    ]
-  }
+      "Graceful, swaying lasya movements of Mohiniyattam",
+      "Kerala's unique rhythmic structures (talams)",
+      "Introduction to Chenda and Maddalam technique",
+      "Cultural context of temple festivals and Kerala's arts ecology",
+      "Ensemble performance experience from Year 2",
+    ],
+    batches: ["Kerala Arts Batch (All ages welcome)"],
+    batchCode: "KERA",
+  },
+];
+
+const faqs = [
+  {
+    q: "Do I need prior experience to apply?",
+    a: "No. We welcome absolute beginners in all programmes. Our Foundation curriculum is designed for students with no prior background.",
+  },
+  {
+    q: "How long before I can perform?",
+    a: "Students typically participate in the Annual Showcase from their second year onwards, in ensemble pieces. An Arangetram (solo debut) is typically held in the 7th–10th year of study, when the Guru judges the student ready.",
+  },
+  {
+    q: "Are classes available in English?",
+    a: "Yes. All classes are conducted in English and Tamil. Swedish is also used where helpful.",
+  },
+  {
+    q: "What is the commitment expected?",
+    a: "Students are expected to attend all scheduled classes and to practice daily at home. Classical arts require consistency — we ask students and families to treat this as a serious long-term commitment.",
+  },
+  {
+    q: "What are the fees?",
+    a: "Monthly fees vary by batch and programme. Details are shared during the admissions process. No student is turned away for financial reasons — please contact us to discuss.",
+  },
 ];
 
 export default function Programmes() {
   return (
     <div className="animate-in fade-in duration-700">
-      <section className="py-24 px-6 max-w-6xl mx-auto">
-        <h2 className="text-5xl font-serif text-primary mb-6 text-center">Programmes of Study</h2>
-        <p className="text-center text-muted-foreground max-w-2xl mx-auto mb-12">
-          We offer comprehensive, multi-year programmes in four distinct disciplines. Admission is subject to review, and we welcome absolute beginners as well as advanced students seeking to refine their art.
+
+      {/* Header */}
+      <section className="py-28 px-6 max-w-4xl mx-auto text-center">
+        <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-6 font-semibold">Curriculum</p>
+        <h2 className="text-5xl md:text-6xl font-serif text-primary mb-8 leading-tight">Programmes of Study</h2>
+        <div className="gold-divider max-w-sm mx-auto" />
+        <p className="text-xl text-muted-foreground mt-8 leading-relaxed max-w-2xl mx-auto">
+          We offer three classical disciplines across multiple levels. Admission is reviewed individually, and we welcome beginners as well as students seeking to deepen an existing practice.
         </p>
-        
-        <div className="space-y-16">
-          {programmes.map((prog) => (
-            <div key={prog.id} className="grid md:grid-cols-3 gap-8 bg-card border border-secondary/20 p-8 md:p-12 hover:border-secondary/50 transition-colors">
-              <div className="md:col-span-1">
-                <h3 className="text-3xl font-serif text-primary mb-4">{prog.title}</h3>
-                <div className="h-[1px] w-16 bg-secondary/40 mb-6" />
+      </section>
+
+      {/* Programmes */}
+      <div className="space-y-0">
+        {programmes.map((prog, idx) => (
+          <section
+            key={prog.id}
+            id={prog.id}
+            className={`py-24 px-6 md:px-12 ${idx % 2 === 1 ? "bg-card border-y border-secondary/20" : ""}`}
+          >
+            <div className="max-w-6xl mx-auto">
+
+              {/* Header */}
+              <div className="grid md:grid-cols-[2fr_1fr] gap-16 mb-16 items-end">
+                <div>
+                  <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-4 font-semibold">{prog.subtitle}</p>
+                  <h3 className="text-4xl md:text-5xl font-serif text-primary leading-tight mb-6">{prog.title}</h3>
+                  <p className="text-muted-foreground text-lg leading-relaxed">{prog.intro}</p>
+                </div>
+                <div className="gold-frame">
+                  <img src={prog.image} alt={prog.title} className="w-full aspect-square object-cover object-top" />
+                </div>
               </div>
-              <div className="md:col-span-2">
-                <p className="text-muted-foreground text-lg mb-8 leading-relaxed">
-                  {prog.description}
-                </p>
-                <h4 className="text-sm font-semibold uppercase tracking-widest text-secondary mb-4">Curriculum Highlights</h4>
-                <ul className="space-y-3 mb-8">
-                  {prog.details.map((detail, idx) => (
-                    <li key={idx} className="flex items-start text-muted-foreground">
-                      <span className="text-secondary mr-3">✦</span>
-                      <span>{detail}</span>
-                    </li>
+
+              {/* Levels */}
+              <div className="mb-16">
+                <h4 className="text-xs uppercase tracking-widest text-secondary font-semibold mb-8">Curriculum Levels</h4>
+                <div className="grid md:grid-cols-3 gap-6">
+                  {prog.levels.map((level) => (
+                    <div key={level.name} className="border border-secondary/20 p-6 hover:border-secondary/50 transition-colors">
+                      <div className="flex items-start justify-between mb-4">
+                        <p className="font-serif text-xl text-primary">{level.name}</p>
+                        <p className="text-xs text-muted-foreground whitespace-nowrap ml-4">{level.duration}</p>
+                      </div>
+                      <p className="text-muted-foreground text-sm leading-relaxed">{level.desc}</p>
+                    </div>
                   ))}
-                </ul>
-                <Button asChild variant="outline" className="border-secondary text-primary hover:bg-secondary/10 rounded-none">
-                  <Link href={`/apply?programme=${prog.id}`}>Apply for {prog.title}</Link>
-                </Button>
+                </div>
               </div>
+
+              {/* Details + Batches */}
+              <div className="grid md:grid-cols-2 gap-12">
+                <div>
+                  <h4 className="text-xs uppercase tracking-widest text-secondary font-semibold mb-6">Curriculum Highlights</h4>
+                  <ul className="space-y-3">
+                    {prog.details.map((detail) => (
+                      <li key={detail} className="flex items-start text-muted-foreground text-sm">
+                        <span className="text-secondary mr-3 mt-0.5">✦</span>
+                        <span>{detail}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="text-xs uppercase tracking-widest text-secondary font-semibold mb-6">Available Batches</h4>
+                  <div className="space-y-2 mb-8">
+                    {prog.batches.map((batch) => (
+                      <div key={batch} className="flex items-center gap-3 text-sm text-muted-foreground border-b border-secondary/10 pb-2">
+                        <span className="w-2 h-2 border border-secondary/50 rotate-45 shrink-0" />
+                        {batch}
+                      </div>
+                    ))}
+                  </div>
+                  <Button asChild variant="outline" className="border-secondary text-primary hover:bg-secondary/10 rounded-none">
+                    <Link href="/apply">Apply for {prog.title}</Link>
+                  </Button>
+                </div>
+              </div>
+
+            </div>
+          </section>
+        ))}
+      </div>
+
+      {/* FAQs */}
+      <section className="py-24 px-6 max-w-3xl mx-auto">
+        <div className="text-center mb-16">
+          <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-6 font-semibold">Questions</p>
+          <h3 className="text-4xl font-serif text-primary">Frequently Asked</h3>
+        </div>
+        <div className="space-y-8">
+          {faqs.map((faq) => (
+            <div key={faq.q} className="border-b border-secondary/20 pb-8">
+              <h4 className="font-serif text-xl text-primary mb-3">{faq.q}</h4>
+              <p className="text-muted-foreground leading-relaxed">{faq.a}</p>
             </div>
           ))}
         </div>
       </section>
+
+      {/* CTA */}
+      <section className="py-20 px-6 bg-primary text-primary-foreground text-center">
+        <h3 className="text-4xl font-serif mb-6">Ready to Apply?</h3>
+        <p className="text-primary-foreground/80 max-w-xl mx-auto mb-10 text-lg leading-relaxed">
+          Applications are reviewed individually. Tell us about yourself and your aspirations, and we will find the right place for you.
+        </p>
+        <Button asChild className="bg-background text-primary hover:bg-background/90 rounded-none text-lg px-14 py-6">
+          <Link href="/apply">Submit Application</Link>
+        </Button>
+      </section>
+
     </div>
   );
 }

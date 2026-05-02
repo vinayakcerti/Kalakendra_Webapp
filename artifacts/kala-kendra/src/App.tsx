@@ -9,9 +9,12 @@ import { AdminLayout } from "@/components/layout/AdminLayout";
 
 import Home from "@/pages/public/Home";
 import About from "@/pages/public/About";
+import Heritage from "@/pages/public/Heritage";
 import Programmes from "@/pages/public/Programmes";
+import AnnualEvent from "@/pages/public/AnnualEvent";
 import Apply from "@/pages/public/Apply";
 import Contact from "@/pages/public/Contact";
+import Privacy from "@/pages/public/Privacy";
 
 import Dashboard from "@/pages/admin/Dashboard";
 import Admissions from "@/pages/admin/Admissions";
@@ -35,9 +38,12 @@ function PublicRoutes() {
       <Switch>
         <Route path="/" component={Home} />
         <Route path="/about" component={About} />
+        <Route path="/heritage" component={Heritage} />
         <Route path="/programmes" component={Programmes} />
+        <Route path="/annual-event" component={AnnualEvent} />
         <Route path="/apply" component={Apply} />
         <Route path="/contact" component={Contact} />
+        <Route path="/privacy" component={Privacy} />
         <Route component={NotFound} />
       </Switch>
     </PublicLayout>
