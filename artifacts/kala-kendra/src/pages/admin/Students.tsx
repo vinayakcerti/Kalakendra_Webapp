@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "wouter";
 import {
   useListStudents,
   getListStudentsQueryKey,
@@ -54,6 +55,7 @@ export default function Students() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [, navigate] = useLocation();
 
   const queryParams = debouncedSearch ? { search: debouncedSearch } : {};
   const { data: students, isLoading } = useListStudents(queryParams, {
@@ -193,7 +195,11 @@ export default function Students() {
                 </TableRow>
               )
               : students?.map((student) => (
-                  <TableRow key={student.id} className="border-secondary/10 hover:bg-secondary/5">
+                  <TableRow
+                    key={student.id}
+                    className="border-secondary/10 hover:bg-secondary/5 cursor-pointer"
+                    onClick={() => navigate(`/admin/students/${student.id}`)}
+                  >
                     <TableCell className="font-medium">{student.fullName}</TableCell>
                     <TableCell className="text-sm text-muted-foreground">{student.batchName ?? "—"}</TableCell>
                     <TableCell className="text-sm text-muted-foreground">
@@ -212,7 +218,7 @@ export default function Students() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => handleDelete(student.id)}
+                        onClick={(e) => { e.stopPropagation(); handleDelete(student.id); }}
                         className="text-destructive hover:text-destructive/80 hover:bg-destructive/10 rounded-none"
                       >
                         <Trash2 className="h-4 w-4" />
