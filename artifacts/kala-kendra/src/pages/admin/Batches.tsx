@@ -21,13 +21,15 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Trash2, Users } from "lucide-react";
+import { Plus, Trash2, Users, Clock } from "lucide-react";
 
 const formSchema = z.object({
   code: z.string().min(2, "Code required (e.g. BHAR-JUN)"),
   name: z.string().min(2, "Name required"),
   ageRange: z.string().optional(),
   description: z.string().optional(),
+  schedule: z.string().optional(),
+  maxStudents: z.coerce.number().int().positive().optional().or(z.literal("")),
   active: z.boolean().default(true),
   displayOrder: z.coerce.number().default(0),
 });
@@ -47,7 +49,7 @@ export default function Batches() {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { code: "", name: "", ageRange: "", description: "", active: true, displayOrder: 0 },
+    defaultValues: { code: "", name: "", ageRange: "", description: "", schedule: "", maxStudents: "", active: true, displayOrder: 0 },
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
@@ -109,6 +111,14 @@ export default function Batches() {
                 <FormField control={form.control} name="ageRange" render={({ field }) => (
                   <FormItem><FormLabel>Age Range</FormLabel><FormControl><Input placeholder="e.g. 6–12 years" {...field} className="rounded-none" /></FormControl><FormMessage /></FormItem>
                 )} />
+                <FormField control={form.control} name="schedule" render={({ field }) => (
+                  <FormItem><FormLabel>Schedule</FormLabel><FormControl><Input placeholder="e.g. Tuesday & Thursday, 5:00–6:30 PM" {...field} className="rounded-none" /></FormControl><FormMessage /></FormItem>
+                )} />
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={form.control} name="maxStudents" render={({ field }) => (
+                    <FormItem><FormLabel>Max Students</FormLabel><FormControl><Input type="number" min="1" placeholder="e.g. 12" {...field} className="rounded-none" /></FormControl><FormMessage /></FormItem>
+                  )} />
+                </div>
                 <FormField control={form.control} name="description" render={({ field }) => (
                   <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea {...field} className="rounded-none" rows={3} /></FormControl><FormMessage /></FormItem>
                 )} />
@@ -159,16 +169,28 @@ export default function Batches() {
                 </div>
 
                 {batch.ageRange && (
-                  <p className="text-sm text-secondary uppercase tracking-widest mb-3">{batch.ageRange}</p>
+                  <p className="text-xs text-secondary uppercase tracking-widest mb-2">{batch.ageRange}</p>
+                )}
+
+                {batch.schedule && (
+                  <p className="flex items-center gap-1.5 text-xs text-muted-foreground mb-2">
+                    <Clock className="h-3 w-3 shrink-0" />
+                    {batch.schedule}
+                  </p>
                 )}
 
                 {batch.description && (
                   <p className="text-sm text-muted-foreground mb-4 leading-relaxed flex-1">{batch.description}</p>
                 )}
 
-                <div className="flex items-center gap-2 mt-auto pt-4 border-t border-secondary/10 text-sm text-muted-foreground">
-                  <Users className="h-4 w-4" />
-                  <span>{batch.studentCount} active student{batch.studentCount !== 1 ? "s" : ""}</span>
+                <div className="flex items-center justify-between mt-auto pt-4 border-t border-secondary/10 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <Users className="h-4 w-4" />
+                    <span>{batch.studentCount} active student{batch.studentCount !== 1 ? "s" : ""}</span>
+                  </div>
+                  {batch.maxStudents != null && (
+                    <span className="text-xs text-muted-foreground">Cap: {batch.maxStudents}</span>
+                  )}
                 </div>
 
                 <div className="flex gap-2 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">

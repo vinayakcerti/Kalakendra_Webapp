@@ -17,6 +17,8 @@ export const batchesTable = pgTable("batches", {
   description: text("description"),
   active: boolean("active").notNull().default(true),
   displayOrder: integer("display_order").notNull().default(0),
+  schedule: text("schedule"),
+  maxStudents: integer("max_students"),
 });
 
 export const insertBatchSchema = createInsertSchema(batchesTable).omit({

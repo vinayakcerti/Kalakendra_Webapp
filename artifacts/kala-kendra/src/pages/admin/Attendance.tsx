@@ -17,7 +17,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle2, XCircle, Clock, CalendarCheck, Save, Users } from "lucide-react";
+import { CheckCircle2, XCircle, Clock, CalendarCheck, Save, Users, Download } from "lucide-react";
+import { exportToCsv } from "@/lib/utils";
 
 type AttendanceStatus = "present" | "absent" | "late";
 
@@ -134,13 +135,36 @@ export default function Attendance() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <h2 className="text-3xl font-serif text-primary">Attendance</h2>
         {mode === "view" ? (
-          <Button
-            onClick={() => setMode("record")}
-            className="rounded-none bg-primary text-primary-foreground hover:bg-primary/90 gap-2"
-          >
-            <CalendarCheck className="h-4 w-4" />
-            Record Session
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() =>
+                exportToCsv(
+                  `kala-kendra-attendance-${new Date().toISOString().split("T")[0]}.csv`,
+                  ["Date", "Student", "Batch", "Status", "Notes"],
+                  records.map((r) => [
+                    r.date,
+                    r.studentName ?? "",
+                    r.batchName ?? "",
+                    r.status,
+                    r.notes ?? "",
+                  ])
+                )
+              }
+              disabled={records.length === 0}
+              className="rounded-none border-secondary/40 gap-2 text-sm"
+            >
+              <Download className="h-3.5 w-3.5" />
+              Export CSV
+            </Button>
+            <Button
+              onClick={() => setMode("record")}
+              className="rounded-none bg-primary text-primary-foreground hover:bg-primary/90 gap-2"
+            >
+              <CalendarCheck className="h-4 w-4" />
+              Record Session
+            </Button>
+          </div>
         ) : (
           <Button
             variant="outline"

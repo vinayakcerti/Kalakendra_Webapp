@@ -23,7 +23,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useToast } from "@/hooks/use-toast";
-import { Search, Plus, Trash2 } from "lucide-react";
+import { Search, Plus, Trash2, Download, Filter } from "lucide-react";
+import { exportToCsv } from "@/lib/utils";
 
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
@@ -57,7 +58,14 @@ export default function Students() {
   const queryClient = useQueryClient();
   const [, navigate] = useLocation();
 
-  const queryParams = debouncedSearch ? { search: debouncedSearch } : {};
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [batchFilter, setBatchFilter] = useState<string>("all");
+
+  const queryParams = {
+    ...(debouncedSearch ? { search: debouncedSearch } : {}),
+    ...(statusFilter !== "all" ? { status: statusFilter as "active" | "inactive" | "withdrawn" } : {}),
+    ...(batchFilter !== "all" ? { batchId: batchFilter } : {}),
+  };
   const { data: students, isLoading } = useListStudents(queryParams, {
     query: { queryKey: getListStudentsQueryKey(queryParams) },
   });
@@ -105,7 +113,31 @@ export default function Students() {
     <div className="space-y-8 animate-in fade-in">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <h2 className="text-3xl font-serif text-primary">Students</h2>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => {
+              exportToCsv(
+                `kala-kendra-students-${new Date().toISOString().split("T")[0]}.csv`,
+                ["Name", "Batch", "Status", "Enrolled", "Contact Name", "Contact Email", "Contact Phone"],
+                (students ?? []).map((s) => [
+                  s.fullName,
+                  s.batchName ?? "",
+                  s.status,
+                  s.enrolledAt ? new Date(s.enrolledAt).toISOString().split("T")[0] : "",
+                  s.primaryContactName ?? "",
+                  s.primaryContactEmail ?? "",
+                  s.primaryContactPhone ?? "",
+                ])
+              );
+            }}
+            disabled={!students || students.length === 0}
+            className="rounded-none border-secondary/40 gap-2 text-sm"
+          >
+            <Download className="h-3.5 w-3.5" />
+            Export CSV
+          </Button>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-none">
               <Plus className="mr-2 h-4 w-4" /> Add Student
@@ -155,16 +187,42 @@ export default function Students() {
             </Form>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
-      <div className="flex items-center gap-2 max-w-sm">
-        <Search className="h-5 w-5 text-muted-foreground" />
-        <Input
-          placeholder="Search students..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="rounded-none border-secondary/40 bg-card"
-        />
+      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+        <div className="flex items-center gap-2">
+          <Search className="h-5 w-5 text-muted-foreground shrink-0" />
+          <Input
+            placeholder="Search students..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="rounded-none border-secondary/40 bg-card w-64"
+          />
+        </div>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="rounded-none border-secondary/40 bg-card w-40">
+            <Filter className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All statuses</SelectItem>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="inactive">Inactive</SelectItem>
+            <SelectItem value="withdrawn">Withdrawn</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={batchFilter} onValueChange={setBatchFilter}>
+          <SelectTrigger className="rounded-none border-secondary/40 bg-card w-52">
+            <SelectValue placeholder="All batches" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All batches</SelectItem>
+            {batches?.map((b) => (
+              <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="border border-secondary/20 bg-card">

@@ -6,9 +6,11 @@ import { format } from "date-fns";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Search, Download } from "lucide-react";
+import { exportToCsv } from "@/lib/utils";
 
 type Status = "all" | "pending" | "under_review" | "accepted" | "waitlisted" | "rejected";
 
@@ -38,6 +40,30 @@ export default function Admissions() {
     <div className="space-y-8 animate-in fade-in">
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-serif text-primary">Admissions</h2>
+        <Button
+          variant="outline"
+          onClick={() =>
+            exportToCsv(
+              `kala-kendra-admissions-${new Date().toISOString().split("T")[0]}.csv`,
+              ["Student", "Type", "Batch", "Submitted", "Status", "Parent", "Email", "Phone"],
+              (admissions ?? []).map((a) => [
+                a.studentName,
+                a.applicantType,
+                a.batch ?? "",
+                new Date(a.submittedAt).toISOString().split("T")[0],
+                a.status,
+                a.parentName ?? "",
+                a.parentEmail ?? a.studentEmail ?? "",
+                a.parentPhone ?? a.studentPhone ?? "",
+              ])
+            )
+          }
+          disabled={!admissions || admissions.length === 0}
+          className="rounded-none border-secondary/40 gap-2 text-sm"
+        >
+          <Download className="h-3.5 w-3.5" />
+          Export CSV
+        </Button>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">

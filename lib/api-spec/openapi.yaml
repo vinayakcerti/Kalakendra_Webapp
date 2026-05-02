@@ -1509,6 +1509,12 @@ components:
           type: integer
         studentCount:
           type: integer
+        schedule:
+          type: string
+          nullable: true
+        maxStudents:
+          type: integer
+          nullable: true
       required: [id, code, name, active, displayOrder, studentCount]
 
     CreateBatchBody:
@@ -1526,6 +1532,10 @@ components:
           type: boolean
         displayOrder:
           type: integer
+        schedule:
+          type: string
+        maxStudents:
+          type: integer
       required: [code, name]
 
     UpdateBatchBody:
@@ -1540,6 +1550,10 @@ components:
         active:
           type: boolean
         displayOrder:
+          type: integer
+        schedule:
+          type: string
+        maxStudents:
           type: integer
 
     # ─── ENQUIRIES ──────────────────────────────────────────────────────────

@@ -493,6 +493,8 @@ export interface Batch {
   active: boolean;
   displayOrder: number;
   studentCount: number;
+  schedule?: string | null;
+  maxStudents?: number | null;
 }
 
 export interface CreateBatchBody {
@@ -502,6 +504,8 @@ export interface CreateBatchBody {
   description?: string;
   active?: boolean;
   displayOrder?: number;
+  schedule?: string;
+  maxStudents?: number;
 }
 
 export interface UpdateBatchBody {
@@ -510,6 +514,8 @@ export interface UpdateBatchBody {
   description?: string;
   active?: boolean;
   displayOrder?: number;
+  schedule?: string;
+  maxStudents?: number;
 }
 
 export interface Enquiry {

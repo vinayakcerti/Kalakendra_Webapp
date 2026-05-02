@@ -603,6 +603,8 @@ export const ListBatchesResponseItem = zod.object({
   active: zod.boolean(),
   displayOrder: zod.number(),
   studentCount: zod.number(),
+  schedule: zod.string().nullish(),
+  maxStudents: zod.number().nullish(),
 });
 export const ListBatchesResponse = zod.array(ListBatchesResponseItem);
 
@@ -616,6 +618,8 @@ export const CreateBatchBody = zod.object({
   description: zod.string().optional(),
   active: zod.boolean().optional(),
   displayOrder: zod.number().optional(),
+  schedule: zod.string().optional(),
+  maxStudents: zod.number().optional(),
 });
 
 /**
@@ -663,6 +667,8 @@ export const UpdateBatchBody = zod.object({
   description: zod.string().optional(),
   active: zod.boolean().optional(),
   displayOrder: zod.number().optional(),
+  schedule: zod.string().optional(),
+  maxStudents: zod.number().optional(),
 });
 
 export const UpdateBatchResponse = zod.object({
@@ -674,6 +680,8 @@ export const UpdateBatchResponse = zod.object({
   active: zod.boolean(),
   displayOrder: zod.number(),
   studentCount: zod.number(),
+  schedule: zod.string().nullish(),
+  maxStudents: zod.number().nullish(),
 });
 
 /**

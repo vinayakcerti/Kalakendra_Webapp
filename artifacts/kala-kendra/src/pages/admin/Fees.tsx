@@ -21,7 +21,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle2, Clock, AlertCircle, MinusCircle, Trash2, ExternalLink, PlusCircle, RefreshCw } from "lucide-react";
+import { CheckCircle2, Clock, AlertCircle, MinusCircle, Trash2, ExternalLink, PlusCircle, RefreshCw, Download } from "lucide-react";
+import { exportToCsv } from "@/lib/utils";
 
 const FEE_STATUS_CONFIG = {
   pending: { label: "Pending",  badgeClass: "bg-amber-50 text-amber-800 border-amber-200",       Icon: Clock },
@@ -158,6 +159,29 @@ export default function Fees() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <h2 className="text-3xl font-serif text-primary">Fees & Payments</h2>
         <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => {
+              exportToCsv(
+                `kala-kendra-fees-${new Date().toISOString().split("T")[0]}.csv`,
+                ["Student", "Batch", "Description", "Amount (SEK)", "Status", "Due Date", "Paid Date"],
+                fees.map((f) => [
+                  f.studentName,
+                  f.batchName ?? "",
+                  f.description,
+                  (f.amountOre / 100).toFixed(2),
+                  f.status,
+                  f.dueDate ?? "",
+                  f.paidDate ?? "",
+                ])
+              );
+            }}
+            disabled={fees.length === 0}
+            className="rounded-none border-secondary/40 gap-2 text-sm"
+          >
+            <Download className="h-3.5 w-3.5" />
+            Export CSV
+          </Button>
           <Button
             variant="outline"
             onClick={() => {

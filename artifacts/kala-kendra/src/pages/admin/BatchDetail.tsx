@@ -77,8 +77,25 @@ export default function BatchDetail() {
         <div className="flex items-start justify-between gap-4">
           <div>
             <h2 className="text-3xl font-serif text-primary">{batch.name}</h2>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1.5">
+              {batch.ageRange && (
+                <span className="text-xs text-secondary uppercase tracking-widest">{batch.ageRange}</span>
+              )}
+              {batch.schedule && (
+                <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                  <Clock className="h-3.5 w-3.5 text-secondary shrink-0" />
+                  {batch.schedule}
+                </span>
+              )}
+              {batch.maxStudents != null && (
+                <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                  <Users className="h-3.5 w-3.5 text-secondary shrink-0" />
+                  Capacity: {batch.maxStudents}
+                </span>
+              )}
+            </div>
             {batch.description && (
-              <p className="text-muted-foreground mt-1 text-sm">{batch.description}</p>
+              <p className="text-muted-foreground mt-2 text-sm">{batch.description}</p>
             )}
           </div>
           <Badge
