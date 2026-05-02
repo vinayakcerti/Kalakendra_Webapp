@@ -1,10 +1,15 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
 import { SidebarProvider, Sidebar, SidebarHeader, SidebarContent, SidebarGroup, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarTrigger, SidebarFooter } from "@/components/ui/sidebar";
-import { LayoutDashboard, Users, BookOpen, Inbox, Settings, InboxIcon } from "lucide-react";
+import { LayoutDashboard, Users, BookOpen, Settings, InboxIcon, MessageSquare } from "lucide-react";
+import { useListEnquiries, getListEnquiriesQueryKey } from "@workspace/api-client-react";
 
 export function AdminLayout({ children }: { children: ReactNode }) {
   const [location] = useLocation();
+  const { data: unread = [] } = useListEnquiries({ read: false }, {
+    query: { queryKey: getListEnquiriesQueryKey({ read: false }) },
+  });
+  const unreadCount = unread.length;
 
   return (
     <SidebarProvider>
@@ -46,6 +51,19 @@ export function AdminLayout({ children }: { children: ReactNode }) {
                     <Link href="/admin/batches">
                       <BookOpen />
                       <span>Batches</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild isActive={location.startsWith("/admin/enquiries")}>
+                    <Link href="/admin/enquiries">
+                      <MessageSquare />
+                      <span>Enquiries</span>
+                      {unreadCount > 0 && (
+                        <span className="ml-auto bg-primary text-primary-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
+                          {unreadCount > 9 ? "9+" : unreadCount}
+                        </span>
+                      )}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

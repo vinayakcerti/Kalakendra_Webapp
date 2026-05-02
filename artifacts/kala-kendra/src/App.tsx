@@ -21,6 +21,7 @@ import Admissions from "@/pages/admin/Admissions";
 import AdmissionDetail from "@/pages/admin/AdmissionDetail";
 import Students from "@/pages/admin/Students";
 import Batches from "@/pages/admin/Batches";
+import Enquiries from "@/pages/admin/Enquiries";
 import Settings from "@/pages/admin/Settings";
 
 const queryClient = new QueryClient({
@@ -62,6 +63,7 @@ function AdminRoutes() {
         <Route path="/admin/admissions/:id" component={AdmissionDetail} />
         <Route path="/admin/students" component={Students} />
         <Route path="/admin/batches" component={Batches} />
+        <Route path="/admin/enquiries" component={Enquiries} />
         <Route path="/admin/settings" component={Settings} />
         <Route component={NotFound} />
       </Switch>
