@@ -6,6 +6,7 @@ import {
   useCreateBatch,
   useUpdateBatch,
   useDeleteBatch,
+  type Batch,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -21,7 +22,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Trash2, Users, Clock } from "lucide-react";
+import { Plus, Trash2, Users, Clock, Pencil } from "lucide-react";
 
 const formSchema = z.object({
   code: z.string().min(2, "Code required (e.g. BHAR-JUN)"),
@@ -34,8 +35,64 @@ const formSchema = z.object({
   displayOrder: z.coerce.number().default(0),
 });
 
+const editSchema = z.object({
+  name: z.string().min(2, "Name required"),
+  ageRange: z.string().optional(),
+  description: z.string().optional(),
+  schedule: z.string().optional(),
+  maxStudents: z.coerce.number().int().positive().optional().or(z.literal("")),
+  active: z.boolean(),
+  displayOrder: z.coerce.number(),
+});
+
+function BatchFormFields({ form, showCode }: { form: ReturnType<typeof useForm<z.infer<typeof formSchema>>>, showCode: boolean }) {
+  return (
+    <>
+      {showCode && (
+        <div className="grid grid-cols-2 gap-4">
+          <FormField control={form.control} name="code" render={({ field }) => (
+            <FormItem><FormLabel>Code</FormLabel><FormControl><Input placeholder="e.g. BHAR-JUN" {...field} className="rounded-none" /></FormControl><FormMessage /></FormItem>
+          )} />
+          <FormField control={form.control} name="displayOrder" render={({ field }) => (
+            <FormItem><FormLabel>Display Order</FormLabel><FormControl><Input type="number" {...field} className="rounded-none" /></FormControl><FormMessage /></FormItem>
+          )} />
+        </div>
+      )}
+      <FormField control={form.control} name="name" render={({ field }) => (
+        <FormItem><FormLabel>Name</FormLabel><FormControl><Input placeholder="e.g. Bharatanatyam — Juniors" {...field} className="rounded-none" /></FormControl><FormMessage /></FormItem>
+      )} />
+      <FormField control={form.control} name="ageRange" render={({ field }) => (
+        <FormItem><FormLabel>Age Range</FormLabel><FormControl><Input placeholder="e.g. 6–12 years" {...field} className="rounded-none" /></FormControl><FormMessage /></FormItem>
+      )} />
+      <FormField control={form.control} name="schedule" render={({ field }) => (
+        <FormItem><FormLabel>Schedule</FormLabel><FormControl><Input placeholder="e.g. Tuesday & Thursday, 5:00–6:30 PM" {...field} className="rounded-none" /></FormControl><FormMessage /></FormItem>
+      )} />
+      <div className="grid grid-cols-2 gap-4">
+        <FormField control={form.control} name="maxStudents" render={({ field }) => (
+          <FormItem><FormLabel>Max Students</FormLabel><FormControl><Input type="number" min="1" placeholder="e.g. 12" {...field} className="rounded-none" /></FormControl><FormMessage /></FormItem>
+        )} />
+        {!showCode && (
+          <FormField control={form.control} name="displayOrder" render={({ field }) => (
+            <FormItem><FormLabel>Display Order</FormLabel><FormControl><Input type="number" {...field} className="rounded-none" /></FormControl><FormMessage /></FormItem>
+          )} />
+        )}
+      </div>
+      <FormField control={form.control} name="description" render={({ field }) => (
+        <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea {...field} className="rounded-none" rows={3} /></FormControl><FormMessage /></FormItem>
+      )} />
+      <FormField control={form.control} name="active" render={({ field }) => (
+        <FormItem className="flex items-center gap-3">
+          <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+          <FormLabel className="!mt-0">Active (accepting students)</FormLabel>
+        </FormItem>
+      )} />
+    </>
+  );
+}
+
 export default function Batches() {
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [editingBatch, setEditingBatch] = useState<Batch | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -47,26 +104,54 @@ export default function Batches() {
   const updateBatch = useUpdateBatch();
   const deleteBatch = useDeleteBatch();
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const createForm = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: { code: "", name: "", ageRange: "", description: "", schedule: "", maxStudents: "", active: true, displayOrder: 0 },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const editForm = useForm<z.infer<typeof editSchema>>({
+    resolver: zodResolver(editSchema),
+    defaultValues: { name: "", ageRange: "", description: "", schedule: "", maxStudents: "", active: true, displayOrder: 0 },
+  });
+
+  const openEdit = (batch: Batch) => {
+    setEditingBatch(batch);
+    editForm.reset({
+      name: batch.name,
+      ageRange: batch.ageRange ?? "",
+      description: batch.description ?? "",
+      schedule: batch.schedule ?? "",
+      maxStudents: batch.maxStudents ?? "",
+      active: batch.active,
+      displayOrder: batch.displayOrder,
+    });
+  };
+
+  const onCreate = (values: z.infer<typeof formSchema>) => {
     createBatch.mutate({ data: values }, {
       onSuccess: () => {
         toast({ title: "Batch created" });
-        setDialogOpen(false);
-        form.reset();
+        setCreateOpen(false);
+        createForm.reset();
         queryClient.invalidateQueries({ queryKey: getListBatchesQueryKey() });
       },
       onError: () => toast({ title: "Failed to create batch", variant: "destructive" }),
     });
   };
 
-  const handleToggleActive = (id: string, active: boolean) => {
-    updateBatch.mutate({ id, data: { active: !active } }, {
-      onSuccess: () => queryClient.invalidateQueries({ queryKey: getListBatchesQueryKey() }),
+  const onEdit = (values: z.infer<typeof editSchema>) => {
+    if (!editingBatch) return;
+    const payload = {
+      ...values,
+      maxStudents: values.maxStudents === "" ? undefined : Number(values.maxStudents),
+    };
+    updateBatch.mutate({ id: editingBatch.id, data: payload }, {
+      onSuccess: () => {
+        toast({ title: "Batch updated" });
+        setEditingBatch(null);
+        queryClient.invalidateQueries({ queryKey: getListBatchesQueryKey() });
+      },
+      onError: () => toast({ title: "Failed to update batch", variant: "destructive" }),
     });
   };
 
@@ -85,7 +170,9 @@ export default function Batches() {
     <div className="space-y-8 animate-in fade-in">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <h2 className="text-3xl font-serif text-primary">Batches</h2>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+
+        {/* Create dialog */}
+        <Dialog open={createOpen} onOpenChange={setCreateOpen}>
           <DialogTrigger asChild>
             <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-none">
               <Plus className="mr-2 h-4 w-4" /> Create Batch
@@ -95,39 +182,9 @@ export default function Batches() {
             <DialogHeader>
               <DialogTitle className="font-serif text-2xl text-primary">Create New Batch</DialogTitle>
             </DialogHeader>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField control={form.control} name="code" render={({ field }) => (
-                    <FormItem><FormLabel>Code</FormLabel><FormControl><Input placeholder="e.g. BHAR-JUN" {...field} className="rounded-none" /></FormControl><FormMessage /></FormItem>
-                  )} />
-                  <FormField control={form.control} name="displayOrder" render={({ field }) => (
-                    <FormItem><FormLabel>Display Order</FormLabel><FormControl><Input type="number" {...field} className="rounded-none" /></FormControl><FormMessage /></FormItem>
-                  )} />
-                </div>
-                <FormField control={form.control} name="name" render={({ field }) => (
-                  <FormItem><FormLabel>Name</FormLabel><FormControl><Input placeholder="e.g. Bharatanatyam — Juniors" {...field} className="rounded-none" /></FormControl><FormMessage /></FormItem>
-                )} />
-                <FormField control={form.control} name="ageRange" render={({ field }) => (
-                  <FormItem><FormLabel>Age Range</FormLabel><FormControl><Input placeholder="e.g. 6–12 years" {...field} className="rounded-none" /></FormControl><FormMessage /></FormItem>
-                )} />
-                <FormField control={form.control} name="schedule" render={({ field }) => (
-                  <FormItem><FormLabel>Schedule</FormLabel><FormControl><Input placeholder="e.g. Tuesday & Thursday, 5:00–6:30 PM" {...field} className="rounded-none" /></FormControl><FormMessage /></FormItem>
-                )} />
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField control={form.control} name="maxStudents" render={({ field }) => (
-                    <FormItem><FormLabel>Max Students</FormLabel><FormControl><Input type="number" min="1" placeholder="e.g. 12" {...field} className="rounded-none" /></FormControl><FormMessage /></FormItem>
-                  )} />
-                </div>
-                <FormField control={form.control} name="description" render={({ field }) => (
-                  <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea {...field} className="rounded-none" rows={3} /></FormControl><FormMessage /></FormItem>
-                )} />
-                <FormField control={form.control} name="active" render={({ field }) => (
-                  <FormItem className="flex items-center gap-3">
-                    <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
-                    <FormLabel className="!mt-0">Active (accepting students)</FormLabel>
-                  </FormItem>
-                )} />
+            <Form {...createForm}>
+              <form onSubmit={createForm.handleSubmit(onCreate)} className="space-y-4 pt-4">
+                <BatchFormFields form={createForm as ReturnType<typeof useForm<z.infer<typeof formSchema>>>} showCode={true} />
                 <div className="pt-4 flex justify-end">
                   <Button type="submit" disabled={createBatch.isPending} className="rounded-none bg-primary hover:bg-primary/90 text-primary-foreground">
                     Create
@@ -138,6 +195,58 @@ export default function Batches() {
           </DialogContent>
         </Dialog>
       </div>
+
+      {/* Edit dialog */}
+      <Dialog open={!!editingBatch} onOpenChange={(open) => { if (!open) setEditingBatch(null); }}>
+        <DialogContent className="rounded-none border-secondary/40 bg-card max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="font-serif text-2xl text-primary">
+              Edit Batch
+              {editingBatch && (
+                <span className="font-mono text-sm text-secondary/60 ml-3 font-sans">{editingBatch.code}</span>
+              )}
+            </DialogTitle>
+          </DialogHeader>
+          <Form {...editForm}>
+            <form onSubmit={editForm.handleSubmit(onEdit)} className="space-y-4 pt-4">
+              <FormField control={editForm.control} name="name" render={({ field }) => (
+                <FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} className="rounded-none" /></FormControl><FormMessage /></FormItem>
+              )} />
+              <FormField control={editForm.control} name="ageRange" render={({ field }) => (
+                <FormItem><FormLabel>Age Range</FormLabel><FormControl><Input placeholder="e.g. 6–12 years" {...field} className="rounded-none" /></FormControl><FormMessage /></FormItem>
+              )} />
+              <FormField control={editForm.control} name="schedule" render={({ field }) => (
+                <FormItem><FormLabel>Schedule</FormLabel><FormControl><Input placeholder="e.g. Tuesday & Thursday, 5:00–6:30 PM" {...field} className="rounded-none" /></FormControl><FormMessage /></FormItem>
+              )} />
+              <div className="grid grid-cols-2 gap-4">
+                <FormField control={editForm.control} name="maxStudents" render={({ field }) => (
+                  <FormItem><FormLabel>Max Students</FormLabel><FormControl><Input type="number" min="1" placeholder="e.g. 12" {...field} className="rounded-none" /></FormControl><FormMessage /></FormItem>
+                )} />
+                <FormField control={editForm.control} name="displayOrder" render={({ field }) => (
+                  <FormItem><FormLabel>Display Order</FormLabel><FormControl><Input type="number" {...field} className="rounded-none" /></FormControl><FormMessage /></FormItem>
+                )} />
+              </div>
+              <FormField control={editForm.control} name="description" render={({ field }) => (
+                <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea {...field} className="rounded-none" rows={3} /></FormControl><FormMessage /></FormItem>
+              )} />
+              <FormField control={editForm.control} name="active" render={({ field }) => (
+                <FormItem className="flex items-center gap-3">
+                  <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                  <FormLabel className="!mt-0">Active (accepting students)</FormLabel>
+                </FormItem>
+              )} />
+              <div className="pt-4 flex justify-end gap-3">
+                <Button type="button" variant="outline" className="rounded-none border-secondary/40" onClick={() => setEditingBatch(null)}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={updateBatch.isPending} className="rounded-none bg-primary hover:bg-primary/90 text-primary-foreground">
+                  Save Changes
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {isLoading
@@ -189,7 +298,9 @@ export default function Batches() {
                     <span>{batch.studentCount} active student{batch.studentCount !== 1 ? "s" : ""}</span>
                   </div>
                   {batch.maxStudents != null && (
-                    <span className="text-xs text-muted-foreground">Cap: {batch.maxStudents}</span>
+                    <span className={`text-xs font-medium ${batch.studentCount >= batch.maxStudents ? "text-amber-700" : "text-muted-foreground"}`}>
+                      Cap: {batch.maxStudents}
+                    </span>
                   )}
                 </div>
 
@@ -197,10 +308,10 @@ export default function Batches() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => handleToggleActive(batch.id, batch.active)}
-                    className="rounded-none border-secondary/40 text-xs flex-1"
+                    onClick={() => openEdit(batch)}
+                    className="rounded-none border-secondary/40 text-xs flex-1 gap-1.5"
                   >
-                    {batch.active ? "Deactivate" : "Activate"}
+                    <Pencil className="h-3 w-3" /> Edit
                   </Button>
                   <Button
                     variant="ghost"
