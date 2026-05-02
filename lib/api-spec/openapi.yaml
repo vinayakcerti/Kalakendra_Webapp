@@ -3,20 +3,30 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Kala Kendra Sweden API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: admissions
+    description: Admission applications
+  - name: students
+    description: Enrolled students
+  - name: batches
+    description: Course batches
+  - name: enquiries
+    description: Public contact enquiries
+  - name: stats
+    description: Dashboard statistics
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +34,354 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # ─── ADMISSIONS ───────────────────────────────────────────────────────────
+  /admissions:
+    get:
+      operationId: listAdmissions
+      tags: [admissions]
+      summary: List all admission applications
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, reviewed, accepted, rejected]
+        - name: programme
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of admissions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Admission"
+    post:
+      operationId: createAdmission
+      tags: [admissions]
+      summary: Submit a new admission application (public)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAdmissionBody"
+      responses:
+        "201":
+          description: Application submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Admission"
+
+  /admissions/{id}:
+    get:
+      operationId: getAdmission
+      tags: [admissions]
+      summary: Get a single admission application
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Admission found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Admission"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateAdmission
+      tags: [admissions]
+      summary: Update admission status or notes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAdmissionBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Admission"
+    delete:
+      operationId: deleteAdmission
+      tags: [admissions]
+      summary: Delete an admission application
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── STUDENTS ─────────────────────────────────────────────────────────────
+  /students:
+    get:
+      operationId: listStudents
+      tags: [students]
+      summary: List all enrolled students
+      parameters:
+        - name: batchId
+          in: query
+          schema:
+            type: integer
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of students
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Student"
+    post:
+      operationId: createStudent
+      tags: [students]
+      summary: Enrol a new student
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateStudentBody"
+      responses:
+        "201":
+          description: Student enrolled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+
+  /students/{id}:
+    get:
+      operationId: getStudent
+      tags: [students]
+      summary: Get a single student
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Student found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateStudent
+      tags: [students]
+      summary: Update student details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateStudentBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+    delete:
+      operationId: deleteStudent
+      tags: [students]
+      summary: Remove a student record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── BATCHES ──────────────────────────────────────────────────────────────
+  /batches:
+    get:
+      operationId: listBatches
+      tags: [batches]
+      summary: List all course batches
+      responses:
+        "200":
+          description: List of batches
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Batch"
+    post:
+      operationId: createBatch
+      tags: [batches]
+      summary: Create a new batch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateBatchBody"
+      responses:
+        "201":
+          description: Batch created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Batch"
+
+  /batches/{id}:
+    patch:
+      operationId: updateBatch
+      tags: [batches]
+      summary: Update a batch
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateBatchBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Batch"
+    delete:
+      operationId: deleteBatch
+      tags: [batches]
+      summary: Delete a batch
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── ENQUIRIES ────────────────────────────────────────────────────────────
+  /enquiries:
+    get:
+      operationId: listEnquiries
+      tags: [enquiries]
+      summary: List all contact enquiries
+      parameters:
+        - name: read
+          in: query
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: List of enquiries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Enquiry"
+    post:
+      operationId: createEnquiry
+      tags: [enquiries]
+      summary: Submit a contact enquiry (public)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateEnquiryBody"
+      responses:
+        "201":
+          description: Enquiry received
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Enquiry"
+
+  /enquiries/{id}:
+    patch:
+      operationId: updateEnquiry
+      tags: [enquiries]
+      summary: Mark enquiry as read or add admin notes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateEnquiryBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Enquiry"
+
+  # ─── STATS ────────────────────────────────────────────────────────────────
+  /stats/dashboard:
+    get:
+      operationId: getDashboardStats
+      tags: [stats]
+      summary: Aggregated admin dashboard statistics
+      responses:
+        "200":
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
 components:
   schemas:
     HealthStatus:
@@ -31,6 +389,312 @@ components:
       properties:
         status:
           type: string
-      required:
-        - status
+      required: [status]
 
+    # ─── ADMISSIONS ─────────────────────────────────────────────────────────
+    Admission:
+      type: object
+      properties:
+        id:
+          type: integer
+        applicantName:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        programme:
+          type: string
+          enum: [bharatanatyam, carnatic_vocal, carnatic_instrumental, kerala_arts]
+        ageGroup:
+          type: string
+          enum: [child, teen, adult]
+        experience:
+          type: string
+        motivation:
+          type: string
+        status:
+          type: string
+          enum: [pending, reviewed, accepted, rejected]
+        adminNotes:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - applicantName
+        - email
+        - programme
+        - ageGroup
+        - status
+        - createdAt
+        - updatedAt
+
+    CreateAdmissionBody:
+      type: object
+      properties:
+        applicantName:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        programme:
+          type: string
+          enum: [bharatanatyam, carnatic_vocal, carnatic_instrumental, kerala_arts]
+        ageGroup:
+          type: string
+          enum: [child, teen, adult]
+        experience:
+          type: string
+        motivation:
+          type: string
+      required: [applicantName, email, programme, ageGroup]
+
+    UpdateAdmissionBody:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, reviewed, accepted, rejected]
+        adminNotes:
+          type: string
+
+    # ─── STUDENTS ───────────────────────────────────────────────────────────
+    Student:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        programme:
+          type: string
+          enum: [bharatanatyam, carnatic_vocal, carnatic_instrumental, kerala_arts]
+        batchId:
+          type: integer
+          nullable: true
+        batchName:
+          type: string
+          nullable: true
+        joinedAt:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [active, inactive, graduated]
+        notes:
+          type: string
+          nullable: true
+      required: [id, name, email, programme, status, joinedAt]
+
+    CreateStudentBody:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        programme:
+          type: string
+          enum: [bharatanatyam, carnatic_vocal, carnatic_instrumental, kerala_arts]
+        batchId:
+          type: integer
+        notes:
+          type: string
+      required: [name, email, programme]
+
+    UpdateStudentBody:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        programme:
+          type: string
+          enum: [bharatanatyam, carnatic_vocal, carnatic_instrumental, kerala_arts]
+        batchId:
+          type: integer
+          nullable: true
+        status:
+          type: string
+          enum: [active, inactive, graduated]
+        notes:
+          type: string
+
+    # ─── BATCHES ────────────────────────────────────────────────────────────
+    Batch:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        programme:
+          type: string
+          enum: [bharatanatyam, carnatic_vocal, carnatic_instrumental, kerala_arts]
+        schedule:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+          nullable: true
+        capacity:
+          type: integer
+        enrolledCount:
+          type: integer
+        status:
+          type: string
+          enum: [upcoming, active, completed]
+        notes:
+          type: string
+          nullable: true
+      required: [id, name, programme, schedule, startDate, capacity, enrolledCount, status]
+
+    CreateBatchBody:
+      type: object
+      properties:
+        name:
+          type: string
+        programme:
+          type: string
+          enum: [bharatanatyam, carnatic_vocal, carnatic_instrumental, kerala_arts]
+        schedule:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        capacity:
+          type: integer
+        notes:
+          type: string
+      required: [name, programme, schedule, startDate, capacity]
+
+    UpdateBatchBody:
+      type: object
+      properties:
+        name:
+          type: string
+        schedule:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        capacity:
+          type: integer
+        status:
+          type: string
+          enum: [upcoming, active, completed]
+        notes:
+          type: string
+
+    # ─── ENQUIRIES ──────────────────────────────────────────────────────────
+    Enquiry:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        subject:
+          type: string
+        message:
+          type: string
+        isRead:
+          type: boolean
+        adminNotes:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, name, email, subject, message, isRead, createdAt]
+
+    CreateEnquiryBody:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        subject:
+          type: string
+        message:
+          type: string
+      required: [name, email, subject, message]
+
+    UpdateEnquiryBody:
+      type: object
+      properties:
+        isRead:
+          type: boolean
+        adminNotes:
+          type: string
+
+    # ─── STATS ──────────────────────────────────────────────────────────────
+    DashboardStats:
+      type: object
+      properties:
+        totalStudents:
+          type: integer
+        activeStudents:
+          type: integer
+        totalBatches:
+          type: integer
+        activeBatches:
+          type: integer
+        pendingAdmissions:
+          type: integer
+        totalAdmissions:
+          type: integer
+        unreadEnquiries:
+          type: integer
+        admissionsByProgramme:
+          type: array
+          items:
+            type: object
+            properties:
+              programme:
+                type: string
+              count:
+                type: integer
+            required: [programme, count]
+        recentAdmissions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Admission"
+      required:
+        - totalStudents
+        - activeStudents
+        - totalBatches
+        - activeBatches
+        - pendingAdmissions
+        - totalAdmissions
+        - unreadEnquiries
+        - admissionsByProgramme
+        - recentAdmissions

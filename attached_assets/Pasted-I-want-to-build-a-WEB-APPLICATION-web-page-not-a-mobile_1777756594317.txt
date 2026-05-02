@@ -1,0 +1,99 @@
+I want to build a WEB APPLICATION (web page, not a mobile app) for a classical Indian arts school called Kala Kendra Sweden, located in Gothenburg. Please confirm you understand this is a web app accessed via browser on desktop and mobile.
+
+VISUAL THEME — VERY IMPORTANT:
+The aesthetic must reflect Bharatanatyam (Tamil classical dance), Carnatic music (South Indian classical music), and the elegant cultural heritage of Kerala. The institution is rooted in deep Indian classical traditions but located in Scandinavia, so the design should feel:
+
+- Authentic to South Indian classical arts (NOT generic, NOT modern-tech)
+- Dignified and editorial, like a fine arts institution
+- Warm and earthy, evoking temple architecture and Kerala traditions
+- Subtle Scandinavian restraint in layout (clean, spacious, never cluttered)
+
+COLOR PALETTE (use exactly these):
+- Primary background: Ivory/cream (#F6F1E8) — like aged manuscript paper
+- Primary accent: Deep maroon (#6B1D2A) — like temple sandstone, classical performer attire
+- Secondary accent: Antique gold (#B8893A) — like temple brass, Kerala gold ornaments
+- Text: Deep ink brown (#1F1612)
+- Avoid: pure black, pure white, neon colors, purple gradients (these feel generic and tech-y)
+
+TYPOGRAPHY (use exactly these):
+- Display/headings font: Cormorant Garamond (a refined serif with classical elegance)
+- Body font: Manrope (a clean modern sans-serif for readability)
+- Decorative accent (optional): Caveat (for handwritten-style touches)
+- All loaded via next/font/google for performance
+
+DESIGN MOTIFS to incorporate subtly:
+- Generous negative space — never cramped
+- Subtle decorative borders/rules in gold
+- Drop caps on first letters of paragraphs (Cormorant style)
+- Italic gold pull-quotes for emphasis
+- Asymmetric layouts (offset photo frames with thin gold border lines)
+- Soft paper texture via radial gradient overlays in ivory and gold
+- Avoid: drop shadows, glassmorphism, neon glows, gradient buttons, anything trendy
+
+NOW — TECHNICAL SETUP:
+
+Create a new Next.js 14+ project with TypeScript, Tailwind CSS, and the App Router.
+
+Install these dependencies:
+- drizzle-orm and drizzle-kit
+- pg (postgres driver)
+- next-auth and @auth/drizzle-adapter
+- zod and @hookform/resolvers
+- react-hook-form
+- shadcn/ui (initialize with default settings)
+- date-fns
+
+Create the following folder structure:
+
+kala-kendra-sweden/
+├── app/
+│   ├── (public)/         # public routes, no auth
+│   │   ├── page.tsx      # home
+│   │   ├── about/page.tsx
+│   │   ├── programmes/page.tsx
+│   │   ├── apply/page.tsx
+│   │   └── contact/page.tsx
+│   ├── admin/            # admin routes, auth required
+│   │   ├── layout.tsx
+│   │   ├── dashboard/page.tsx
+│   │   ├── admissions/
+│   │   │   ├── page.tsx
+│   │   │   └── [id]/page.tsx
+│   │   ├── students/page.tsx
+│   │   ├── batches/page.tsx
+│   │   └── settings/page.tsx
+│   ├── api/
+│   │   ├── admissions/route.ts
+│   │   └── auth/[...nextauth]/route.ts
+│   ├── globals.css
+│   └── layout.tsx
+├── components/
+│   ├── ui/               # shadcn/ui components
+│   ├── public/           # Hero, Programmes, etc.
+│   ├── admin/
+│   └── form/
+├── lib/
+│   ├── db/
+│   │   ├── schema.ts
+│   │   ├── client.ts
+│   │   └── queries.ts
+│   ├── auth.ts
+│   ├── validators.ts
+│   └── constants.ts
+├── public/               # images
+├── drizzle.config.ts
+├── package.json
+└── README.md
+
+Set up Tailwind with the custom color palette above defined as CSS variables in globals.css. Configure next/font/google to load Cormorant Garamond, Manrope, and Caveat.
+
+Set up a .env.example file listing all required environment variables (DATABASE_URL, NEXTAUTH_SECRET, NEXTAUTH_URL).
+
+Set up the Replit PostgreSQL database connection.
+
+When done, confirm:
+1. The project runs with `npm run dev` and shows a styled placeholder page using the maroon/gold/ivory theme and Cormorant Garamond headings.
+2. The folder structure exists.
+3. All packages installed without errors.
+
+Do NOT build any actual pages yet — that comes in later prompts. This prompt is foundation only.

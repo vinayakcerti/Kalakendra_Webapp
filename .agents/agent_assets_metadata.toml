@@ -1,0 +1,20 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "ivMRmHFhrh_mEfk0dvPzf"
+uri = "file://artifacts/kala-kendra/src/assets/images/bharatanatyam.png"
+type = "image"
+title = "Bharatanatyam dancer performance"
+
+[[generated]]
+id = "SQqaxmCQNmERL4MMTGph7"
+uri = "file://artifacts/kala-kendra/src/assets/images/carnatic.png"
+type = "image"
+title = "Carnatic music scene"
+
+[[generated]]
+id = "izYsaMNAS7BtO7rpMRC2c"
+uri = "file://artifacts/kala-kendra/src/assets/images/kerala-arts.png"
+type = "image"
+title = "Kerala arts Kathakali"
