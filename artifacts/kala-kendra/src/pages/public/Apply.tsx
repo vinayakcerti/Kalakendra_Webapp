@@ -19,7 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { useCreateAdmission, useListBatches, getListBatchesQueryKey } from "@workspace/api-client-react";
+import { useCreateAdmission, useListBatches, getListBatchesQueryKey, useGetSettings, getGetSettingsQueryKey } from "@workspace/api-client-react";
 
 const formSchema = z.object({
   applicantType: z.enum(["adult", "child"]),
@@ -68,6 +68,7 @@ export default function Apply() {
   const { toast } = useToast();
   const [submitted, setSubmitted] = useState(false);
   const { data: batches } = useListBatches({ query: { queryKey: getListBatchesQueryKey() } });
+  const { data: settings } = useGetSettings({ query: { queryKey: getGetSettingsQueryKey() } });
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -114,6 +115,27 @@ export default function Apply() {
             variant: "destructive",
           }),
       }
+    );
+  }
+
+  if (settings && !settings.acceptingApplications) {
+    return (
+      <div className="animate-in fade-in duration-700 min-h-[60vh] flex flex-col items-center justify-center text-center px-6">
+        <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-6 font-semibold">Admissions</p>
+        <h2 className="text-4xl font-serif text-primary mb-6">Applications Are Currently Closed</h2>
+        <div className="gold-divider max-w-xs mx-auto" />
+        <p className="text-lg text-muted-foreground max-w-lg mt-6 mb-10 leading-relaxed">
+          We are not accepting new applications at this time. Please check back later or get in touch with us directly — we would be happy to let you know when the next intake opens.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Button asChild variant="outline" className="border-secondary text-primary hover:bg-secondary/10 rounded-none">
+            <Link href="/contact">Contact Us</Link>
+          </Button>
+          <Button asChild variant="ghost" className="rounded-none text-primary hover:bg-transparent hover:text-secondary underline decoration-secondary/40 underline-offset-4">
+            <Link href="/">Return Home</Link>
+          </Button>
+        </div>
+      </div>
     );
   }
 
