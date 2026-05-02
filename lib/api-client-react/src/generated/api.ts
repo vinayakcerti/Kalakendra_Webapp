@@ -22,20 +22,24 @@ import type {
   CreateAdmissionBody,
   CreateBatchBody,
   CreateEnquiryBody,
+  CreateFeeBody,
   CreateStudentBody,
   DashboardStats,
   Enquiry,
   EnrolAdmissionBody,
+  FeeRecord,
   HealthStatus,
   ListAdmissionsParams,
   ListBatchesParams,
   ListEnquiriesParams,
+  ListFeesParams,
   ListStudentsParams,
   SchoolSettings,
   Student,
   UpdateAdmissionBody,
   UpdateBatchBody,
   UpdateEnquiryBody,
+  UpdateFeeBody,
   UpdateSettingsBody,
   UpdateStudentBody,
 } from "./api.schemas";
@@ -1085,6 +1089,371 @@ export const useDeleteStudent = <
   TContext
 > => {
   return useMutation(getDeleteStudentMutationOptions(options));
+};
+
+/**
+ * @summary List all fee records for a student
+ */
+export const getListFeesUrl = (studentId: string, params?: ListFeesParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/students/${studentId}/fees?${stringifiedParams}`
+    : `/api/students/${studentId}/fees`;
+};
+
+export const listFees = async (
+  studentId: string,
+  params?: ListFeesParams,
+  options?: RequestInit,
+): Promise<FeeRecord[]> => {
+  return customFetch<FeeRecord[]>(getListFeesUrl(studentId, params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListFeesQueryKey = (
+  studentId: string,
+  params?: ListFeesParams,
+) => {
+  return [
+    `/api/students/${studentId}/fees`,
+    ...(params ? [params] : []),
+  ] as const;
+};
+
+export const getListFeesQueryOptions = <
+  TData = Awaited<ReturnType<typeof listFees>>,
+  TError = ErrorType<unknown>,
+>(
+  studentId: string,
+  params?: ListFeesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listFees>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getListFeesQueryKey(studentId, params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listFees>>> = ({
+    signal,
+  }) => listFees(studentId, params, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!studentId,
+    ...queryOptions,
+  } as UseQueryOptions<Awaited<ReturnType<typeof listFees>>, TError, TData> & {
+    queryKey: QueryKey;
+  };
+};
+
+export type ListFeesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listFees>>
+>;
+export type ListFeesQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List all fee records for a student
+ */
+
+export function useListFees<
+  TData = Awaited<ReturnType<typeof listFees>>,
+  TError = ErrorType<unknown>,
+>(
+  studentId: string,
+  params?: ListFeesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listFees>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListFeesQueryOptions(studentId, params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Create a new fee record for a student
+ */
+export const getCreateFeeUrl = (studentId: string) => {
+  return `/api/students/${studentId}/fees`;
+};
+
+export const createFee = async (
+  studentId: string,
+  createFeeBody: CreateFeeBody,
+  options?: RequestInit,
+): Promise<FeeRecord> => {
+  return customFetch<FeeRecord>(getCreateFeeUrl(studentId), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createFeeBody),
+  });
+};
+
+export const getCreateFeeMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createFee>>,
+    TError,
+    { studentId: string; data: BodyType<CreateFeeBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createFee>>,
+  TError,
+  { studentId: string; data: BodyType<CreateFeeBody> },
+  TContext
+> => {
+  const mutationKey = ["createFee"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createFee>>,
+    { studentId: string; data: BodyType<CreateFeeBody> }
+  > = (props) => {
+    const { studentId, data } = props ?? {};
+
+    return createFee(studentId, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateFeeMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createFee>>
+>;
+export type CreateFeeMutationBody = BodyType<CreateFeeBody>;
+export type CreateFeeMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Create a new fee record for a student
+ */
+export const useCreateFee = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createFee>>,
+    TError,
+    { studentId: string; data: BodyType<CreateFeeBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createFee>>,
+  TError,
+  { studentId: string; data: BodyType<CreateFeeBody> },
+  TContext
+> => {
+  return useMutation(getCreateFeeMutationOptions(options));
+};
+
+/**
+ * @summary Update a fee record
+ */
+export const getUpdateFeeUrl = (id: string) => {
+  return `/api/fees/${id}`;
+};
+
+export const updateFee = async (
+  id: string,
+  updateFeeBody: UpdateFeeBody,
+  options?: RequestInit,
+): Promise<FeeRecord> => {
+  return customFetch<FeeRecord>(getUpdateFeeUrl(id), {
+    ...options,
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(updateFeeBody),
+  });
+};
+
+export const getUpdateFeeMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateFee>>,
+    TError,
+    { id: string; data: BodyType<UpdateFeeBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateFee>>,
+  TError,
+  { id: string; data: BodyType<UpdateFeeBody> },
+  TContext
+> => {
+  const mutationKey = ["updateFee"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateFee>>,
+    { id: string; data: BodyType<UpdateFeeBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return updateFee(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateFeeMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateFee>>
+>;
+export type UpdateFeeMutationBody = BodyType<UpdateFeeBody>;
+export type UpdateFeeMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Update a fee record
+ */
+export const useUpdateFee = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateFee>>,
+    TError,
+    { id: string; data: BodyType<UpdateFeeBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateFee>>,
+  TError,
+  { id: string; data: BodyType<UpdateFeeBody> },
+  TContext
+> => {
+  return useMutation(getUpdateFeeMutationOptions(options));
+};
+
+/**
+ * @summary Delete a fee record
+ */
+export const getDeleteFeeUrl = (id: string) => {
+  return `/api/fees/${id}`;
+};
+
+export const deleteFee = async (
+  id: string,
+  options?: RequestInit,
+): Promise<void> => {
+  return customFetch<void>(getDeleteFeeUrl(id), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getDeleteFeeMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteFee>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteFee>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ["deleteFee"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteFee>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return deleteFee(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteFeeMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteFee>>
+>;
+
+export type DeleteFeeMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Delete a fee record
+ */
+export const useDeleteFee = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteFee>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteFee>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  return useMutation(getDeleteFeeMutationOptions(options));
 };
 
 /**

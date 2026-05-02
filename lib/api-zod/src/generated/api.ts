@@ -354,6 +354,86 @@ export const DeleteStudentParams = zod.object({
 });
 
 /**
+ * @summary List all fee records for a student
+ */
+export const ListFeesParams = zod.object({
+  studentId: zod.coerce.string().uuid(),
+});
+
+export const ListFeesQueryParams = zod.object({
+  status: zod.enum(["pending", "paid", "overdue", "waived"]).optional(),
+});
+
+export const ListFeesResponseItem = zod.object({
+  id: zod.string().uuid(),
+  studentId: zod.string().uuid(),
+  description: zod.string(),
+  amountOre: zod.number().describe("Amount in öre (1\/100 SEK)"),
+  currency: zod.string(),
+  dueDate: zod.coerce.date().nullish(),
+  paidDate: zod.coerce.date().nullish(),
+  status: zod.enum(["pending", "paid", "overdue", "waived"]),
+  notes: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+  updatedAt: zod.coerce.date(),
+});
+export const ListFeesResponse = zod.array(ListFeesResponseItem);
+
+/**
+ * @summary Create a new fee record for a student
+ */
+export const CreateFeeParams = zod.object({
+  studentId: zod.coerce.string().uuid(),
+});
+
+export const createFeeBodyCurrencyDefault = `SEK`;
+
+export const CreateFeeBody = zod.object({
+  description: zod.string(),
+  amountOre: zod.number(),
+  currency: zod.string().default(createFeeBodyCurrencyDefault),
+  dueDate: zod.coerce.date().optional(),
+  notes: zod.string().optional(),
+});
+
+/**
+ * @summary Update a fee record
+ */
+export const UpdateFeeParams = zod.object({
+  id: zod.coerce.string().uuid(),
+});
+
+export const UpdateFeeBody = zod.object({
+  description: zod.string().optional(),
+  amountOre: zod.number().optional(),
+  dueDate: zod.coerce.date().nullish(),
+  paidDate: zod.coerce.date().nullish(),
+  status: zod.enum(["pending", "paid", "overdue", "waived"]).optional(),
+  notes: zod.string().optional(),
+});
+
+export const UpdateFeeResponse = zod.object({
+  id: zod.string().uuid(),
+  studentId: zod.string().uuid(),
+  description: zod.string(),
+  amountOre: zod.number().describe("Amount in öre (1\/100 SEK)"),
+  currency: zod.string(),
+  dueDate: zod.coerce.date().nullish(),
+  paidDate: zod.coerce.date().nullish(),
+  status: zod.enum(["pending", "paid", "overdue", "waived"]),
+  notes: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+  updatedAt: zod.coerce.date(),
+});
+
+/**
+ * @summary Delete a fee record
+ */
+export const DeleteFeeParams = zod.object({
+  id: zod.coerce.string().uuid(),
+});
+
+/**
  * @summary List all course batches
  */
 export const ListBatchesQueryParams = zod.object({

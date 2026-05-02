@@ -2,7 +2,7 @@
 
 ## Overview
 
-pnpm workspace monorepo using TypeScript. Each package manages its own dependencies.
+pnpm workspace monorepo using TypeScript. Kala Kendra Sweden — a classical Indian arts school in Gothenburg. Full public site + admin portal.
 
 ## Stack
 
@@ -13,15 +13,67 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 - **API framework**: Express 5
 - **Database**: PostgreSQL + Drizzle ORM
 - **Validation**: Zod (`zod/v4`), `drizzle-zod`
-- **API codegen**: Orval (from OpenAPI spec)
+- **API codegen**: Orval (from OpenAPI spec in `lib/api-spec/openapi.yaml`)
 - **Build**: esbuild (CJS bundle)
+- **Frontend**: React + Vite, Tailwind CSS, shadcn/ui, React Query (via Orval hooks)
 
 ## Key Commands
 
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
+- `pnpm --filter @workspace/db run push-force` — push DB schema changes (dev only, bypasses interactive prompts)
 - `pnpm --filter @workspace/api-server run dev` — run API server locally
+
+## Visual Theme
+
+- Fonts: Cormorant Garamond (headings), Manrope (body), Caveat (accent)
+- Colors: parchment `#F4EBD9`, maroon `#5C1416`/`#3D0A0C`, gold `#B8893A`, ink `#1F1612`
+
+## DB Tables
+
+- `admissions` — student admission applications (status: pending/under_review/accepted/waitlisted/rejected)
+- `students` — enrolled students (linked to admissions via admissionId)
+- `batches` — course batches (e.g. "Bharatanatyam — Seniors")
+- `fees` — fee records per student (amountOre in öre = 1/100 SEK; status: pending/paid/overdue/waived)
+- `enquiries` — public contact form submissions
+- `settings` — school-wide settings (monthlyFeeSek, acceptingApplications, etc.)
+- `admins` — admin users
+- `audit_log` — audit trail
+
+## DB Migration
+
+Create tables directly with SQL (psql "$DATABASE_URL") or run `pnpm --filter @workspace/db run push-force`. The interactive prompt for existing constraints requires piping input or using SQL directly.
+
+## API Routes (Express, prefix `/api`)
+
+- `/admissions` — CRUD + `/admissions/:id/enrol` (POST, creates student from admission)
+- `/students` — CRUD
+- `/students/:studentId/fees` — list + create fees per student
+- `/fees/:id` — PATCH (update fee) + DELETE
+- `/batches` — CRUD
+- `/enquiries` — CRUD
+- `/settings` — GET + PATCH
+- `/dashboard-stats` — GET aggregate stats
+
+## Admin Pages
+
+- Dashboard — overview stats + recent admissions
+- Admissions — list with search/filter + AdmissionDetail (status update, enrol button, enrolled student link)
+- Students — list with search/filter + StudentDetail (editable form, fees section)
+- Batches — CRUD management
+- Enquiries — list + mark read/unread, admin notes
+- Settings — school settings (acceptingApplications gates public Apply page)
+
+## Public Pages
+
+- Home, About, Classes, Contact (enquiry form), Apply (admission form, gated by acceptingApplications setting)
+
+## Codegen Pattern
+
+1. Edit `lib/api-spec/openapi.yaml`
+2. Run `pnpm --filter @workspace/api-spec run codegen`
+3. Generated files: `lib/api-zod/src/generated/api.ts` (Zod schemas) + `lib/api-client-react/src/generated/api.ts` (React Query hooks)
+4. Import hooks from `@workspace/api-client-react`, Zod schemas from `@workspace/api-zod`
 
 See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details.

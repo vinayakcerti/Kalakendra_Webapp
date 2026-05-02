@@ -1,4 +1,5 @@
 
+import React, { useState } from "react";
 import { useParams, Link } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,10 +11,16 @@ import {
   useUpdateStudent,
   useDeleteStudent,
   useListBatches,
+  useListFees,
+  useCreateFee,
+  useUpdateFee,
+  useDeleteFee,
   getGetStudentQueryKey,
   getListStudentsQueryKey,
   getListBatchesQueryKey,
+  getListFeesQueryKey,
 } from "@workspace/api-client-react";
+import type { FeeRecord } from "@workspace/api-client-react";
 import {
   Form,
   FormControl,
@@ -28,7 +35,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, ExternalLink, Trash2 } from "lucide-react";
+import { ArrowLeft, ExternalLink, Trash2, Plus, CheckCircle2, Clock, AlertCircle, MinusCircle } from "lucide-react";
 
 const formSchema = z.object({
   fullName: z.string().min(2, "Name is required"),
@@ -47,6 +54,265 @@ const STATUS_STYLES: Record<string, string> = {
   inactive: "bg-amber-100 text-amber-800 border-amber-200",
   withdrawn: "bg-red-100 text-red-800 border-red-200",
 };
+
+const FEE_STATUS_CONFIG: Record<string, { label: string; badgeClass: string; Icon: React.ComponentType<{ className?: string }> }> = {
+  pending:  { label: "Pending",  badgeClass: "bg-amber-50 text-amber-800 border-amber-200",    Icon: Clock },
+  paid:     { label: "Paid",     badgeClass: "bg-emerald-50 text-emerald-800 border-emerald-200", Icon: CheckCircle2 },
+  overdue:  { label: "Overdue",  badgeClass: "bg-red-50 text-red-800 border-red-200",           Icon: AlertCircle },
+  waived:   { label: "Waived",   badgeClass: "bg-slate-100 text-slate-600 border-slate-200",     Icon: MinusCircle },
+};
+
+function formatSek(amountOre: number): string {
+  const sek = amountOre / 100;
+  return new Intl.NumberFormat("sv-SE", { style: "currency", currency: "SEK", maximumFractionDigits: 0 }).format(sek);
+}
+
+function FeeRow({
+  fee,
+  onMarkPaid,
+  onDelete,
+}: {
+  fee: FeeRecord;
+  onMarkPaid: () => void;
+  onDelete: () => void;
+}) {
+  const cfg = FEE_STATUS_CONFIG[fee.status] ?? FEE_STATUS_CONFIG.pending;
+  return (
+    <div className="flex items-start gap-4 border-b border-secondary/10 py-4 last:border-0">
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium text-foreground">{fee.description}</p>
+        <div className="flex flex-wrap items-center gap-3 mt-1">
+          <span className="text-base font-serif text-primary">{formatSek(fee.amountOre)}</span>
+          {fee.dueDate && (
+            <span className="text-xs text-muted-foreground">
+              Due {format(new Date(fee.dueDate), "d MMM yyyy")}
+            </span>
+          )}
+          {fee.paidDate && (
+            <span className="text-xs text-muted-foreground">
+              Paid {format(new Date(fee.paidDate), "d MMM yyyy")}
+            </span>
+          )}
+        </div>
+        {fee.notes && <p className="text-xs text-muted-foreground mt-1 italic">{fee.notes}</p>}
+      </div>
+      <div className="flex items-center gap-2 shrink-0">
+        <Badge variant="outline" className={`rounded-none text-xs border ${cfg.badgeClass}`}>
+          <cfg.Icon className="h-3 w-3 mr-1" />
+          {cfg.label}
+        </Badge>
+        {fee.status === "pending" && (
+          <Button size="sm" variant="outline" onClick={onMarkPaid}
+            className="rounded-none border-emerald-300 text-emerald-800 hover:bg-emerald-50 h-7 text-xs px-2">
+            Mark Paid
+          </Button>
+        )}
+        <Button size="sm" variant="ghost" onClick={onDelete}
+          className="rounded-none text-destructive hover:text-destructive/80 hover:bg-destructive/10 h-7 w-7 p-0">
+          <Trash2 className="h-3.5 w-3.5" />
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function FeesSection({ studentId }: { studentId: string }) {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [showAdd, setShowAdd] = useState(false);
+  const [addDesc, setAddDesc] = useState("");
+  const [addAmount, setAddAmount] = useState("");
+  const [addDue, setAddDue] = useState("");
+  const [addNotes, setAddNotes] = useState("");
+
+  const { data: fees = [], isLoading } = useListFees(studentId, {}, {
+    query: { queryKey: getListFeesQueryKey(studentId) },
+  });
+  const createFee = useCreateFee();
+  const updateFee = useUpdateFee();
+  const deleteFee = useDeleteFee();
+
+  const invalidateFees = () =>
+    queryClient.invalidateQueries({ queryKey: getListFeesQueryKey(studentId) });
+
+  function handleAdd(e: React.FormEvent) {
+    e.preventDefault();
+    const amountOre = Math.round(parseFloat(addAmount) * 100);
+    if (!addDesc || isNaN(amountOre) || amountOre <= 0) {
+      toast({ title: "Description and a valid amount are required", variant: "destructive" });
+      return;
+    }
+    createFee.mutate(
+      {
+        studentId,
+        data: {
+          description: addDesc,
+          amountOre,
+          dueDate: addDue || undefined,
+          notes: addNotes || undefined,
+        },
+      },
+      {
+        onSuccess: () => {
+          setShowAdd(false);
+          setAddDesc(""); setAddAmount(""); setAddDue(""); setAddNotes("");
+          invalidateFees();
+          toast({ title: "Fee record added" });
+        },
+        onError: () => toast({ title: "Failed to add fee", variant: "destructive" }),
+      }
+    );
+  }
+
+  function handleMarkPaid(fee: FeeRecord) {
+    updateFee.mutate(
+      {
+        id: fee.id,
+        data: { status: "paid", paidDate: new Date().toISOString().split("T")[0] },
+      },
+      {
+        onSuccess: () => { invalidateFees(); toast({ title: "Marked as paid" }); },
+        onError: () => toast({ title: "Update failed", variant: "destructive" }),
+      }
+    );
+  }
+
+  function handleDelete(id: string) {
+    if (!confirm("Remove this fee record?")) return;
+    deleteFee.mutate(
+      { id },
+      {
+        onSuccess: () => { invalidateFees(); toast({ title: "Fee removed" }); },
+        onError: () => toast({ title: "Delete failed", variant: "destructive" }),
+      }
+    );
+  }
+
+  const totalOwed = fees
+    .filter((f) => f.status === "pending" || f.status === "overdue")
+    .reduce((sum, f) => sum + f.amountOre, 0);
+  const totalPaid = fees
+    .filter((f) => f.status === "paid")
+    .reduce((sum, f) => sum + f.amountOre, 0);
+
+  return (
+    <section className="mt-10 bg-card border border-secondary/20 p-6">
+      <div className="flex items-center justify-between mb-2 pb-4 border-b border-secondary/20">
+        <h3 className="font-serif text-xl text-primary">Fees & Payments</h3>
+        <Button
+          size="sm"
+          onClick={() => setShowAdd((v) => !v)}
+          variant="outline"
+          className="rounded-none border-secondary/40 text-secondary hover:text-primary"
+        >
+          <Plus className="h-3.5 w-3.5 mr-1" />
+          Add Fee
+        </Button>
+      </div>
+
+      {/* Summary chips */}
+      {fees.length > 0 && (
+        <div className="flex gap-4 mb-4 text-xs">
+          <span className="text-muted-foreground">
+            Outstanding: <strong className="text-primary">{formatSek(totalOwed)}</strong>
+          </span>
+          <span className="text-muted-foreground">
+            Paid: <strong className="text-emerald-700">{formatSek(totalPaid)}</strong>
+          </span>
+        </div>
+      )}
+
+      {/* Add fee form */}
+      {showAdd && (
+        <form onSubmit={handleAdd} className="mb-6 p-4 bg-secondary/5 border border-secondary/20 space-y-3">
+          <p className="text-xs uppercase tracking-widest text-secondary font-semibold mb-2">New Fee Record</p>
+          <div className="grid sm:grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Description *</label>
+              <Input
+                value={addDesc}
+                onChange={(e) => setAddDesc(e.target.value)}
+                placeholder="e.g. Term 1 2026"
+                className="rounded-none border-secondary/40 bg-background focus-visible:ring-primary"
+                required
+              />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Amount (SEK) *</label>
+              <Input
+                type="number"
+                min="1"
+                step="1"
+                value={addAmount}
+                onChange={(e) => setAddAmount(e.target.value)}
+                placeholder="e.g. 1500"
+                className="rounded-none border-secondary/40 bg-background focus-visible:ring-primary"
+                required
+              />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Due Date</label>
+              <Input
+                type="date"
+                value={addDue}
+                onChange={(e) => setAddDue(e.target.value)}
+                className="rounded-none border-secondary/40 bg-background focus-visible:ring-primary"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Notes</label>
+              <Input
+                value={addNotes}
+                onChange={(e) => setAddNotes(e.target.value)}
+                placeholder="Optional"
+                className="rounded-none border-secondary/40 bg-background focus-visible:ring-primary"
+              />
+            </div>
+          </div>
+          <div className="flex gap-2 pt-1">
+            <Button
+              type="submit"
+              disabled={createFee.isPending}
+              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-none h-8 text-sm px-4"
+            >
+              {createFee.isPending ? "Adding…" : "Add Fee"}
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setShowAdd(false)}
+              className="rounded-none h-8 text-sm"
+            >
+              Cancel
+            </Button>
+          </div>
+        </form>
+      )}
+
+      {/* Fee list */}
+      {isLoading ? (
+        <div className="space-y-3 py-2">
+          {[1, 2].map((i) => <Skeleton key={i} className="h-14 bg-secondary/10" />)}
+        </div>
+      ) : fees.length === 0 ? (
+        <p className="text-sm text-muted-foreground italic py-4">
+          No fee records yet. Click "Add Fee" to create the first one.
+        </p>
+      ) : (
+        <div>
+          {fees.map((fee) => (
+            <FeeRow
+              key={fee.id}
+              fee={fee}
+              onMarkPaid={() => handleMarkPaid(fee)}
+              onDelete={() => handleDelete(fee.id)}
+            />
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
 
 const inputClass = "rounded-none border-secondary/40 focus-visible:ring-primary bg-background";
 
@@ -441,6 +707,9 @@ export default function StudentDetail() {
           )}
         </div>
       </div>
+
+      {/* Fees section — full width below grid */}
+      <FeesSection studentId={student.id} />
     </div>
   );
 }

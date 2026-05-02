@@ -249,6 +249,72 @@ export interface UpdateStudentBody {
   status?: UpdateStudentBodyStatus;
 }
 
+export type FeeRecordStatus =
+  (typeof FeeRecordStatus)[keyof typeof FeeRecordStatus];
+
+export const FeeRecordStatus = {
+  pending: "pending",
+  paid: "paid",
+  overdue: "overdue",
+  waived: "waived",
+} as const;
+
+export interface FeeRecord {
+  id: string;
+  studentId: string;
+  description: string;
+  /** Amount in öre (1/100 SEK) */
+  amountOre: number;
+  currency: string;
+  dueDate?: string | null;
+  paidDate?: string | null;
+  status: FeeRecordStatus;
+  notes?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateFeeBody {
+  description: string;
+  amountOre: number;
+  currency?: string;
+  dueDate?: string;
+  notes?: string;
+}
+
+export type UpdateFeeBodyStatus =
+  (typeof UpdateFeeBodyStatus)[keyof typeof UpdateFeeBodyStatus];
+
+export const UpdateFeeBodyStatus = {
+  pending: "pending",
+  paid: "paid",
+  overdue: "overdue",
+  waived: "waived",
+} as const;
+
+export interface UpdateFeeBody {
+  description?: string;
+  amountOre?: number;
+  dueDate?: string | null;
+  paidDate?: string | null;
+  status?: UpdateFeeBodyStatus;
+  notes?: string;
+}
+
+export type ListFeesQueryParamsStatus =
+  (typeof ListFeesQueryParamsStatus)[keyof typeof ListFeesQueryParamsStatus];
+
+export const ListFeesQueryParamsStatus = {
+  pending: "pending",
+  paid: "paid",
+  overdue: "overdue",
+  waived: "waived",
+} as const;
+
+export interface ListFeesQueryParams {
+  status?: ListFeesQueryParamsStatus;
+}
+
 export interface Batch {
   id: string;
   code: string;
@@ -362,6 +428,20 @@ export const ListStudentsStatus = {
   active: "active",
   inactive: "inactive",
   withdrawn: "withdrawn",
+} as const;
+
+export type ListFeesParams = {
+  status?: ListFeesStatus;
+};
+
+export type ListFeesStatus =
+  (typeof ListFeesStatus)[keyof typeof ListFeesStatus];
+
+export const ListFeesStatus = {
+  pending: "pending",
+  paid: "paid",
+  overdue: "overdue",
+  waived: "waived",
 } as const;
 
 export type ListBatchesParams = {

@@ -282,6 +282,128 @@ paths:
         "204":
           description: Deleted
 
+  # ─── FEES ─────────────────────────────────────────────────────────────────
+  /fees:
+    get:
+      operationId: listAllFees
+      tags: [fees]
+      summary: List all fee records across all students
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, paid, overdue, waived]
+        - name: studentId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of all fees with student info
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FeeWithStudent"
+
+  /students/{studentId}/fees:
+    get:
+      operationId: listFees
+      tags: [fees]
+      summary: List all fee records for a student
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, paid, overdue, waived]
+      responses:
+        "200":
+          description: List of fees
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FeeRecord"
+    post:
+      operationId: createFee
+      tags: [fees]
+      summary: Create a new fee record for a student
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateFeeBody"
+      responses:
+        "201":
+          description: Fee created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeeRecord"
+
+  /fees/{id}:
+    patch:
+      operationId: updateFee
+      tags: [fees]
+      summary: Update a fee record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateFeeBody"
+      responses:
+        "200":
+          description: Updated fee
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeeRecord"
+    delete:
+      operationId: deleteFee
+      tags: [fees]
+      summary: Delete a fee record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Deleted
+
   # ─── BATCHES ──────────────────────────────────────────────────────────────
   /batches:
     get:
@@ -787,6 +909,144 @@ components:
           type: string
           enum: [active, inactive, withdrawn]
 
+    # ─── FEES ───────────────────────────────────────────────────────────────
+    FeeRecord:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        studentId:
+          type: string
+          format: uuid
+        description:
+          type: string
+        amountOre:
+          type: integer
+          description: Amount in öre (1/100 SEK)
+        currency:
+          type: string
+        dueDate:
+          type: string
+          format: date
+          nullable: true
+        paidDate:
+          type: string
+          format: date
+          nullable: true
+        status:
+          type: string
+          enum: [pending, paid, overdue, waived]
+        notes:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, studentId, description, amountOre, currency, status, createdAt, updatedAt]
+
+    CreateFeeBody:
+      type: object
+      properties:
+        description:
+          type: string
+        amountOre:
+          type: integer
+        currency:
+          type: string
+          default: SEK
+        dueDate:
+          type: string
+          format: date
+        notes:
+          type: string
+      required: [description, amountOre]
+
+    UpdateFeeBody:
+      type: object
+      properties:
+        description:
+          type: string
+        amountOre:
+          type: integer
+        dueDate:
+          type: string
+          format: date
+          nullable: true
+        paidDate:
+          type: string
+          format: date
+          nullable: true
+        status:
+          type: string
+          enum: [pending, paid, overdue, waived]
+        notes:
+          type: string
+
+    ListFeesQueryParams:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, paid, overdue, waived]
+
+    ListAllFeesQueryParams:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, paid, overdue, waived]
+        studentId:
+          type: string
+          format: uuid
+        search:
+          type: string
+
+    FeeWithStudent:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        studentId:
+          type: string
+          format: uuid
+        studentName:
+          type: string
+        batchName:
+          type: string
+          nullable: true
+        description:
+          type: string
+        amountOre:
+          type: integer
+        currency:
+          type: string
+        dueDate:
+          type: string
+          format: date
+          nullable: true
+        paidDate:
+          type: string
+          format: date
+          nullable: true
+        status:
+          type: string
+          enum: [pending, paid, overdue, waived]
+        notes:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, studentId, studentName, description, amountOre, currency, status, createdAt, updatedAt]
+
     # ─── BATCHES ────────────────────────────────────────────────────────────
     Batch:
       type: object
@@ -956,6 +1216,12 @@ components:
           type: integer
         unreadEnquiries:
           type: integer
+        totalOutstandingOre:
+          type: integer
+          description: Total unpaid fees in öre across all students
+        overdueCount:
+          type: integer
+          description: Number of overdue fee records
         recentAdmissions:
           type: array
           items:
@@ -969,4 +1235,6 @@ components:
         - underReviewAdmissions
         - totalAdmissions
         - unreadEnquiries
+        - totalOutstandingOre
+        - overdueCount
         - recentAdmissions
