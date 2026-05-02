@@ -315,6 +315,42 @@ export interface ListFeesQueryParams {
   status?: ListFeesQueryParamsStatus;
 }
 
+export type ActivityItemType =
+  (typeof ActivityItemType)[keyof typeof ActivityItemType];
+
+export const ActivityItemType = {
+  admission: "admission",
+  fee_paid: "fee_paid",
+  fee_overdue: "fee_overdue",
+  note: "note",
+  enquiry: "enquiry",
+  attendance: "attendance",
+  student_enrolled: "student_enrolled",
+} as const;
+
+export interface ActivityItem {
+  id: string;
+  type: ActivityItemType;
+  title: string;
+  detail?: string | null;
+  href?: string | null;
+  occurredAt: string;
+}
+
+export interface StudentNote {
+  id: string;
+  studentId: string;
+  content: string;
+  authorName?: string | null;
+  createdAt: string;
+}
+
+export interface CreateStudentNoteBody {
+  /** @minLength 1 */
+  content: string;
+  authorName?: string | null;
+}
+
 export interface BatchStudentSummary {
   id: string;
   fullName: string;
@@ -619,4 +655,8 @@ export type ListBatchesParams = {
 
 export type ListEnquiriesParams = {
   read?: boolean;
+};
+
+export type ListActivityParams = {
+  limit?: number;
 };

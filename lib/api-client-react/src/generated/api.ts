@@ -17,6 +17,7 @@ import type {
 } from "@tanstack/react-query";
 
 import type {
+  ActivityItem,
   Admission,
   AttendanceRecord,
   Batch,
@@ -28,12 +29,14 @@ import type {
   CreateEnquiryBody,
   CreateFeeBody,
   CreateStudentBody,
+  CreateStudentNoteBody,
   DashboardStats,
   Enquiry,
   EnrolAdmissionBody,
   FeeRecord,
   FeeWithStudent,
   HealthStatus,
+  ListActivityParams,
   ListAdmissionsParams,
   ListAllFeesParams,
   ListAttendanceParams,
@@ -46,6 +49,7 @@ import type {
   RecordAttendanceBody,
   SchoolSettings,
   Student,
+  StudentNote,
   UpdateAdmissionBody,
   UpdateAttendanceBody,
   UpdateBatchBody,
@@ -1100,6 +1104,267 @@ export const useDeleteStudent = <
   TContext
 > => {
   return useMutation(getDeleteStudentMutationOptions(options));
+};
+
+/**
+ * @summary List progress notes for a student, newest first
+ */
+export const getListStudentNotesUrl = (studentId: string) => {
+  return `/api/students/${studentId}/notes`;
+};
+
+export const listStudentNotes = async (
+  studentId: string,
+  options?: RequestInit,
+): Promise<StudentNote[]> => {
+  return customFetch<StudentNote[]>(getListStudentNotesUrl(studentId), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListStudentNotesQueryKey = (studentId: string) => {
+  return [`/api/students/${studentId}/notes`] as const;
+};
+
+export const getListStudentNotesQueryOptions = <
+  TData = Awaited<ReturnType<typeof listStudentNotes>>,
+  TError = ErrorType<unknown>,
+>(
+  studentId: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listStudentNotes>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getListStudentNotesQueryKey(studentId);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listStudentNotes>>
+  > = ({ signal }) =>
+    listStudentNotes(studentId, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!studentId,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof listStudentNotes>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListStudentNotesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listStudentNotes>>
+>;
+export type ListStudentNotesQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List progress notes for a student, newest first
+ */
+
+export function useListStudentNotes<
+  TData = Awaited<ReturnType<typeof listStudentNotes>>,
+  TError = ErrorType<unknown>,
+>(
+  studentId: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listStudentNotes>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListStudentNotesQueryOptions(studentId, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Add a progress note for a student
+ */
+export const getCreateStudentNoteUrl = (studentId: string) => {
+  return `/api/students/${studentId}/notes`;
+};
+
+export const createStudentNote = async (
+  studentId: string,
+  createStudentNoteBody: CreateStudentNoteBody,
+  options?: RequestInit,
+): Promise<StudentNote> => {
+  return customFetch<StudentNote>(getCreateStudentNoteUrl(studentId), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createStudentNoteBody),
+  });
+};
+
+export const getCreateStudentNoteMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createStudentNote>>,
+    TError,
+    { studentId: string; data: BodyType<CreateStudentNoteBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createStudentNote>>,
+  TError,
+  { studentId: string; data: BodyType<CreateStudentNoteBody> },
+  TContext
+> => {
+  const mutationKey = ["createStudentNote"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createStudentNote>>,
+    { studentId: string; data: BodyType<CreateStudentNoteBody> }
+  > = (props) => {
+    const { studentId, data } = props ?? {};
+
+    return createStudentNote(studentId, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateStudentNoteMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createStudentNote>>
+>;
+export type CreateStudentNoteMutationBody = BodyType<CreateStudentNoteBody>;
+export type CreateStudentNoteMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Add a progress note for a student
+ */
+export const useCreateStudentNote = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createStudentNote>>,
+    TError,
+    { studentId: string; data: BodyType<CreateStudentNoteBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createStudentNote>>,
+  TError,
+  { studentId: string; data: BodyType<CreateStudentNoteBody> },
+  TContext
+> => {
+  return useMutation(getCreateStudentNoteMutationOptions(options));
+};
+
+/**
+ * @summary Delete a progress note
+ */
+export const getDeleteStudentNoteUrl = (studentId: string, noteId: string) => {
+  return `/api/students/${studentId}/notes/${noteId}`;
+};
+
+export const deleteStudentNote = async (
+  studentId: string,
+  noteId: string,
+  options?: RequestInit,
+): Promise<void> => {
+  return customFetch<void>(getDeleteStudentNoteUrl(studentId, noteId), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getDeleteStudentNoteMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteStudentNote>>,
+    TError,
+    { studentId: string; noteId: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteStudentNote>>,
+  TError,
+  { studentId: string; noteId: string },
+  TContext
+> => {
+  const mutationKey = ["deleteStudentNote"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteStudentNote>>,
+    { studentId: string; noteId: string }
+  > = (props) => {
+    const { studentId, noteId } = props ?? {};
+
+    return deleteStudentNote(studentId, noteId, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteStudentNoteMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteStudentNote>>
+>;
+
+export type DeleteStudentNoteMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Delete a progress note
+ */
+export const useDeleteStudentNote = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteStudentNote>>,
+    TError,
+    { studentId: string; noteId: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteStudentNote>>,
+  TError,
+  { studentId: string; noteId: string },
+  TContext
+> => {
+  return useMutation(getDeleteStudentNoteMutationOptions(options));
 };
 
 /**
@@ -2781,6 +3046,100 @@ export const useUpdateEnquiry = <
 > => {
   return useMutation(getUpdateEnquiryMutationOptions(options));
 };
+
+/**
+ * @summary Recent activity feed across all entities
+ */
+export const getListActivityUrl = (params?: ListActivityParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/activity?${stringifiedParams}`
+    : `/api/activity`;
+};
+
+export const listActivity = async (
+  params?: ListActivityParams,
+  options?: RequestInit,
+): Promise<ActivityItem[]> => {
+  return customFetch<ActivityItem[]>(getListActivityUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListActivityQueryKey = (params?: ListActivityParams) => {
+  return [`/api/activity`, ...(params ? [params] : [])] as const;
+};
+
+export const getListActivityQueryOptions = <
+  TData = Awaited<ReturnType<typeof listActivity>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListActivityParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listActivity>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListActivityQueryKey(params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listActivity>>> = ({
+    signal,
+  }) => listActivity(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listActivity>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListActivityQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listActivity>>
+>;
+export type ListActivityQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Recent activity feed across all entities
+ */
+
+export function useListActivity<
+  TData = Awaited<ReturnType<typeof listActivity>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListActivityParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listActivity>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListActivityQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
 
 /**
  * @summary Get school settings

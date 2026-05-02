@@ -354,6 +354,42 @@ export const DeleteStudentParams = zod.object({
 });
 
 /**
+ * @summary List progress notes for a student, newest first
+ */
+export const ListStudentNotesParams = zod.object({
+  studentId: zod.coerce.string().uuid(),
+});
+
+export const ListStudentNotesResponseItem = zod.object({
+  id: zod.string().uuid(),
+  studentId: zod.string().uuid(),
+  content: zod.string(),
+  authorName: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+});
+export const ListStudentNotesResponse = zod.array(ListStudentNotesResponseItem);
+
+/**
+ * @summary Add a progress note for a student
+ */
+export const CreateStudentNoteParams = zod.object({
+  studentId: zod.coerce.string().uuid(),
+});
+
+export const CreateStudentNoteBody = zod.object({
+  content: zod.string().min(1),
+  authorName: zod.string().nullish(),
+});
+
+/**
+ * @summary Delete a progress note
+ */
+export const DeleteStudentNoteParams = zod.object({
+  studentId: zod.coerce.string().uuid(),
+  noteId: zod.coerce.string().uuid(),
+});
+
+/**
  * @summary List all fee records across all students
  */
 export const ListAllFeesQueryParams = zod.object({
@@ -698,6 +734,33 @@ export const UpdateEnquiryResponse = zod.object({
   adminNotes: zod.string().nullish(),
   createdAt: zod.coerce.date(),
 });
+
+/**
+ * @summary Recent activity feed across all entities
+ */
+export const listActivityQueryLimitDefault = 30;
+
+export const ListActivityQueryParams = zod.object({
+  limit: zod.coerce.number().default(listActivityQueryLimitDefault),
+});
+
+export const ListActivityResponseItem = zod.object({
+  id: zod.string(),
+  type: zod.enum([
+    "admission",
+    "fee_paid",
+    "fee_overdue",
+    "note",
+    "enquiry",
+    "attendance",
+    "student_enrolled",
+  ]),
+  title: zod.string(),
+  detail: zod.string().nullish(),
+  href: zod.string().nullish(),
+  occurredAt: zod.coerce.date(),
+});
+export const ListActivityResponse = zod.array(ListActivityResponseItem);
 
 /**
  * @summary Get school settings

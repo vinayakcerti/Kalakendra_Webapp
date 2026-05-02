@@ -17,13 +17,17 @@ import {
   useDeleteFee,
   useListAttendance,
   useUpdateAttendance,
+  useListStudentNotes,
+  useCreateStudentNote,
+  useDeleteStudentNote,
   getGetStudentQueryKey,
   getListStudentsQueryKey,
   getListBatchesQueryKey,
   getListFeesQueryKey,
   getListAttendanceQueryKey,
+  getListStudentNotesQueryKey,
 } from "@workspace/api-client-react";
-import type { FeeRecord, AttendanceRecord } from "@workspace/api-client-react";
+import type { FeeRecord, AttendanceRecord, StudentNote } from "@workspace/api-client-react";
 import {
   Form,
   FormControl,
@@ -38,7 +42,8 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, ExternalLink, Trash2, Plus, CheckCircle2, Clock, AlertCircle, MinusCircle, CalendarCheck, TrendingUp } from "lucide-react";
+import { ArrowLeft, ExternalLink, Trash2, Plus, CheckCircle2, Clock, AlertCircle, MinusCircle, CalendarCheck, TrendingUp, StickyNote, Send } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 
 const formSchema = z.object({
   fullName: z.string().min(2, "Name is required"),
@@ -864,6 +869,133 @@ export default function StudentDetail() {
 
       {/* Fees section — full width below grid */}
       <FeesSection studentId={student.id} />
+
+      {/* Progress notes */}
+      <NotesSection studentId={student.id} />
     </div>
+  );
+}
+
+/* ─── Progress Notes Section ─────────────────────────────────────────────── */
+
+function NotesSection({ studentId }: { studentId: string }) {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [draft, setDraft] = useState("");
+  const [authorName, setAuthorName] = useState("");
+
+  const { data: notes = [], isLoading } = useListStudentNotes(studentId, {
+    query: { queryKey: getListStudentNotesQueryKey(studentId) },
+  });
+
+  const createNote = useCreateStudentNote();
+  const deleteNote = useDeleteStudentNote();
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const content = draft.trim();
+    if (!content) return;
+    createNote.mutate(
+      { studentId, data: { content, authorName: authorName.trim() || undefined } },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: getListStudentNotesQueryKey(studentId) });
+          setDraft("");
+          toast({ title: "Note saved" });
+        },
+        onError: () => toast({ title: "Failed to save note", variant: "destructive" }),
+      }
+    );
+  }
+
+  function handleDelete(noteId: string) {
+    deleteNote.mutate(
+      { studentId, noteId },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: getListStudentNotesQueryKey(studentId) });
+          toast({ title: "Note deleted" });
+        },
+        onError: () => toast({ title: "Failed to delete note", variant: "destructive" }),
+      }
+    );
+  }
+
+  return (
+    <section className="bg-card border border-secondary/20 p-6 md:p-8">
+      {/* Header */}
+      <div className="flex items-center gap-2 mb-6">
+        <StickyNote className="h-4 w-4 text-secondary" />
+        <h3 className="text-lg font-serif text-primary">Progress Notes</h3>
+        {notes.length > 0 && (
+          <span className="text-xs text-muted-foreground ml-1">({notes.length})</span>
+        )}
+      </div>
+
+      {/* Compose */}
+      <form onSubmit={handleSubmit} className="mb-8">
+        <Textarea
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          placeholder="Add a progress note — observations, milestones, areas to focus on…"
+          className="rounded-none resize-none border-secondary/30 focus:border-secondary bg-background mb-3 min-h-[90px]"
+          rows={3}
+        />
+        <div className="flex items-center gap-3">
+          <Input
+            value={authorName}
+            onChange={(e) => setAuthorName(e.target.value)}
+            placeholder="Your name (optional)"
+            className="rounded-none border-secondary/30 h-8 text-sm max-w-[200px]"
+          />
+          <Button
+            type="submit"
+            size="sm"
+            disabled={!draft.trim() || createNote.isPending}
+            className="rounded-none bg-primary text-primary-foreground hover:bg-primary/90 gap-1.5 h-8"
+          >
+            <Send className="h-3 w-3" />
+            Save Note
+          </Button>
+        </div>
+      </form>
+
+      {/* Notes list */}
+      {isLoading ? (
+        <div className="space-y-3">
+          {[1, 2].map((i) => <Skeleton key={i} className="h-16 bg-secondary/10" />)}
+        </div>
+      ) : notes.length === 0 ? (
+        <p className="text-sm text-muted-foreground italic text-center py-6">
+          No notes yet. Add the first observation above.
+        </p>
+      ) : (
+        <div className="space-y-4">
+          {(notes as StudentNote[]).map((note) => (
+            <div key={note.id} className="group border-l-2 border-secondary/20 pl-4 py-1">
+              <div className="flex items-start justify-between gap-4">
+                <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap flex-1">{note.content}</p>
+                <button
+                  onClick={() => handleDelete(note.id)}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive shrink-0 mt-0.5"
+                  title="Delete note"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
+              <div className="flex items-center gap-2 mt-1.5">
+                {note.authorName && (
+                  <span className="text-xs font-medium text-secondary">{note.authorName}</span>
+                )}
+                {note.authorName && <span className="text-secondary/30 text-xs">·</span>}
+                <span className="text-xs text-muted-foreground">
+                  {format(new Date(note.createdAt), "d MMM yyyy 'at' HH:mm")}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
   );
 }

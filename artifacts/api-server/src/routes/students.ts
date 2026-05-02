@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
-import { eq, ilike, and } from "drizzle-orm";
-import { db, studentsTable, batchesTable } from "@workspace/db";
+import { eq, ilike, and, desc } from "drizzle-orm";
+import { db, studentsTable, batchesTable, studentNotesTable } from "@workspace/db";
 import {
   ListStudentsQueryParams,
   CreateStudentBody,
@@ -8,6 +8,7 @@ import {
   ListStudentsResponseItem,
   GetStudentResponse,
   UpdateStudentResponse,
+  CreateStudentNoteBody,
 } from "@workspace/api-zod";
 
 const router: IRouter = Router();
@@ -85,6 +86,39 @@ router.patch("/students/:id", async (req, res) => {
 
 router.delete("/students/:id", async (req, res) => {
   await db.delete(studentsTable).where(eq(studentsTable.id, req.params.id));
+  res.status(204).send();
+});
+
+/** GET /students/:studentId/notes */
+router.get("/students/:studentId/notes", async (req, res) => {
+  const notes = await db
+    .select()
+    .from(studentNotesTable)
+    .where(eq(studentNotesTable.studentId, req.params.studentId))
+    .orderBy(desc(studentNotesTable.createdAt));
+  res.json(notes);
+});
+
+/** POST /students/:studentId/notes */
+router.post("/students/:studentId/notes", async (req, res) => {
+  const body = CreateStudentNoteBody.parse(req.body);
+  const [note] = await db
+    .insert(studentNotesTable)
+    .values({ studentId: req.params.studentId, ...body })
+    .returning();
+  res.status(201).json(note);
+});
+
+/** DELETE /students/:studentId/notes/:noteId */
+router.delete("/students/:studentId/notes/:noteId", async (req, res) => {
+  await db
+    .delete(studentNotesTable)
+    .where(
+      and(
+        eq(studentNotesTable.id, req.params.noteId),
+        eq(studentNotesTable.studentId, req.params.studentId)
+      )
+    );
   res.status(204).send();
 });
 

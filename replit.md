@@ -58,11 +58,12 @@ Create tables directly with SQL (psql "$DATABASE_URL") or run `pnpm --filter @wo
 - `/batches` — CRUD; GET /batches/:id returns BatchDetail (students enriched with attendanceRate, totalSessions, feesOutstandingOre)
 - `/enquiries` — CRUD
 - `/settings` — GET + PATCH
-- `/dashboard-stats` — GET aggregate stats (includes totalOutstandingOre, overdueCount)
+- `/stats/dashboard` — GET aggregate stats (includes totalOutstandingOre, overdueCount, recentAdmissions)
+- `/activity` — GET recent activity feed (last 30 events across admissions, fees, notes, enquiries, attendance, enrolments)
 
 ## Admin Pages
 
-- Dashboard — overview stats (active students, pending review, active batches, unread enquiries, outstanding fees) + recent admissions
+- Dashboard — overview stats (active students, pending review, active batches, unread enquiries, outstanding fees) + recent admissions table + live activity feed (colour-coded events with relative timestamps, links to relevant pages)
 - Admissions — list with search/filter + AdmissionDetail (status update, enrol button, enrolled student link)
 - Students — list with search/filter + StudentDetail (editable form, fees section)
 - Batches — CRUD management; batch names link to BatchDetail page
