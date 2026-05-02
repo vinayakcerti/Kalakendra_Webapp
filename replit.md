@@ -51,11 +51,11 @@ Create tables directly with SQL (psql "$DATABASE_URL") or run `pnpm --filter @wo
 - `/admissions` — CRUD + `/admissions/:id/enrol` (POST, creates student from admission)
 - `/students` — CRUD
 - `/students/:studentId/fees` — list + create fees per student
-- `/fees` — GET all fees (joined with student/batch info); POST /fees/bulk (generate same fee for all students in a batch)
+- `/fees` — GET all fees (joined with student/batch info); POST /fees/bulk (generate same fee for all students in a batch); POST /fees/mark-overdue (batch-mark all pending past-due fees as overdue)
 - `/fees/:id` — PATCH (update fee) + DELETE
 - `/attendance` — GET (list with batchId/studentId/date/from/to filters) + POST (upsert full session, idempotent)
 - `/attendance/:id` — PATCH (update single entry) + DELETE
-- `/batches` — CRUD
+- `/batches` — CRUD; GET /batches/:id returns BatchDetail (students enriched with attendanceRate, totalSessions, feesOutstandingOre)
 - `/enquiries` — CRUD
 - `/settings` — GET + PATCH
 - `/dashboard-stats` — GET aggregate stats (includes totalOutstandingOre, overdueCount)
@@ -65,9 +65,10 @@ Create tables directly with SQL (psql "$DATABASE_URL") or run `pnpm --filter @wo
 - Dashboard — overview stats (active students, pending review, active batches, unread enquiries, outstanding fees) + recent admissions
 - Admissions — list with search/filter + AdmissionDetail (status update, enrol button, enrolled student link)
 - Students — list with search/filter + StudentDetail (editable form, fees section)
-- Batches — CRUD management
+- Batches — CRUD management; batch names link to BatchDetail page
+- BatchDetail — per-batch roster showing each student's attendance rate, total sessions, and outstanding fees; summary stat cards
 - Attendance — record sessions (batch + date, per-student present/absent/late toggles), view/edit history grouped by date
-- Fees — all fees across students; summary cards; filters by status/student name; Mark Paid action; Generate Term Fees bulk dialog
+- Fees — all fees across students; summary cards; filters by status/student name; Mark Paid action; Mark Overdue batch action; Generate Term Fees bulk dialog
 - Enquiries — list + mark read/unread, admin notes
 - Settings — school settings (acceptingApplications gates public Apply page)
 

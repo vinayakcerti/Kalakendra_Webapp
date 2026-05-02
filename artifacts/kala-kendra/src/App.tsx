@@ -22,6 +22,7 @@ import AdmissionDetail from "@/pages/admin/AdmissionDetail";
 import Students from "@/pages/admin/Students";
 import StudentDetail from "@/pages/admin/StudentDetail";
 import Batches from "@/pages/admin/Batches";
+import BatchDetail from "@/pages/admin/BatchDetail";
 import Fees from "@/pages/admin/Fees";
 import Attendance from "@/pages/admin/Attendance";
 import Enquiries from "@/pages/admin/Enquiries";
@@ -66,6 +67,7 @@ function AdminRoutes() {
         <Route path="/admin/admissions/:id" component={AdmissionDetail} />
         <Route path="/admin/students" component={Students} />
         <Route path="/admin/students/:id" component={StudentDetail} />
+        <Route path="/admin/batches/:id" component={BatchDetail} />
         <Route path="/admin/batches" component={Batches} />
         <Route path="/admin/fees" component={Fees} />
         <Route path="/admin/attendance" component={Attendance} />

@@ -315,6 +315,26 @@ export interface ListFeesQueryParams {
   status?: ListFeesQueryParamsStatus;
 }
 
+export interface BatchStudentSummary {
+  id: string;
+  fullName: string;
+  status: string;
+  enrolledAt: string;
+  /** Percentage of sessions attended (present + late) / total, or null if no records */
+  attendanceRate?: number | null;
+  totalSessions: number;
+  /** Sum of pending + overdue fees in öre */
+  feesOutstandingOre: number;
+}
+
+export interface BatchDetail {
+  id: string;
+  name: string;
+  description?: string | null;
+  active: boolean;
+  students: BatchStudentSummary[];
+}
+
 export type AttendanceRecordStatus =
   (typeof AttendanceRecordStatus)[keyof typeof AttendanceRecordStatus];
 
@@ -587,6 +607,10 @@ export type ListAttendanceParams = {
 
 export type RecordAttendance201 = {
   saved: number;
+};
+
+export type MarkFeesOverdue200 = {
+  updated: number;
 };
 
 export type ListBatchesParams = {

@@ -468,6 +468,23 @@ paths:
         "204":
           description: Deleted
 
+  /fees/mark-overdue:
+    post:
+      operationId: markFeesOverdue
+      tags: [fees]
+      summary: Mark all pending fees whose due date is in the past as overdue
+      responses:
+        "200":
+          description: Count of updated fees
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  updated:
+                    type: integer
+                required: [updated]
+
   /fees/bulk:
     post:
       operationId: bulkCreateFees
@@ -566,6 +583,26 @@ paths:
                 $ref: "#/components/schemas/Batch"
 
   /batches/{id}:
+    get:
+      operationId: getBatch
+      tags: [batches]
+      summary: Get a single batch with student details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Batch with students
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BatchDetail"
+        "404":
+          description: Not found
     patch:
       operationId: updateBatch
       tags: [batches]
@@ -1115,6 +1152,49 @@ components:
         status:
           type: string
           enum: [pending, paid, overdue, waived]
+
+    BatchStudentSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        fullName:
+          type: string
+        status:
+          type: string
+        enrolledAt:
+          type: string
+          format: date-time
+        attendanceRate:
+          type: number
+          nullable: true
+          description: Percentage of sessions attended (present + late) / total, or null if no records
+        totalSessions:
+          type: integer
+        feesOutstandingOre:
+          type: integer
+          description: Sum of pending + overdue fees in öre
+      required: [id, fullName, status, enrolledAt, totalSessions, feesOutstandingOre]
+
+    BatchDetail:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        active:
+          type: boolean
+        students:
+          type: array
+          items:
+            $ref: "#/components/schemas/BatchStudentSummary"
+      required: [id, name, active, students]
 
     AttendanceRecord:
       type: object

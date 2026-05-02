@@ -493,6 +493,13 @@ export const DeleteAttendanceParams = zod.object({
 });
 
 /**
+ * @summary Mark all pending fees whose due date is in the past as overdue
+ */
+export const MarkFeesOverdueResponse = zod.object({
+  updated: zod.number(),
+});
+
+/**
  * @summary Create the same fee for all active students (optionally filtered by batch)
  */
 export const BulkCreateFeesBody = zod.object({
@@ -573,6 +580,38 @@ export const CreateBatchBody = zod.object({
   description: zod.string().optional(),
   active: zod.boolean().optional(),
   displayOrder: zod.number().optional(),
+});
+
+/**
+ * @summary Get a single batch with student details
+ */
+export const GetBatchParams = zod.object({
+  id: zod.coerce.string().uuid(),
+});
+
+export const GetBatchResponse = zod.object({
+  id: zod.string().uuid(),
+  name: zod.string(),
+  description: zod.string().nullish(),
+  active: zod.boolean(),
+  students: zod.array(
+    zod.object({
+      id: zod.string().uuid(),
+      fullName: zod.string(),
+      status: zod.string(),
+      enrolledAt: zod.coerce.date(),
+      attendanceRate: zod
+        .number()
+        .nullish()
+        .describe(
+          "Percentage of sessions attended (present + late) \/ total, or null if no records",
+        ),
+      totalSessions: zod.number(),
+      feesOutstandingOre: zod
+        .number()
+        .describe("Sum of pending + overdue fees in öre"),
+    }),
+  ),
 });
 
 /**

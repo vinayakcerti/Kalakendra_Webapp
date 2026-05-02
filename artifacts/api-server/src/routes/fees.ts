@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, desc, and, ilike, or, inArray } from "drizzle-orm";
+import { eq, desc, and, ilike, or, inArray, sql } from "drizzle-orm";
 import { db, feesTable, studentsTable, batchesTable } from "@workspace/db";
 import {
   ListFeesQueryParams,
@@ -31,6 +31,16 @@ function feeWithStudentSelect() {
     updatedAt: feesTable.updatedAt,
   };
 }
+
+/** POST /fees/mark-overdue — mark all pending fees with past dueDate as overdue */
+router.post("/fees/mark-overdue", async (req, res) => {
+  const today = new Date().toISOString().split("T")[0];
+  const result = await db.execute(
+    sql`UPDATE fees SET status = 'overdue', updated_at = NOW()
+        WHERE status = 'pending' AND due_date IS NOT NULL AND due_date < ${today}::date`
+  );
+  res.json({ updated: (result as unknown as { rowCount: number }).rowCount ?? 0 });
+});
 
 /** POST /fees/bulk — create the same fee for all active students (optionally filtered by batch) */
 router.post("/fees/bulk", async (req, res) => {

@@ -15,12 +15,15 @@ import {
   useCreateFee,
   useUpdateFee,
   useDeleteFee,
+  useListAttendance,
+  useUpdateAttendance,
   getGetStudentQueryKey,
   getListStudentsQueryKey,
   getListBatchesQueryKey,
   getListFeesQueryKey,
+  getListAttendanceQueryKey,
 } from "@workspace/api-client-react";
-import type { FeeRecord } from "@workspace/api-client-react";
+import type { FeeRecord, AttendanceRecord } from "@workspace/api-client-react";
 import {
   Form,
   FormControl,
@@ -35,7 +38,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, ExternalLink, Trash2, Plus, CheckCircle2, Clock, AlertCircle, MinusCircle } from "lucide-react";
+import { ArrowLeft, ExternalLink, Trash2, Plus, CheckCircle2, Clock, AlertCircle, MinusCircle, CalendarCheck, TrendingUp } from "lucide-react";
 
 const formSchema = z.object({
   fullName: z.string().min(2, "Name is required"),
@@ -112,6 +115,154 @@ function FeeRow({
           <Trash2 className="h-3.5 w-3.5" />
         </Button>
       </div>
+    </div>
+  );
+}
+
+const ATTENDANCE_STATUS_CONFIG = {
+  present: { label: "Present", dot: "bg-emerald-500", badge: "bg-emerald-50 text-emerald-800 border-emerald-200" },
+  absent:  { label: "Absent",  dot: "bg-red-500",     badge: "bg-red-50 text-red-800 border-red-200" },
+  late:    { label: "Late",    dot: "bg-amber-500",   badge: "bg-amber-50 text-amber-800 border-amber-200" },
+} as const;
+
+function AttendanceSection({ studentId }: { studentId: string }) {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const params = { studentId };
+  const { data: records = [], isLoading } = useListAttendance(params, {
+    query: { queryKey: getListAttendanceQueryKey(params) },
+  });
+
+  const updateAttendance = useUpdateAttendance();
+
+  function handleUpdate(record: AttendanceRecord, status: "present" | "absent" | "late") {
+    updateAttendance.mutate(
+      { id: record.id, data: { status } },
+      {
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: getListAttendanceQueryKey(params) }),
+        onError: () => toast({ title: "Update failed", variant: "destructive" }),
+      }
+    );
+  }
+
+  const total = records.length;
+  const presentCount = records.filter((r) => r.status === "present").length;
+  const lateCount = records.filter((r) => r.status === "late").length;
+  const absentCount = records.filter((r) => r.status === "absent").length;
+  const attendanceRate = total > 0 ? Math.round(((presentCount + lateCount) / total) * 100) : null;
+
+  // Show most recent 20 sessions, newest first
+  const sorted = [...records].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 20);
+
+  return (
+    <div className="mt-10 space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="font-serif text-2xl text-primary flex items-center gap-2">
+          <CalendarCheck className="h-5 w-5 text-secondary" />
+          Attendance
+        </h3>
+        <Link href="/admin/attendance">
+          <Button variant="ghost" size="sm" className="rounded-none text-xs text-muted-foreground hover:text-primary p-0 h-auto">
+            Record session →
+          </Button>
+        </Link>
+      </div>
+
+      {isLoading ? (
+        <div className="space-y-2">
+          {[1, 2, 3].map((i) => <Skeleton key={i} className="h-10 bg-secondary/10" />)}
+        </div>
+      ) : total === 0 ? (
+        <div className="bg-card border border-secondary/20 px-6 py-8 text-center">
+          <p className="text-muted-foreground text-sm">No attendance recorded yet.</p>
+        </div>
+      ) : (
+        <>
+          {/* Summary stats */}
+          <div className="flex flex-wrap gap-4">
+            {attendanceRate !== null && (
+              <div className="bg-card border border-secondary/20 px-5 py-3 flex items-center gap-3">
+                <TrendingUp className="h-4 w-4 text-secondary" />
+                <div>
+                  <p className="text-xs uppercase tracking-widest text-muted-foreground">Attendance Rate</p>
+                  <p className={`text-2xl font-serif ${attendanceRate >= 75 ? "text-emerald-700" : attendanceRate >= 50 ? "text-amber-700" : "text-red-700"}`}>
+                    {attendanceRate}%
+                  </p>
+                </div>
+              </div>
+            )}
+            <div className="bg-card border border-secondary/20 px-5 py-3">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">Sessions</p>
+              <p className="text-2xl font-serif text-primary">{total}</p>
+            </div>
+            <div className="bg-card border border-secondary/20 px-5 py-3">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">Present</p>
+              <p className="text-2xl font-serif text-emerald-700">{presentCount}</p>
+            </div>
+            {lateCount > 0 && (
+              <div className="bg-card border border-secondary/20 px-5 py-3">
+                <p className="text-xs uppercase tracking-widest text-muted-foreground">Late</p>
+                <p className="text-2xl font-serif text-amber-700">{lateCount}</p>
+              </div>
+            )}
+            <div className="bg-card border border-secondary/20 px-5 py-3">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">Absent</p>
+              <p className="text-2xl font-serif text-red-700">{absentCount}</p>
+            </div>
+          </div>
+
+          {/* Dot-strip visual */}
+          <div className="flex flex-wrap gap-1.5 py-1">
+            {[...records].sort((a, b) => a.date.localeCompare(b.date)).map((r) => {
+              const cfg = ATTENDANCE_STATUS_CONFIG[r.status as keyof typeof ATTENDANCE_STATUS_CONFIG] ?? ATTENDANCE_STATUS_CONFIG.present;
+              return (
+                <div
+                  key={r.id}
+                  title={`${format(new Date(r.date), "d MMM yyyy")} — ${cfg.label}`}
+                  className={`h-3 w-3 rounded-full ${cfg.dot}`}
+                />
+              );
+            })}
+          </div>
+
+          {/* Recent sessions table */}
+          <div className="bg-card border border-secondary/20 divide-y divide-secondary/10">
+            {sorted.map((record) => {
+              const cfg = ATTENDANCE_STATUS_CONFIG[record.status as keyof typeof ATTENDANCE_STATUS_CONFIG] ?? ATTENDANCE_STATUS_CONFIG.present;
+              return (
+                <div key={record.id} className="flex items-center gap-4 px-5 py-2.5 hover:bg-secondary/5">
+                  <div className="flex-1 min-w-0">
+                    <span className="text-sm text-primary">{format(new Date(record.date), "EEE d MMM yyyy")}</span>
+                    {record.batchName && (
+                      <span className="text-xs text-muted-foreground ml-2">· {record.batchName}</span>
+                    )}
+                  </div>
+                  <div className="flex gap-1">
+                    {(["present", "absent", "late"] as const).map((s) => {
+                      const scfg = ATTENDANCE_STATUS_CONFIG[s];
+                      const active = record.status === s;
+                      return (
+                        <button
+                          key={s}
+                          onClick={() => !active && handleUpdate(record, s)}
+                          disabled={active}
+                          className={`px-2 py-0.5 text-xs border rounded-none transition-colors
+                            ${active ? `${scfg.badge} border-current` : "border-secondary/30 text-muted-foreground hover:border-secondary/60"}`}
+                        >
+                          {scfg.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          {records.length > 20 && (
+            <p className="text-xs text-muted-foreground text-center">Showing 20 most recent sessions</p>
+          )}
+        </>
+      )}
     </div>
   );
 }
@@ -707,6 +858,9 @@ export default function StudentDetail() {
           )}
         </div>
       </div>
+
+      {/* Attendance section */}
+      <AttendanceSection studentId={student.id} />
 
       {/* Fees section — full width below grid */}
       <FeesSection studentId={student.id} />

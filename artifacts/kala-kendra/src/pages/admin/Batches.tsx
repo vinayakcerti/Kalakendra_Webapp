@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "wouter";
 import {
   useListBatches,
   getListBatchesQueryKey,
@@ -147,7 +148,9 @@ export default function Batches() {
               <div key={batch.id} className="border border-secondary/20 bg-card p-6 flex flex-col relative group">
                 <div className="flex justify-between items-start mb-2">
                   <div>
-                    <h3 className="font-serif text-xl text-primary">{batch.name}</h3>
+                    <Link href={`/admin/batches/${batch.id}`}>
+                      <h3 className="font-serif text-xl text-primary hover:underline underline-offset-4 cursor-pointer">{batch.name}</h3>
+                    </Link>
                     <p className="text-xs font-mono text-secondary/60 mt-0.5">{batch.code}</p>
                   </div>
                   <Badge variant="outline" className={`rounded-none border-secondary/40 ${batch.active ? "bg-emerald-100 text-emerald-800" : "bg-stone-100 text-stone-600"}`}>

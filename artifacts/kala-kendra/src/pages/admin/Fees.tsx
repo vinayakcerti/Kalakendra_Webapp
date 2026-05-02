@@ -7,6 +7,7 @@ import {
   useUpdateFee,
   useDeleteFee,
   useBulkCreateFees,
+  useMarkFeesOverdue,
   useListBatches,
 } from "@workspace/api-client-react";
 import type { FeeWithStudent, Batch } from "@workspace/api-client-react";
@@ -20,7 +21,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle2, Clock, AlertCircle, MinusCircle, Trash2, ExternalLink, PlusCircle } from "lucide-react";
+import { CheckCircle2, Clock, AlertCircle, MinusCircle, Trash2, ExternalLink, PlusCircle, RefreshCw } from "lucide-react";
 
 const FEE_STATUS_CONFIG = {
   pending: { label: "Pending",  badgeClass: "bg-amber-50 text-amber-800 border-amber-200",       Icon: Clock },
@@ -69,6 +70,7 @@ export default function Fees() {
   const updateFee = useUpdateFee();
   const deleteFee = useDeleteFee();
   const bulkCreate = useBulkCreateFees();
+  const markOverdue = useMarkFeesOverdue();
 
   function handleSearch(val: string) {
     setSearch(val);
@@ -155,13 +157,33 @@ export default function Fees() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <h2 className="text-3xl font-serif text-primary">Fees & Payments</h2>
-        <Button
-          onClick={() => setShowBulk(true)}
-          className="rounded-none bg-primary text-primary-foreground hover:bg-primary/90 gap-2"
-        >
-          <PlusCircle className="h-4 w-4" />
-          Generate Term Fees
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => {
+              if (!confirm("Mark all pending fees past their due date as overdue?")) return;
+              markOverdue.mutate(undefined, {
+                onSuccess: (data) => {
+                  queryClient.invalidateQueries({ queryKey: getListAllFeesQueryKey() });
+                  toast({ title: `${data.updated} fee${data.updated !== 1 ? "s" : ""} marked overdue` });
+                },
+                onError: () => toast({ title: "Failed to mark overdue", variant: "destructive" }),
+              });
+            }}
+            disabled={markOverdue.isPending}
+            className="rounded-none border-secondary/40 gap-2 text-sm"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${markOverdue.isPending ? "animate-spin" : ""}`} />
+            Mark Overdue
+          </Button>
+          <Button
+            onClick={() => setShowBulk(true)}
+            className="rounded-none bg-primary text-primary-foreground hover:bg-primary/90 gap-2"
+          >
+            <PlusCircle className="h-4 w-4" />
+            Generate Term Fees
+          </Button>
+        </div>
       </div>
 
       {/* Summary bar */}

@@ -20,6 +20,7 @@ import type {
   Admission,
   AttendanceRecord,
   Batch,
+  BatchDetail,
   BulkCreateFeesBody,
   BulkCreateFeesResponse,
   CreateAdmissionBody,
@@ -40,6 +41,7 @@ import type {
   ListEnquiriesParams,
   ListFeesParams,
   ListStudentsParams,
+  MarkFeesOverdue200,
   RecordAttendance201,
   RecordAttendanceBody,
   SchoolSettings,
@@ -1740,6 +1742,87 @@ export const useDeleteAttendance = <
 };
 
 /**
+ * @summary Mark all pending fees whose due date is in the past as overdue
+ */
+export const getMarkFeesOverdueUrl = () => {
+  return `/api/fees/mark-overdue`;
+};
+
+export const markFeesOverdue = async (
+  options?: RequestInit,
+): Promise<MarkFeesOverdue200> => {
+  return customFetch<MarkFeesOverdue200>(getMarkFeesOverdueUrl(), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getMarkFeesOverdueMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof markFeesOverdue>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof markFeesOverdue>>,
+  TError,
+  void,
+  TContext
+> => {
+  const mutationKey = ["markFeesOverdue"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof markFeesOverdue>>,
+    void
+  > = () => {
+    return markFeesOverdue(requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type MarkFeesOverdueMutationResult = NonNullable<
+  Awaited<ReturnType<typeof markFeesOverdue>>
+>;
+
+export type MarkFeesOverdueMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Mark all pending fees whose due date is in the past as overdue
+ */
+export const useMarkFeesOverdue = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof markFeesOverdue>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof markFeesOverdue>>,
+  TError,
+  void,
+  TContext
+> => {
+  return useMutation(getMarkFeesOverdueMutationOptions(options));
+};
+
+/**
  * @summary Create the same fee for all active students (optionally filtered by batch)
  */
 export const getBulkCreateFeesUrl = () => {
@@ -2175,6 +2258,91 @@ export const useCreateBatch = <
 > => {
   return useMutation(getCreateBatchMutationOptions(options));
 };
+
+/**
+ * @summary Get a single batch with student details
+ */
+export const getGetBatchUrl = (id: string) => {
+  return `/api/batches/${id}`;
+};
+
+export const getBatch = async (
+  id: string,
+  options?: RequestInit,
+): Promise<BatchDetail> => {
+  return customFetch<BatchDetail>(getGetBatchUrl(id), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetBatchQueryKey = (id: string) => {
+  return [`/api/batches/${id}`] as const;
+};
+
+export const getGetBatchQueryOptions = <
+  TData = Awaited<ReturnType<typeof getBatch>>,
+  TError = ErrorType<void>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getBatch>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetBatchQueryKey(id);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getBatch>>> = ({
+    signal,
+  }) => getBatch(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<Awaited<ReturnType<typeof getBatch>>, TError, TData> & {
+    queryKey: QueryKey;
+  };
+};
+
+export type GetBatchQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getBatch>>
+>;
+export type GetBatchQueryError = ErrorType<void>;
+
+/**
+ * @summary Get a single batch with student details
+ */
+
+export function useGetBatch<
+  TData = Awaited<ReturnType<typeof getBatch>>,
+  TError = ErrorType<void>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getBatch>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetBatchQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
 
 /**
  * @summary Update a batch
