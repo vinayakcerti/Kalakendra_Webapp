@@ -315,6 +315,48 @@ export interface ListFeesQueryParams {
   status?: ListFeesQueryParamsStatus;
 }
 
+export type ListAllFeesQueryParamsStatus =
+  (typeof ListAllFeesQueryParamsStatus)[keyof typeof ListAllFeesQueryParamsStatus];
+
+export const ListAllFeesQueryParamsStatus = {
+  pending: "pending",
+  paid: "paid",
+  overdue: "overdue",
+  waived: "waived",
+} as const;
+
+export interface ListAllFeesQueryParams {
+  status?: ListAllFeesQueryParamsStatus;
+  studentId?: string;
+  search?: string;
+}
+
+export type FeeWithStudentStatus =
+  (typeof FeeWithStudentStatus)[keyof typeof FeeWithStudentStatus];
+
+export const FeeWithStudentStatus = {
+  pending: "pending",
+  paid: "paid",
+  overdue: "overdue",
+  waived: "waived",
+} as const;
+
+export interface FeeWithStudent {
+  id: string;
+  studentId: string;
+  studentName: string;
+  batchName?: string | null;
+  description: string;
+  amountOre: number;
+  currency: string;
+  dueDate?: string | null;
+  paidDate?: string | null;
+  status: FeeWithStudentStatus;
+  notes?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Batch {
   id: string;
   code: string;
@@ -395,6 +437,10 @@ export interface DashboardStats {
   underReviewAdmissions: number;
   totalAdmissions: number;
   unreadEnquiries: number;
+  /** Total unpaid fees in öre across all students */
+  totalOutstandingOre: number;
+  /** Number of overdue fee records */
+  overdueCount: number;
   recentAdmissions: Admission[];
 }
 
@@ -428,6 +474,22 @@ export const ListStudentsStatus = {
   active: "active",
   inactive: "inactive",
   withdrawn: "withdrawn",
+} as const;
+
+export type ListAllFeesParams = {
+  status?: ListAllFeesStatus;
+  studentId?: string;
+  search?: string;
+};
+
+export type ListAllFeesStatus =
+  (typeof ListAllFeesStatus)[keyof typeof ListAllFeesStatus];
+
+export const ListAllFeesStatus = {
+  pending: "pending",
+  paid: "paid",
+  overdue: "overdue",
+  waived: "waived",
 } as const;
 
 export type ListFeesParams = {

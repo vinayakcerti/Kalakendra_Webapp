@@ -354,6 +354,32 @@ export const DeleteStudentParams = zod.object({
 });
 
 /**
+ * @summary List all fee records across all students
+ */
+export const ListAllFeesQueryParams = zod.object({
+  status: zod.enum(["pending", "paid", "overdue", "waived"]).optional(),
+  studentId: zod.coerce.string().uuid().optional(),
+  search: zod.coerce.string().optional(),
+});
+
+export const ListAllFeesResponseItem = zod.object({
+  id: zod.string().uuid(),
+  studentId: zod.string().uuid(),
+  studentName: zod.string(),
+  batchName: zod.string().nullish(),
+  description: zod.string(),
+  amountOre: zod.number(),
+  currency: zod.string(),
+  dueDate: zod.coerce.date().nullish(),
+  paidDate: zod.coerce.date().nullish(),
+  status: zod.enum(["pending", "paid", "overdue", "waived"]),
+  notes: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+  updatedAt: zod.coerce.date(),
+});
+export const ListAllFeesResponse = zod.array(ListAllFeesResponseItem);
+
+/**
  * @summary List all fee records for a student
  */
 export const ListFeesParams = zod.object({
@@ -598,6 +624,10 @@ export const GetDashboardStatsResponse = zod.object({
   underReviewAdmissions: zod.number(),
   totalAdmissions: zod.number(),
   unreadEnquiries: zod.number(),
+  totalOutstandingOre: zod
+    .number()
+    .describe("Total unpaid fees in öre across all students"),
+  overdueCount: zod.number().describe("Number of overdue fee records"),
   recentAdmissions: zod.array(
     zod.object({
       id: zod.string().uuid(),

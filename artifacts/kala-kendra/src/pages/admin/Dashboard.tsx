@@ -6,6 +6,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 
+function formatSek(amountOre: number): string {
+  return new Intl.NumberFormat("sv-SE", { style: "currency", currency: "SEK", maximumFractionDigits: 0 }).format(amountOre / 100);
+}
+
 const STATUS_STYLES: Record<string, string> = {
   pending: "bg-amber-100 text-amber-800",
   under_review: "bg-blue-100 text-blue-800",
@@ -74,6 +78,21 @@ export default function Dashboard() {
           <CardContent>
             <div className="text-3xl font-serif text-primary">{stats.unreadEnquiries}</div>
             <p className="text-xs text-muted-foreground mt-1">Contact form submissions</p>
+          </CardContent>
+        </Card>
+        <Card className="rounded-none border-secondary/20 bg-card">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-widest">Outstanding Fees</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-serif text-primary">{formatSek(stats.totalOutstandingOre)}</div>
+            <Link href="/admin/fees">
+              <p className="text-xs text-muted-foreground mt-1 hover:text-primary transition-colors cursor-pointer">
+                {stats.overdueCount > 0
+                  ? `${stats.overdueCount} overdue · view all →`
+                  : "View all fees →"}
+              </p>
+            </Link>
           </CardContent>
         </Card>
       </div>

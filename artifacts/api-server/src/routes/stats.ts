@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
-import { eq, count, desc } from "drizzle-orm";
-import { db, admissionsTable, studentsTable, batchesTable, enquiriesTable } from "@workspace/db";
+import { eq, count, sum, desc } from "drizzle-orm";
+import { db, admissionsTable, studentsTable, batchesTable, enquiriesTable, feesTable } from "@workspace/db";
 import { GetDashboardStatsResponse, ListAdmissionsResponseItem } from "@workspace/api-zod";
 
 const router: IRouter = Router();
@@ -35,6 +35,17 @@ router.get("/stats/dashboard", async (_req, res) => {
     .from(enquiriesTable)
     .where(eq(enquiriesTable.isRead, false));
 
+  // Fee aggregates
+  const [outstandingRow] = await db
+    .select({ total: sum(feesTable.amountOre) })
+    .from(feesTable)
+    .where(eq(feesTable.status, "pending"));
+
+  const [overdueRow] = await db
+    .select({ cnt: count() })
+    .from(feesTable)
+    .where(eq(feesTable.status, "overdue"));
+
   const recentAdmissions = await db
     .select()
     .from(admissionsTable)
@@ -51,6 +62,8 @@ router.get("/stats/dashboard", async (_req, res) => {
       underReviewAdmissions: Number(underReviewRow?.cnt ?? 0),
       totalAdmissions: Number(totalAdmissionsRow?.cnt ?? 0),
       unreadEnquiries: Number(unreadEnquiriesRow?.cnt ?? 0),
+      totalOutstandingOre: Number(outstandingRow?.total ?? 0),
+      overdueCount: Number(overdueRow?.cnt ?? 0),
       recentAdmissions: recentAdmissions.map((r) => ListAdmissionsResponseItem.parse(r)),
     })
   );

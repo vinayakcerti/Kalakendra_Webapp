@@ -28,8 +28,10 @@ import type {
   Enquiry,
   EnrolAdmissionBody,
   FeeRecord,
+  FeeWithStudent,
   HealthStatus,
   ListAdmissionsParams,
+  ListAllFeesParams,
   ListBatchesParams,
   ListEnquiriesParams,
   ListFeesParams,
@@ -1090,6 +1092,100 @@ export const useDeleteStudent = <
 > => {
   return useMutation(getDeleteStudentMutationOptions(options));
 };
+
+/**
+ * @summary List all fee records across all students
+ */
+export const getListAllFeesUrl = (params?: ListAllFeesParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/fees?${stringifiedParams}`
+    : `/api/fees`;
+};
+
+export const listAllFees = async (
+  params?: ListAllFeesParams,
+  options?: RequestInit,
+): Promise<FeeWithStudent[]> => {
+  return customFetch<FeeWithStudent[]>(getListAllFeesUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListAllFeesQueryKey = (params?: ListAllFeesParams) => {
+  return [`/api/fees`, ...(params ? [params] : [])] as const;
+};
+
+export const getListAllFeesQueryOptions = <
+  TData = Awaited<ReturnType<typeof listAllFees>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListAllFeesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listAllFees>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListAllFeesQueryKey(params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listAllFees>>> = ({
+    signal,
+  }) => listAllFees(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listAllFees>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListAllFeesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listAllFees>>
+>;
+export type ListAllFeesQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List all fee records across all students
+ */
+
+export function useListAllFees<
+  TData = Awaited<ReturnType<typeof listAllFees>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListAllFeesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listAllFees>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListAllFeesQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
 
 /**
  * @summary List all fee records for a student
