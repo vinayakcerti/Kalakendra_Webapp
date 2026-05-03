@@ -31,6 +31,7 @@ import Enquiries from "@/pages/admin/Enquiries";
 import Settings from "@/pages/admin/Settings";
 
 import Announcements from "@/pages/admin/Announcements";
+import Schedule from "@/pages/admin/Schedule";
 import PortalLogin from "@/pages/portal/Login";
 import PortalVerify from "@/pages/portal/Verify";
 import PortalDashboard from "@/pages/portal/Dashboard";
@@ -83,6 +84,7 @@ function AdminRoutes() {
         <Route path="/admin/attendance" component={Attendance} />
         <Route path="/admin/enquiries" component={Enquiries} />
         <Route path="/admin/announcements" component={Announcements} />
+        <Route path="/admin/schedule" component={Schedule} />
         <Route path="/admin/settings" component={Settings} />
         <Route component={NotFound} />
       </Switch>

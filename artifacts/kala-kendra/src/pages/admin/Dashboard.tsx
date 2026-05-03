@@ -17,6 +17,7 @@ import {
   BookOpen,
   Bell,
   Inbox,
+  CalendarDays,
 } from "lucide-react";
 
 function formatSek(amountOre: number): string {
@@ -83,6 +84,7 @@ export default function Dashboard() {
           { label: "Announcements", icon: Bell, href: "/admin/announcements", color: "text-amber-700", bg: "bg-amber-50 hover:bg-amber-100" },
           { label: "All Students", icon: Users, href: "/admin/students", color: "text-primary", bg: "bg-primary/5 hover:bg-primary/10" },
           { label: "Batches", icon: BookOpen, href: "/admin/batches", color: "text-teal-700", bg: "bg-teal-50 hover:bg-teal-100" },
+          { label: "Schedule", icon: CalendarDays, href: "/admin/schedule", color: "text-cyan-700", bg: "bg-cyan-50 hover:bg-cyan-100" },
           { label: "Attendance", icon: CalendarCheck, href: "/admin/attendance", color: "text-rose-700", bg: "bg-rose-50 hover:bg-rose-100" },
           { label: "New Admission", icon: UserPlus, href: "/apply", color: "text-indigo-700", bg: "bg-indigo-50 hover:bg-indigo-100" },
         ].map((action) => {
