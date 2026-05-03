@@ -12,7 +12,7 @@ import {
   EnrolAdmissionParams,
   GetStudentResponse,
 } from "@workspace/api-zod";
-import { sendApplicationEmails } from "../lib/email";
+import { sendApplicationEmails, sendStatusUpdateEmail } from "../lib/email";
 
 const router: IRouter = Router();
 
@@ -131,14 +131,52 @@ router.get("/admissions/:id", async (req, res) => {
 
 router.patch("/admissions/:id", async (req, res) => {
   const body = UpdateAdmissionBody.parse(req.body);
+
+  // Fetch prior state so we can detect a status change
+  const [before] = await db
+    .select()
+    .from(admissionsTable)
+    .where(eq(admissionsTable.id, req.params.id));
+  if (!before) { res.status(404).json({ error: "Not found" }); return; }
+
   const [row] = await db
     .update(admissionsTable)
     .set({ ...body, updatedAt: new Date() })
     .where(eq(admissionsTable.id, req.params.id))
     .returning();
   if (!row) { res.status(404).json({ error: "Not found" }); return; }
+
   const enrolledStudentId = await getEnrolledStudentId(row.id);
   res.json(UpdateAdmissionResponse.parse({ ...row, enrolledStudentId }));
+
+  // Fire status-change email if status changed to a notifiable value
+  const statusChanged = body.status && body.status !== before.status;
+  if (statusChanged && body.status) {
+    void (async () => {
+      try {
+        // Resolve batch name
+        const batchRow = row.batch
+          ? await db.select({ name: batchesTable.name })
+              .from(batchesTable)
+              .where(eq(batchesTable.code, row.batch))
+              .limit(1)
+              .then(r => r[0])
+          : undefined;
+
+        await sendStatusUpdateEmail({
+          admissionId: row.id,
+          newStatus: body.status as "pending" | "under_review" | "accepted" | "rejected",
+          studentName: row.studentName,
+          applicantType: row.applicantType,
+          studentEmail: row.studentEmail,
+          parentEmail: row.parentEmail,
+          batchName: batchRow?.name ?? row.batch ?? "your chosen batch",
+        });
+      } catch (err) {
+        req.log.error({ err }, "Error in status-change email dispatch");
+      }
+    })();
+  }
 });
 
 router.delete("/admissions/:id", async (req, res) => {

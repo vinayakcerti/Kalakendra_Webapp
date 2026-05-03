@@ -148,7 +148,174 @@ function adminNotificationHtml(params: {
   `);
 }
 
+function acceptedHtml(params: {
+  recipientName: string;
+  studentName: string;
+  batchName: string;
+  applicantType: string;
+}): string {
+  const { recipientName, studentName, batchName, applicantType } = params;
+  const isChild = applicantType === "child";
+  return baseTemplate(`
+    <p style="margin:0 0 8px;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:#B8893A;font-family:Arial,sans-serif;">
+      Application Decision
+    </p>
+    <h2 style="margin:0 0 24px;font-size:24px;font-weight:400;color:#3D0A0C;">
+      You have been accepted
+    </h2>
+    <p style="margin:0 0 20px;font-size:15px;line-height:1.7;color:#1F1612;">
+      Dear ${recipientName},
+    </p>
+    <p style="margin:0 0 20px;font-size:15px;line-height:1.7;color:#1F1612;">
+      We are delighted to inform you that ${isChild ? `<strong>${studentName}</strong> has` : "you have"} been accepted into the
+      <strong>${batchName}</strong> batch at Kala Kendra Sweden.
+    </p>
+    <p style="margin:0 0 20px;font-size:15px;line-height:1.7;color:#1F1612;">
+      This is the beginning of a long and committed journey in the classical arts. We look forward to welcoming
+      ${isChild ? studentName : "you"} to the school.
+    </p>
+    <table cellpadding="0" cellspacing="0" style="border-left:3px solid #B8893A;padding-left:20px;margin:28px 0;">
+      <tr><td>
+        <p style="margin:0 0 14px;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:#7a6a58;font-family:Arial,sans-serif;">What happens next</p>
+        <p style="margin:0 0 10px;font-size:14px;line-height:1.7;color:#1F1612;">
+          ✦&nbsp; A member of our team will be in touch shortly with details of class timings, fees, and any materials required.
+        </p>
+        <p style="margin:0 0 10px;font-size:14px;line-height:1.7;color:#1F1612;">
+          ✦&nbsp; Please do not hesitate to write to us with any questions in the meantime.
+        </p>
+      </td></tr>
+    </table>
+    <p style="margin:28px 0 0;font-size:14px;line-height:1.7;color:#7a6a58;">
+      With warm regards,<br/>
+      <em>The Kala Kendra Sweden Team</em>
+    </p>
+  `);
+}
+
+function rejectedHtml(params: {
+  recipientName: string;
+  studentName: string;
+  batchName: string;
+  applicantType: string;
+}): string {
+  const { recipientName, studentName, batchName, applicantType } = params;
+  const isChild = applicantType === "child";
+  return baseTemplate(`
+    <p style="margin:0 0 8px;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:#B8893A;font-family:Arial,sans-serif;">
+      Application Decision
+    </p>
+    <h2 style="margin:0 0 24px;font-size:24px;font-weight:400;color:#3D0A0C;">
+      Thank you for your application
+    </h2>
+    <p style="margin:0 0 20px;font-size:15px;line-height:1.7;color:#1F1612;">
+      Dear ${recipientName},
+    </p>
+    <p style="margin:0 0 20px;font-size:15px;line-height:1.7;color:#1F1612;">
+      Thank you for ${isChild ? `applying on behalf of <strong>${studentName}</strong>` : "your application"} to the
+      <strong>${batchName}</strong> batch at Kala Kendra Sweden.
+    </p>
+    <p style="margin:0 0 20px;font-size:15px;line-height:1.7;color:#1F1612;">
+      After careful consideration, we are unfortunately not able to offer a place at this time. Admissions are limited and the decision is always difficult to make.
+    </p>
+    <p style="margin:0 0 20px;font-size:15px;line-height:1.7;color:#1F1612;">
+      We warmly encourage ${isChild ? studentName : "you"} to apply again in a future intake, or to write to us directly — we would be happy to discuss the best path forward.
+    </p>
+    <p style="margin:28px 0 0;font-size:14px;line-height:1.7;color:#7a6a58;">
+      With sincere regards,<br/>
+      <em>The Kala Kendra Sweden Team</em><br/>
+      <a href="mailto:namaskaram@kalakendra.se" style="color:#5C1416;">namaskaram@kalakendra.se</a>
+    </p>
+  `);
+}
+
+function underReviewHtml(params: {
+  recipientName: string;
+  studentName: string;
+  batchName: string;
+  applicantType: string;
+}): string {
+  const { recipientName, studentName, batchName, applicantType } = params;
+  const isChild = applicantType === "child";
+  return baseTemplate(`
+    <p style="margin:0 0 8px;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:#B8893A;font-family:Arial,sans-serif;">
+      Application Update
+    </p>
+    <h2 style="margin:0 0 24px;font-size:24px;font-weight:400;color:#3D0A0C;">
+      Your application is under review
+    </h2>
+    <p style="margin:0 0 20px;font-size:15px;line-height:1.7;color:#1F1612;">
+      Dear ${recipientName},
+    </p>
+    <p style="margin:0 0 20px;font-size:15px;line-height:1.7;color:#1F1612;">
+      We wanted to let you know that ${isChild ? `<strong>${studentName}</strong>'s` : "your"} application for
+      <strong>${batchName}</strong> is currently being reviewed by our admissions team.
+    </p>
+    <p style="margin:0 0 20px;font-size:15px;line-height:1.7;color:#1F1612;">
+      We will be in touch as soon as a decision has been reached. Thank you for your patience.
+    </p>
+    <p style="margin:28px 0 0;font-size:14px;line-height:1.7;color:#7a6a58;">
+      With warm regards,<br/>
+      <em>The Kala Kendra Sweden Team</em>
+    </p>
+  `);
+}
+
 // ─── Public API ──────────────────────────────────────────────────────────────
+
+export type AdmissionStatus = "pending" | "under_review" | "accepted" | "rejected";
+
+export interface StatusUpdateEmailParams {
+  admissionId: string;
+  newStatus: AdmissionStatus;
+  studentName: string;
+  applicantType: string;
+  studentEmail?: string | null;
+  parentEmail?: string | null;
+  batchName: string;
+}
+
+export async function sendStatusUpdateEmail(params: StatusUpdateEmailParams): Promise<void> {
+  const client = getClient();
+  if (!client) {
+    logger.warn("RESEND_API_KEY not set — skipping status update email");
+    return;
+  }
+
+  const { admissionId, newStatus, studentName, applicantType, studentEmail, parentEmail, batchName } = params;
+
+  // Only email for these statuses — skip "pending" (no change) and anything else
+  if (!["accepted", "rejected", "under_review"].includes(newStatus)) return;
+
+  const isChild = applicantType === "child";
+  const recipientEmail = isChild ? parentEmail : studentEmail;
+  if (!recipientEmail) return;
+
+  const recipientName = isChild ? `${studentName}'s parent/guardian` : studentName;
+
+  const subjectMap: Record<string, string> = {
+    accepted: `Application accepted — ${batchName} · Kala Kendra Sweden`,
+    rejected: `Regarding your application — ${batchName} · Kala Kendra Sweden`,
+    under_review: `Your application is under review — Kala Kendra Sweden`,
+  };
+
+  const htmlMap: Record<string, string> = {
+    accepted: acceptedHtml({ recipientName, studentName, batchName, applicantType }),
+    rejected: rejectedHtml({ recipientName, studentName, batchName, applicantType }),
+    under_review: underReviewHtml({ recipientName, studentName, batchName, applicantType }),
+  };
+
+  try {
+    const r = await client.emails.send({
+      from: FROM,
+      to: recipientEmail,
+      subject: subjectMap[newStatus],
+      html: htmlMap[newStatus],
+    });
+    logger.info({ admissionId, newStatus, to: recipientEmail, id: r.data?.id }, "Status update email sent");
+  } catch (err) {
+    logger.error({ err, admissionId, newStatus }, "Failed to send status update email");
+  }
+}
 
 export interface ApplicationEmailParams {
   admissionId: string;
