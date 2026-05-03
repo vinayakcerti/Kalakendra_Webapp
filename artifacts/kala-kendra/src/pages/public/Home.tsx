@@ -314,8 +314,8 @@ export default function Home() {
               <text x="120" y="214" textAnchor="middle" fontSize="9" fill="#B8893A" fontFamily="Manrope, sans-serif" letterSpacing="1" opacity="0.8">Sweden</text>
 
               {/* Kerala label */}
-              <text x="780" y="200" textAnchor="middle" fontSize="11" fill="#5C1416" fontFamily="'Cormorant Garamond', serif" letterSpacing="1">Trivandrum</text>
-              <text x="780" y="214" textAnchor="middle" fontSize="9" fill="#B8893A" fontFamily="Manrope, sans-serif" letterSpacing="1" opacity="0.8">Kerala, India</text>
+              <text x="780" y="200" textAnchor="middle" fontSize="11" fill="#5C1416" fontFamily="'Cormorant Garamond', serif" letterSpacing="1">Kerala</text>
+              <text x="780" y="214" textAnchor="middle" fontSize="9" fill="#B8893A" fontFamily="Manrope, sans-serif" letterSpacing="1" opacity="0.8">India</text>
             </svg>
           </div>
 
@@ -349,7 +349,7 @@ export default function Home() {
 
             {/* Kerala */}
             <div className="p-10">
-              <p className="text-secondary text-[10px] uppercase tracking-[0.3em] font-semibold mb-4">Trivandrum, Kerala, India</p>
+              <p className="text-secondary text-[10px] uppercase tracking-[0.3em] font-semibold mb-4">Kerala, India</p>
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between border-b border-secondary/10 pb-2">
                   <span className="text-muted-foreground">Coordinates</span>
