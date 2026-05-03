@@ -1,9 +1,12 @@
 import { Router, type IRouter } from "express";
-import { desc } from "drizzle-orm";
-import { db, consentFormsTable } from "@workspace/db";
+import { desc, eq } from "drizzle-orm";
+import { db, consentFormsTable, settingsTable } from "@workspace/db";
 import { z } from "zod";
+import { sendConsentFormNotification } from "../lib/email";
 
 const router: IRouter = Router();
+
+const TOTAL_CONSENT_CLAUSES = 11;
 
 const CreateConsentFormBody = z.object({
   programName: z.string().min(1),
@@ -32,6 +35,7 @@ router.get("/consent-forms", async (req, res) => {
 
 router.post("/consent-forms", async (req, res) => {
   const body = CreateConsentFormBody.parse(req.body);
+
   const [row] = await db
     .insert(consentFormsTable)
     .values({
@@ -51,7 +55,42 @@ router.post("/consent-forms", async (req, res) => {
       guardianSignatureName: body.guardianSignatureName ?? null,
     })
     .returning();
+
   res.status(201).json(row);
+
+  // Fire-and-forget: send admin notification email
+  try {
+    const [settings] = await db
+      .select({ contactEmail: settingsTable.contactEmail })
+      .from(settingsTable)
+      .where(eq(settingsTable.id, 1));
+
+    const schoolContactEmail = settings?.contactEmail;
+    if (!schoolContactEmail) return;
+
+    // Build the admin URL from the request host
+    const proto = req.headers["x-forwarded-proto"] ?? "https";
+    const host = req.headers["x-forwarded-host"] ?? req.headers["host"] ?? "";
+    const adminUrl = `${proto}://${host}/admin/consent-forms`;
+
+    await sendConsentFormNotification({
+      schoolContactEmail,
+      participantName: body.participantName,
+      programName: body.programName,
+      programYear: body.programYear ?? "",
+      participantEmail: body.participantEmail ?? null,
+      participantPhone: body.participantPhone ?? null,
+      isMinor: body.isMinor,
+      guardianName: body.guardianName ?? null,
+      consentItemCount: body.consentItems.length,
+      totalClauses: TOTAL_CONSENT_CLAUSES,
+      medicalConditions: body.medicalConditions ?? null,
+      submittedAt: row.submittedAt ?? new Date(),
+      adminUrl,
+    });
+  } catch (err) {
+    req.log?.error({ err }, "consent-form post-save email failed");
+  }
 });
 
 export default router;

@@ -609,3 +609,146 @@ export async function sendApplicationEmails(params: ApplicationEmailParams): Pro
 
   await Promise.allSettled(tasks);
 }
+
+// ─── Consent Form Notification ───────────────────────────────────────────────
+
+export interface ConsentFormNotificationParams {
+  schoolContactEmail: string;
+  participantName: string;
+  programName: string;
+  programYear: string;
+  participantEmail: string | null;
+  participantPhone: string | null;
+  isMinor: boolean;
+  guardianName: string | null;
+  consentItemCount: number;
+  totalClauses: number;
+  medicalConditions: string | null;
+  submittedAt: Date;
+  adminUrl: string;
+}
+
+function consentFormAdminHtml(p: ConsentFormNotificationParams): string {
+  const time = p.submittedAt.toLocaleString("sv-SE", {
+    year: "numeric", month: "long", day: "numeric",
+    hour: "2-digit", minute: "2-digit",
+    timeZone: "Europe/Stockholm",
+  });
+  const allClauses = p.consentItemCount === p.totalClauses;
+  const consentColour = allClauses ? "#16a34a" : "#d97706";
+  const consentLabel = allClauses
+    ? `All ${p.totalClauses} clauses acknowledged ✓`
+    : `${p.consentItemCount} of ${p.totalClauses} clauses acknowledged`;
+
+  return `<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/></head>
+<body style="margin:0;padding:0;background:#F4EBD9;font-family:'Georgia',serif;color:#1F1612;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F4EBD9;padding:40px 0;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+
+        <!-- Header -->
+        <tr><td style="background:#3D0A0C;padding:28px 40px;text-align:center;">
+          <p style="margin:0;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:#B8893A;">New Submission</p>
+          <h1 style="margin:8px 0 0;font-size:24px;font-weight:400;color:#F4EBD9;letter-spacing:1px;">Participant Consent Form</h1>
+        </td></tr>
+        <tr><td style="background:#B8893A;height:2px;"></td></tr>
+
+        <!-- Body -->
+        <tr><td style="background:#ffffff;padding:36px 48px;">
+          <p style="margin:0 0 20px;font-size:15px;line-height:1.7;color:#1F1612;">
+            A new consent form has been submitted for <strong>${p.programName}</strong>.
+          </p>
+
+          <!-- Details table -->
+          <table cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;margin:0 0 28px;">
+            <tr style="border-bottom:1px solid #e8e0d6;">
+              <td style="padding:10px 0;font-size:13px;color:#7a6a58;width:38%;">Participant</td>
+              <td style="padding:10px 0;font-size:14px;font-weight:600;">${p.participantName}${p.isMinor ? ' <span style="font-size:11px;color:#b45309;font-weight:normal;">(minor)</span>' : ""}</td>
+            </tr>
+            ${p.isMinor && p.guardianName ? `
+            <tr style="border-bottom:1px solid #e8e0d6;">
+              <td style="padding:10px 0;font-size:13px;color:#7a6a58;">Guardian</td>
+              <td style="padding:10px 0;font-size:14px;">${p.guardianName}</td>
+            </tr>` : ""}
+            <tr style="border-bottom:1px solid #e8e0d6;">
+              <td style="padding:10px 0;font-size:13px;color:#7a6a58;">Programme</td>
+              <td style="padding:10px 0;font-size:14px;">${p.programName}${p.programYear ? ` · ${p.programYear}` : ""}</td>
+            </tr>
+            ${p.participantEmail ? `
+            <tr style="border-bottom:1px solid #e8e0d6;">
+              <td style="padding:10px 0;font-size:13px;color:#7a6a58;">Email</td>
+              <td style="padding:10px 0;font-size:14px;"><a href="mailto:${p.participantEmail}" style="color:#5C1416;">${p.participantEmail}</a></td>
+            </tr>` : ""}
+            ${p.participantPhone ? `
+            <tr style="border-bottom:1px solid #e8e0d6;">
+              <td style="padding:10px 0;font-size:13px;color:#7a6a58;">Phone</td>
+              <td style="padding:10px 0;font-size:14px;">${p.participantPhone}</td>
+            </tr>` : ""}
+            <tr style="border-bottom:1px solid #e8e0d6;">
+              <td style="padding:10px 0;font-size:13px;color:#7a6a58;">Consent</td>
+              <td style="padding:10px 0;font-size:14px;font-weight:600;color:${consentColour};">${consentLabel}</td>
+            </tr>
+            <tr>
+              <td style="padding:10px 0;font-size:13px;color:#7a6a58;">Submitted</td>
+              <td style="padding:10px 0;font-size:14px;">${time}</td>
+            </tr>
+          </table>
+
+          ${p.medicalConditions ? `
+          <!-- Medical alert -->
+          <table cellpadding="0" cellspacing="0" style="width:100%;background:#fffbeb;border:1px solid #fbbf24;border-radius:2px;margin-bottom:28px;">
+            <tr><td style="padding:14px 18px;">
+              <p style="margin:0 0 6px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#92400e;font-weight:600;">Health Declaration — Review Required</p>
+              <p style="margin:0;font-size:14px;color:#78350f;line-height:1.6;">${p.medicalConditions}</p>
+            </td></tr>
+          </table>` : ""}
+
+          <!-- CTA -->
+          <table cellpadding="0" cellspacing="0" style="margin:0 auto;">
+            <tr><td style="background:#3D0A0C;padding:13px 32px;text-align:center;">
+              <a href="${p.adminUrl}" style="font-size:13px;letter-spacing:2px;text-transform:uppercase;color:#F4EBD9;text-decoration:none;font-family:Georgia,serif;">
+                View in Admin Portal
+              </a>
+            </td></tr>
+          </table>
+        </td></tr>
+
+        <!-- Gold rule -->
+        <tr><td style="background:#B8893A;height:2px;"></td></tr>
+
+        <!-- Footer -->
+        <tr><td style="background:#F4EBD9;padding:20px 48px;text-align:center;">
+          <p style="margin:0;font-size:11px;color:#7a6a58;line-height:1.8;">
+            Kala Kendra Sweden · Administration<br/>
+            This is an automated notification. Do not reply to this email.
+          </p>
+        </td></tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body></html>`;
+}
+
+export async function sendConsentFormNotification(params: ConsentFormNotificationParams): Promise<void> {
+  const client = getClient();
+  if (!client) {
+    logger.warn("RESEND_API_KEY not set — skipping consent form notification email");
+    return;
+  }
+  try {
+    const r = await client.emails.send({
+      from: FROM,
+      to: params.schoolContactEmail,
+      subject: `New consent form: ${params.participantName} — ${params.programName}`,
+      html: consentFormAdminHtml(params),
+    });
+    logger.info(
+      { to: params.schoolContactEmail, participantName: params.participantName, id: r.data?.id },
+      "Consent form notification email sent",
+    );
+  } catch (err) {
+    logger.error({ err, participantName: params.participantName }, "Failed to send consent form notification email");
+  }
+}
