@@ -156,6 +156,123 @@ export interface MagicLinkParams {
   link: string;
 }
 
+export interface PortalInviteParams {
+  to: string;
+  studentName: string;
+  link: string;
+}
+
+export async function sendPortalInvite(params: PortalInviteParams): Promise<void> {
+  const client = getClient();
+  if (!client) {
+    logger.warn("RESEND_API_KEY not set — skipping portal invite email");
+    return;
+  }
+  const { to, studentName, link } = params;
+  const html = _portalInviteHtml(studentName, link);
+  try {
+    const r = await client.emails.send({
+      from: FROM,
+      to,
+      subject: "You're invited — Kala Kendra Sweden Student Portal",
+      html,
+    });
+    logger.info({ to, id: r.data?.id }, "Portal invite email sent");
+  } catch (err) {
+    logger.error({ err, to }, "Failed to send portal invite email");
+  }
+}
+
+function _portalInviteHtml(studentName: string, link: string): string {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Kala Kendra Sweden — Student Portal Invitation</title></head>
+<body style="margin:0;padding:0;background:#F4EBD9;font-family:'Georgia',serif;color:#1F1612;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F4EBD9;padding:40px 0;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+
+        <!-- Header -->
+        <tr><td style="background:#3D0A0C;padding:36px 40px;text-align:center;">
+          <p style="margin:0;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:#B8893A;">Kala Kendra Sweden</p>
+          <h1 style="margin:10px 0 4px;font-size:28px;font-weight:400;color:#F4EBD9;letter-spacing:1px;">Student Portal</h1>
+          <p style="margin:0;font-size:13px;color:#F4EBD9;opacity:0.65;">Your personal space to manage your enrolment</p>
+        </td></tr>
+        <tr><td style="background:#B8893A;height:3px;"></td></tr>
+
+        <!-- Body -->
+        <tr><td style="background:#ffffff;padding:44px 48px;">
+          <p style="margin:0 0 20px;font-size:16px;line-height:1.7;color:#1F1612;">Namaskaram, ${studentName},</p>
+          <p style="margin:0 0 18px;font-size:15px;line-height:1.8;color:#3a2e27;">
+            We have launched the <strong>Kala Kendra Sweden Student Portal</strong> — your personal space where you can:
+          </p>
+
+          <!-- Feature list -->
+          <table cellpadding="0" cellspacing="0" style="width:100%;margin:0 0 28px;">
+            ${[
+              ["View your attendance record and monthly summary", "#B8893A"],
+              ["Check and manage your fee payments (pay via Swish)", "#B8893A"],
+              ["Update your personal and contact details", "#B8893A"],
+              ["See school announcements and term schedules", "#B8893A"],
+            ].map(([text]) => `
+            <tr>
+              <td style="padding:7px 0;vertical-align:top;width:20px;">
+                <span style="color:#B8893A;font-size:16px;">✦</span>
+              </td>
+              <td style="padding:7px 0 7px 12px;font-size:14px;color:#3a2e27;line-height:1.6;">${text}</td>
+            </tr>`).join("")}
+          </table>
+
+          <!-- Divider -->
+          <table cellpadding="0" cellspacing="0" style="width:100%;margin:0 0 28px;">
+            <tr>
+              <td style="border-top:1px solid #e8e0d6;"></td>
+              <td style="width:32px;text-align:center;padding:0 12px;font-size:16px;color:#B8893A;">✦</td>
+              <td style="border-top:1px solid #e8e0d6;"></td>
+            </tr>
+          </table>
+
+          <p style="margin:0 0 8px;font-size:15px;line-height:1.7;color:#1F1612;">
+            <strong>Click the button below to sign in and update your details.</strong>
+          </p>
+          <p style="margin:0 0 28px;font-size:14px;color:#7a6a58;line-height:1.6;">
+            This link is valid for <strong>15 minutes</strong>. No password needed — just click to sign in instantly.
+          </p>
+
+          <!-- CTA button -->
+          <table cellpadding="0" cellspacing="0" style="margin:0 0 32px;">
+            <tr><td style="background:#3D0A0C;">
+              <a href="${link}" style="display:block;padding:16px 36px;font-size:13px;color:#F4EBD9;text-decoration:none;font-family:Arial,sans-serif;letter-spacing:2px;text-transform:uppercase;">
+                Sign In to Portal &rarr;
+              </a>
+            </td></tr>
+          </table>
+
+          <p style="margin:0 0 10px;font-size:13px;line-height:1.6;color:#7a6a58;">
+            If the button doesn't work, copy and paste this link into your browser:
+          </p>
+          <p style="margin:0 0 28px;font-size:12px;color:#7a6a58;word-break:break-all;">${link}</p>
+
+          <p style="margin:0;font-size:13px;color:#7a6a58;line-height:1.7;">
+            If you have any questions, contact us at
+            <a href="mailto:kalakendrasweden@gmail.com" style="color:#5C1416;">kalakendrasweden@gmail.com</a>.
+          </p>
+        </td></tr>
+
+        <tr><td style="background:#B8893A;height:3px;"></td></tr>
+        <tr><td style="background:#3D0A0C;padding:20px 48px;text-align:center;">
+          <p style="margin:0;font-size:11px;color:#F4EBD9;opacity:0.6;letter-spacing:1px;">
+            Kala Kendra Sweden · Gothenburg · kalakendrasweden@gmail.com
+          </p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+}
+
 export async function sendMagicLink(params: MagicLinkParams): Promise<void> {
   const client = getClient();
   if (!client) {

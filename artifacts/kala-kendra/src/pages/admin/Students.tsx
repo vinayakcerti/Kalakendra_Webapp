@@ -23,7 +23,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useToast } from "@/hooks/use-toast";
-import { Search, Plus, Trash2, Download, Filter } from "lucide-react";
+import { Search, Plus, Trash2, Download, Filter, Mail, Send } from "lucide-react";
 import { exportToCsv } from "@/lib/utils";
 
 function useDebounce<T>(value: T, delay: number): T {
@@ -57,6 +57,8 @@ export default function Students() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [, navigate] = useLocation();
+  const [sendingInvite, setSendingInvite] = useState<string | null>(null);
+  const [bulkSending, setBulkSending] = useState(false);
 
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [batchFilter, setBatchFilter] = useState<string>("all");
@@ -109,11 +111,64 @@ export default function Students() {
     });
   };
 
+  const handleSendInvite = async (e: React.MouseEvent, studentId: string, email: string | null | undefined, name: string) => {
+    e.stopPropagation();
+    if (!email) {
+      toast({ title: "No email on record", description: `Add an email address for ${name} first.`, variant: "destructive" });
+      return;
+    }
+    setSendingInvite(studentId);
+    try {
+      const res = await fetch(`${import.meta.env.BASE_URL}api/students/${studentId}/send-invite`, {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? "Failed");
+      toast({ title: "Invite sent", description: `Portal invite sent to ${email}` });
+    } catch (err) {
+      toast({ title: "Failed to send invite", description: err instanceof Error ? err.message : "Please try again.", variant: "destructive" });
+    } finally {
+      setSendingInvite(null);
+    }
+  };
+
+  const handleBulkInvite = async () => {
+    const withEmail = (students ?? []).filter(s => s.primaryContactEmail);
+    if (withEmail.length === 0) {
+      toast({ title: "No students with email addresses", description: "Add emails to students before sending invites.", variant: "destructive" });
+      return;
+    }
+    if (!confirm(`Send portal invites to all ${withEmail.length} active students with email addresses?`)) return;
+    setBulkSending(true);
+    try {
+      const res = await fetch(`${import.meta.env.BASE_URL}api/students/send-invites-bulk`, {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed");
+      const data = await res.json() as { sent: number; failed: number; total: number };
+      toast({ title: `Invites sent to ${data.sent} student${data.sent !== 1 ? "s" : ""}`, description: data.failed > 0 ? `${data.failed} failed — check logs.` : "All emails delivered successfully." });
+    } catch {
+      toast({ title: "Bulk invite failed", variant: "destructive" });
+    } finally {
+      setBulkSending(false);
+    }
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <h2 className="text-3xl font-serif text-primary">Students</h2>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
+          <Button
+            variant="outline"
+            onClick={handleBulkInvite}
+            disabled={bulkSending || isLoading}
+            className="rounded-none border-secondary/40 gap-2 text-sm"
+          >
+            <Send className="h-3.5 w-3.5" />
+            {bulkSending ? "Sending…" : "Invite All to Portal"}
+          </Button>
           <Button
             variant="outline"
             onClick={() => {
@@ -273,14 +328,29 @@ export default function Students() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={(e) => { e.stopPropagation(); handleDelete(student.id); }}
-                        className="text-destructive hover:text-destructive/80 hover:bg-destructive/10 rounded-none"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      <div className="flex items-center justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          title={student.primaryContactEmail ? `Send portal invite to ${student.primaryContactEmail}` : "No email — add one first"}
+                          onClick={(e) => handleSendInvite(e, student.id, student.primaryContactEmail, student.fullName)}
+                          disabled={sendingInvite === student.id}
+                          className={`rounded-none ${student.primaryContactEmail ? "text-muted-foreground hover:text-primary hover:bg-primary/10" : "text-muted-foreground/30 cursor-default"}`}
+                        >
+                          {sendingInvite === student.id
+                            ? <span className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin inline-block" />
+                            : <Mail className="h-4 w-4" />
+                          }
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={(e) => { e.stopPropagation(); handleDelete(student.id); }}
+                          className="text-destructive hover:text-destructive/80 hover:bg-destructive/10 rounded-none"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
