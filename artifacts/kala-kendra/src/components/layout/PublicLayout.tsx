@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
+import { AnnouncementsBanner } from "@/components/AnnouncementsBanner";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
@@ -53,6 +54,8 @@ export function PublicLayout({ children }: { children: ReactNode }) {
           ))}
         </nav>
       </header>
+
+      <AnnouncementsBanner />
 
       <main className="flex-1">
         {children}
