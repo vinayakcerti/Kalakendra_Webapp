@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq, desc, ilike, and } from "drizzle-orm";
-import { db, admissionsTable, studentsTable, batchesTable } from "@workspace/db";
+import { db, admissionsTable, studentsTable, batchesTable, settingsTable } from "@workspace/db";
 import {
   ListAdmissionsQueryParams,
   CreateAdmissionBody,
@@ -12,6 +12,7 @@ import {
   EnrolAdmissionParams,
   GetStudentResponse,
 } from "@workspace/api-zod";
+import { sendApplicationEmails } from "../lib/email";
 
 const router: IRouter = Router();
 
@@ -79,6 +80,42 @@ router.post("/admissions", async (req, res) => {
       status: "pending",
     })
     .returning();
+
+  // Fire-and-forget: send confirmation to applicant + admin notification
+  // Runs after response is sent — never blocks or fails the request
+  void (async () => {
+    try {
+      // Look up batch name and school contact email in parallel
+      const [batchRow, settingsRow] = await Promise.all([
+        body.batch
+          ? db.select({ name: batchesTable.name })
+              .from(batchesTable)
+              .where(eq(batchesTable.code, body.batch))
+              .limit(1)
+              .then(r => r[0])
+          : Promise.resolve(undefined),
+        db.select({ contactEmail: settingsTable.contactEmail })
+          .from(settingsTable)
+          .where(eq(settingsTable.id, 1))
+          .limit(1)
+          .then(r => r[0]),
+      ]);
+
+      await sendApplicationEmails({
+        admissionId: row.id,
+        studentName: row.studentName,
+        applicantType: row.applicantType,
+        studentEmail: row.studentEmail,
+        parentEmail: row.parentEmail,
+        batchCode: row.batch ?? "",
+        batchName: batchRow?.name ?? row.batch ?? "your chosen batch",
+        schoolContactEmail: settingsRow?.contactEmail,
+      });
+    } catch (err) {
+      req.log.error({ err }, "Error in post-admission email dispatch");
+    }
+  })();
+
   res.status(201).json(GetAdmissionResponse.parse({ ...row, enrolledStudentId: null }));
 });
 
