@@ -10,6 +10,7 @@ import statsRouter from "./stats";
 import settingsRouter from "./settings";
 import portalRouter from "./portal";
 import announcementsRouter from "./announcements";
+import reminderLogRouter from "./reminderLog";
 
 const router: IRouter = Router();
 
@@ -24,5 +25,6 @@ router.use(statsRouter);
 router.use(settingsRouter);
 router.use(portalRouter);
 router.use(announcementsRouter);
+router.use(reminderLogRouter);
 
 export default router;

@@ -1,8 +1,26 @@
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "@workspace/db";
-import { feesTable, studentsTable } from "@workspace/db/schema";
+import { feesTable, studentsTable, reminderJobRunsTable } from "@workspace/db/schema";
 import { sendFeeReminder } from "./email";
 import { logger } from "./logger";
+
+async function logRun(
+  triggeredBy: "scheduled" | "manual_mark_overdue" | "manual_remind_all",
+  markedCount: number,
+  remindedCount: number,
+  failedCount: number
+) {
+  try {
+    await db.insert(reminderJobRunsTable).values({
+      triggeredBy,
+      markedCount,
+      remindedCount,
+      failedCount,
+    });
+  } catch (err) {
+    logger.error({ err }, "feeReminderService: failed to log job run");
+  }
+}
 
 function getPortalUrl(): string {
   const domain = (process.env["REPLIT_DOMAINS"] ?? "").split(",")[0]?.trim();
@@ -40,6 +58,7 @@ export async function markOverdueAndRemind(): Promise<{
     );
 
   if (toMark.length === 0) {
+    await logRun("scheduled", 0, 0, 0);
     return { marked: 0, reminded: 0, failed: 0 };
   }
 
@@ -78,7 +97,22 @@ export async function markOverdueAndRemind(): Promise<{
       })
   );
 
+  await logRun("scheduled", toMark.length, reminded, failed);
   return { marked: toMark.length, reminded, failed };
+}
+
+/**
+ * Mark overdue and remind — triggered manually from the admin Fees page.
+ */
+export async function markOverdueAndRemindManual(): Promise<{
+  marked: number;
+  reminded: number;
+  failed: number;
+}> {
+  const result = await markOverdueAndRemind();
+  // Re-log this run as manual (overwrite the "scheduled" entry written inside)
+  await logRun("manual_mark_overdue", result.marked, result.reminded, result.failed);
+  return result;
 }
 
 /**
@@ -131,6 +165,7 @@ export async function remindAllCurrentlyOverdue(): Promise<{
     })
   );
 
+  await logRun("manual_remind_all", 0, sent, failed);
   return {
     sent,
     skipped: overdueFees.length - withEmail.length,

@@ -666,3 +666,17 @@ export type ListEnquiriesParams = {
 export type ListActivityParams = {
   limit?: number;
 };
+
+
+export type ReminderJobRun = {
+  id: number;
+  triggeredBy: string;
+  markedCount: number;
+  remindedCount: number;
+  failedCount: number;
+  ranAt: string;
+};
+
+export type ListReminderRunsParams = {
+  limit?: number;
+};
