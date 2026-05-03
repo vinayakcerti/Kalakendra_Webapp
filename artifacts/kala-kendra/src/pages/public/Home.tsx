@@ -286,7 +286,7 @@ export default function Home() {
                 </linearGradient>
               </defs>
 
-              {/* Dashed arc from Gothenburg (left) to Kerala (right) */}
+              {/* Dashed arc from Kerala (left) to Gothenburg (right) */}
               <path
                 d="M 120 170 Q 450 -30 780 170"
                 stroke="url(#arcGrad)"
@@ -295,12 +295,12 @@ export default function Home() {
                 fill="none"
               />
 
-              {/* Gothenburg marker */}
+              {/* Kerala marker */}
               <circle cx="120" cy="170" r="5" fill="#5C1416" />
               <circle cx="120" cy="170" r="11" fill="none" stroke="#B8893A" strokeWidth="1" opacity="0.5" />
               <circle cx="120" cy="170" r="18" fill="none" stroke="#B8893A" strokeWidth="0.5" opacity="0.25" />
 
-              {/* Kerala marker */}
+              {/* Gothenburg marker */}
               <circle cx="780" cy="170" r="5" fill="#5C1416" />
               <circle cx="780" cy="170" r="11" fill="none" stroke="#B8893A" strokeWidth="1" opacity="0.5" />
               <circle cx="780" cy="170" r="18" fill="none" stroke="#B8893A" strokeWidth="0.5" opacity="0.25" />
@@ -309,20 +309,46 @@ export default function Home() {
               <rect x="447" y="46" width="6" height="6" fill="#B8893A" transform="rotate(45 450 49)" />
               <text x="450" y="78" textAnchor="middle" fontSize="11" fill="#B8893A" fontFamily="Manrope, sans-serif" letterSpacing="3" opacity="0.9">7 , 8 0 0  K M</text>
 
-              {/* Gothenburg label */}
-              <text x="120" y="200" textAnchor="middle" fontSize="11" fill="#5C1416" fontFamily="'Cormorant Garamond', serif" letterSpacing="1">Gothenburg</text>
-              <text x="120" y="214" textAnchor="middle" fontSize="9" fill="#B8893A" fontFamily="Manrope, sans-serif" letterSpacing="1" opacity="0.8">Sweden</text>
-
               {/* Kerala label */}
-              <text x="780" y="200" textAnchor="middle" fontSize="11" fill="#5C1416" fontFamily="'Cormorant Garamond', serif" letterSpacing="1">Kerala</text>
-              <text x="780" y="214" textAnchor="middle" fontSize="9" fill="#B8893A" fontFamily="Manrope, sans-serif" letterSpacing="1" opacity="0.8">India</text>
+              <text x="120" y="200" textAnchor="middle" fontSize="11" fill="#5C1416" fontFamily="'Cormorant Garamond', serif" letterSpacing="1">Kerala</text>
+              <text x="120" y="214" textAnchor="middle" fontSize="9" fill="#B8893A" fontFamily="Manrope, sans-serif" letterSpacing="1" opacity="0.8">India</text>
+
+              {/* Gothenburg label */}
+              <text x="780" y="200" textAnchor="middle" fontSize="11" fill="#5C1416" fontFamily="'Cormorant Garamond', serif" letterSpacing="1">Gothenburg</text>
+              <text x="780" y="214" textAnchor="middle" fontSize="9" fill="#B8893A" fontFamily="Manrope, sans-serif" letterSpacing="1" opacity="0.8">Sweden</text>
             </svg>
           </div>
 
           {/* Two detail panels */}
           <div className="grid md:grid-cols-2 gap-0 mt-2 border border-secondary/20">
-            {/* Gothenburg */}
+            {/* Kerala */}
             <div className="p-10 border-b md:border-b-0 md:border-r border-secondary/20">
+              <p className="text-secondary text-[10px] uppercase tracking-[0.3em] font-semibold mb-4">Kerala, India</p>
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between border-b border-secondary/10 pb-2">
+                  <span className="text-muted-foreground">Coordinates</span>
+                  <span className="text-primary font-medium tabular-nums">8°28′N · 76°54′E</span>
+                </div>
+                <div className="flex justify-between border-b border-secondary/10 pb-2">
+                  <span className="text-muted-foreground">Time Zone</span>
+                  <span className="text-primary font-medium">IST · UTC +5:30</span>
+                </div>
+                <div className="flex justify-between border-b border-secondary/10 pb-2">
+                  <span className="text-muted-foreground">Classical Tradition</span>
+                  <span className="text-primary font-medium">2,000+ years</span>
+                </div>
+                <div className="flex justify-between pb-2">
+                  <span className="text-muted-foreground">Home of</span>
+                  <span className="text-primary font-medium">Mohiniyattam · Carnatic</span>
+                </div>
+              </div>
+              <blockquote className="mt-6 pl-4 border-l-2 border-secondary/30 text-muted-foreground text-sm italic leading-relaxed">
+                "The cradle of Mohiniyattam, Carnatic music, and the traditions carried to Scandinavia by Mrs. Noopura Parvathi."
+              </blockquote>
+            </div>
+
+            {/* Gothenburg */}
+            <div className="p-10">
               <p className="text-secondary text-[10px] uppercase tracking-[0.3em] font-semibold mb-4">Gothenburg, Sweden</p>
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between border-b border-secondary/10 pb-2">
@@ -344,32 +370,6 @@ export default function Home() {
               </div>
               <blockquote className="mt-6 pl-4 border-l-2 border-secondary/30 text-muted-foreground text-sm italic leading-relaxed">
                 "Sweden's second city — a port of culture, architecture, and now, a home for the classical arts of South India."
-              </blockquote>
-            </div>
-
-            {/* Kerala */}
-            <div className="p-10">
-              <p className="text-secondary text-[10px] uppercase tracking-[0.3em] font-semibold mb-4">Kerala, India</p>
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between border-b border-secondary/10 pb-2">
-                  <span className="text-muted-foreground">Coordinates</span>
-                  <span className="text-primary font-medium tabular-nums">8°28′N · 76°54′E</span>
-                </div>
-                <div className="flex justify-between border-b border-secondary/10 pb-2">
-                  <span className="text-muted-foreground">Time Zone</span>
-                  <span className="text-primary font-medium">IST · UTC +5:30</span>
-                </div>
-                <div className="flex justify-between border-b border-secondary/10 pb-2">
-                  <span className="text-muted-foreground">Classical Tradition</span>
-                  <span className="text-primary font-medium">2,000+ years</span>
-                </div>
-                <div className="flex justify-between pb-2">
-                  <span className="text-muted-foreground">Home of</span>
-                  <span className="text-primary font-medium">Mohiniyattam · Carnatic</span>
-                </div>
-              </div>
-              <blockquote className="mt-6 pl-4 border-l-2 border-secondary/30 text-muted-foreground text-sm italic leading-relaxed">
-                "The capital of Kerala — cradle of Mohiniyattam, Carnatic music, and the traditions carried to Scandinavia by Mrs. Noopura Parvathi."
               </blockquote>
             </div>
           </div>

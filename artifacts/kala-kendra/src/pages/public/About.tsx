@@ -260,32 +260,48 @@ export default function About() {
               <div className="border-t border-secondary/20 pt-8">
                 <p className="text-secondary tracking-[0.25em] uppercase text-xs mb-6 font-semibold">Training &amp; Gurus</p>
                 <div className="grid sm:grid-cols-2 gap-4">
+                  {/* Gurus with photos */}
                   {[
                     {
                       name: "Smt. Girija Chandra",
                       role: "Classical Foundation in Dance",
                       note: "A revered guru whose training formed the bedrock of Noopura's classical foundation.",
+                      img: "/images/girija.jpg",
                     },
                     {
                       name: "Sri Vineeth",
                       role: "Expressive & Performative Range",
                       note: "Celebrated dancer and actor who deepened her expressive and performative range.",
+                      img: "/images/vineeth.jpg",
                     },
                     {
                       name: "Smt. Drowpathi Praveen",
                       role: "Mohiniyattam & Kuchipudi",
                       note: "An accomplished classical dance master who shaped her understanding of the Mohiniyattam and Kuchipudi traditions.",
+                      img: "/images/draupathi.jpg",
                     },
                     {
                       name: "Smt. Hema Gomes",
                       role: "Bharatanatyam · Kalakshetra",
                       note: "A teacher from the legendary Kalakshetra school — one of India's most prestigious classical arts institutions.",
+                      img: null,
                     },
                   ].map((guru) => (
-                    <div key={guru.name} className="border border-secondary/20 p-4">
-                      <p className="font-serif text-primary text-lg mb-1">{guru.name}</p>
-                      <p className="text-secondary text-[10px] uppercase tracking-widest font-semibold mb-2">{guru.role}</p>
-                      <p className="text-muted-foreground text-sm leading-relaxed">{guru.note}</p>
+                    <div key={guru.name} className="border border-secondary/20 overflow-hidden">
+                      {guru.img && (
+                        <div className="aspect-[4/3] overflow-hidden">
+                          <img
+                            src={guru.img}
+                            alt={guru.name}
+                            className="w-full h-full object-cover object-top"
+                          />
+                        </div>
+                      )}
+                      <div className="p-4">
+                        <p className="font-serif text-primary text-lg mb-1">{guru.name}</p>
+                        <p className="text-secondary text-[10px] uppercase tracking-widest font-semibold mb-2">{guru.role}</p>
+                        <p className="text-muted-foreground text-sm leading-relaxed">{guru.note}</p>
+                      </div>
                     </div>
                   ))}
                 </div>
