@@ -135,7 +135,7 @@ export default function Heritage() {
                 <img
                   src={tradition.img}
                   alt={tradition.title}
-                  className="w-full aspect-[16/7] object-cover object-top"
+                  className="w-full aspect-[3/4] object-cover object-top"
                 />
               </div>
             </div>
