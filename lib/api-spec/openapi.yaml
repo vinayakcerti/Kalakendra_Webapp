@@ -1742,6 +1742,9 @@ components:
         overdueCount:
           type: integer
           description: Number of overdue fee records
+        totalConsentForms:
+          type: integer
+          description: Total number of participant consent form submissions
         recentAdmissions:
           type: array
           items:
@@ -1757,4 +1760,5 @@ components:
         - unreadEnquiries
         - totalOutstandingOre
         - overdueCount
+        - totalConsentForms
         - recentAdmissions

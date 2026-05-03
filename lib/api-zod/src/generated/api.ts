@@ -856,6 +856,9 @@ export const GetDashboardStatsResponse = zod.object({
     .number()
     .describe("Total unpaid fees in öre across all students"),
   overdueCount: zod.number().describe("Number of overdue fee records"),
+  totalConsentForms: zod
+    .number()
+    .describe("Total number of participant consent form submissions"),
   recentAdmissions: zod.array(
     zod.object({
       id: zod.string().uuid(),

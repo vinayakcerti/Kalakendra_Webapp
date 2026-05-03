@@ -18,6 +18,7 @@ import {
   Bell,
   Inbox,
   CalendarDays,
+  FileCheck,
 } from "lucide-react";
 
 function formatSek(amountOre: number): string {
@@ -86,6 +87,7 @@ export default function Dashboard() {
           { label: "Batches", icon: BookOpen, href: "/admin/batches", color: "text-teal-700", bg: "bg-teal-50 hover:bg-teal-100" },
           { label: "Schedule", icon: CalendarDays, href: "/admin/schedule", color: "text-cyan-700", bg: "bg-cyan-50 hover:bg-cyan-100" },
           { label: "Attendance", icon: CalendarCheck, href: "/admin/attendance", color: "text-rose-700", bg: "bg-rose-50 hover:bg-rose-100" },
+          { label: "Consent Forms", icon: FileCheck, href: "/admin/consent-forms", color: "text-purple-700", bg: "bg-purple-50 hover:bg-purple-100" },
           { label: "New Admission", icon: UserPlus, href: "/apply", color: "text-indigo-700", bg: "bg-indigo-50 hover:bg-indigo-100" },
         ].map((action) => {
           const Icon = action.icon;
@@ -138,6 +140,19 @@ export default function Dashboard() {
           <CardContent>
             <div className="text-3xl font-serif text-primary">{stats.unreadEnquiries}</div>
             <p className="text-xs text-muted-foreground mt-1">Contact form submissions</p>
+          </CardContent>
+        </Card>
+        <Card className="rounded-none border-secondary/20 bg-card">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-widest">Consent Forms</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-serif text-primary">{stats.totalConsentForms}</div>
+            <Link href="/admin/consent-forms">
+              <p className="text-xs text-muted-foreground mt-1 hover:text-primary transition-colors cursor-pointer">
+                {stats.totalConsentForms > 0 ? "View all submissions →" : "No submissions yet"}
+              </p>
+            </Link>
           </CardContent>
         </Card>
         <Card className="rounded-none border-secondary/20 bg-card">

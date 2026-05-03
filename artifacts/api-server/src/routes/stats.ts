@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
-import { eq, count, sum, desc, or } from "drizzle-orm";
-import { db, admissionsTable, studentsTable, batchesTable, enquiriesTable, feesTable, studentNotesTable, attendanceTable } from "@workspace/db";
+import { eq, count, sum, desc } from "drizzle-orm";
+import { db, admissionsTable, studentsTable, batchesTable, enquiriesTable, feesTable, studentNotesTable, attendanceTable, consentFormsTable } from "@workspace/db";
 import { GetDashboardStatsResponse, ListAdmissionsResponseItem } from "@workspace/api-zod";
 
 const router: IRouter = Router();
@@ -46,6 +46,10 @@ router.get("/stats/dashboard", async (_req, res) => {
     .from(feesTable)
     .where(eq(feesTable.status, "overdue"));
 
+  const [totalConsentFormsRow] = await db
+    .select({ cnt: count() })
+    .from(consentFormsTable);
+
   const recentAdmissions = await db
     .select()
     .from(admissionsTable)
@@ -64,6 +68,7 @@ router.get("/stats/dashboard", async (_req, res) => {
       unreadEnquiries: Number(unreadEnquiriesRow?.cnt ?? 0),
       totalOutstandingOre: Number(outstandingRow?.total ?? 0),
       overdueCount: Number(overdueRow?.cnt ?? 0),
+      totalConsentForms: Number(totalConsentFormsRow?.cnt ?? 0),
       recentAdmissions: recentAdmissions.map((r) => ListAdmissionsResponseItem.parse(r)),
     })
   );
