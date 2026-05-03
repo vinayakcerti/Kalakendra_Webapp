@@ -6,6 +6,7 @@ import {
   GetSettingsResponse,
   UpdateSettingsResponse,
 } from "@workspace/api-zod";
+import { rescheduleFromSettings } from "../jobs/dailyFeeReminder";
 
 const router: IRouter = Router();
 
@@ -27,7 +28,10 @@ router.patch("/settings", async (req, res) => {
   if (!row) {
     [row] = await db.insert(settingsTable).values({ id: 1, ...body }).returning();
   }
-  res.json(UpdateSettingsResponse.parse(row));
+  const parsed = UpdateSettingsResponse.parse(row);
+  // Apply any changed cron schedule immediately without restarting the server
+  rescheduleFromSettings(parsed.dailyReminderEnabled, parsed.dailyReminderHour);
+  res.json(parsed);
 });
 
 export default router;

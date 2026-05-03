@@ -21,6 +21,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
@@ -33,6 +40,8 @@ const formSchema = z.object({
     .int()
     .min(0, "Cannot be negative"),
   acceptingApplications: z.boolean(),
+  dailyReminderEnabled: z.boolean(),
+  dailyReminderHour: z.coerce.number().int().min(0).max(23),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -75,6 +84,8 @@ export default function Settings() {
       addressLine: "",
       monthlyFeeSek: 0,
       acceptingApplications: true,
+      dailyReminderEnabled: true,
+      dailyReminderHour: 8,
     },
   });
 
@@ -87,6 +98,8 @@ export default function Settings() {
         addressLine: settings.addressLine ?? "",
         monthlyFeeSek: settings.monthlyFeeSek,
         acceptingApplications: settings.acceptingApplications,
+        dailyReminderEnabled: settings.dailyReminderEnabled,
+        dailyReminderHour: settings.dailyReminderHour,
       });
     }
   }, [settings, form]);
@@ -99,6 +112,8 @@ export default function Settings() {
           contactEmail: values.contactEmail || undefined,
           contactPhone: values.contactPhone || undefined,
           addressLine: values.addressLine || undefined,
+          dailyReminderEnabled: values.dailyReminderEnabled,
+          dailyReminderHour: values.dailyReminderHour,
         },
       },
       {
@@ -226,6 +241,90 @@ export default function Settings() {
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">per student per year</p>
                 </div>
+              </div>
+            </div>
+          </section>
+
+          {/* ── Automated Reminders ────────────────────────────────── */}
+          <section>
+            <SectionHeading
+              title="Automated Reminders"
+              description="A scheduled job runs every morning and marks overdue fees, then emails affected students automatically."
+            />
+
+            <div className="space-y-6">
+              <FormField
+                control={form.control}
+                name="dailyReminderEnabled"
+                render={({ field }) => (
+                  <FormItem className="flex items-start justify-between gap-6 bg-card border border-secondary/20 p-6">
+                    <div className="flex-1">
+                      <FormLabel className="text-base font-medium">
+                        Enable daily reminder job
+                      </FormLabel>
+                      <FormDescription className="mt-1">
+                        When on, the server automatically marks pending fees as overdue each morning and sends reminder emails to students. When off, you can still trigger reminders manually from the Fees page.
+                      </FormDescription>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                        className="data-[state=checked]:bg-primary mt-1 shrink-0"
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="dailyReminderHour"
+                render={({ field }) => (
+                  <FormItem className={`transition-opacity ${form.watch("dailyReminderEnabled") ? "opacity-100" : "opacity-40 pointer-events-none"}`}>
+                    <FormLabel>Send time (Stockholm time)</FormLabel>
+                    <FormControl>
+                      <Select
+                        value={String(field.value)}
+                        onValueChange={(v) => field.onChange(Number(v))}
+                        disabled={!form.watch("dailyReminderEnabled")}
+                      >
+                        <SelectTrigger className="rounded-none border-secondary/40 w-56">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Array.from({ length: 24 }, (_, h) => (
+                            <SelectItem key={h} value={String(h)}>
+                              {String(h).padStart(2, "0")}:00
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormDescription>
+                      The job will run once per day at this hour. Changes take effect immediately after saving — no server restart required.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="bg-secondary/5 border border-secondary/20 p-4">
+                <p className="text-xs uppercase tracking-widest text-secondary font-semibold mb-2">Current Schedule</p>
+                <p className="text-sm text-muted-foreground">
+                  {form.watch("dailyReminderEnabled") ? (
+                    <>
+                      Job is <span className="font-semibold text-green-700">active</span> — runs daily at{" "}
+                      <span className="font-semibold text-foreground">
+                        {String(form.watch("dailyReminderHour")).padStart(2, "0")}:00 Europe/Stockholm
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      Job is <span className="font-semibold text-red-700">disabled</span> — no automatic reminders will be sent.
+                    </>
+                  )}
+                </p>
               </div>
             </div>
           </section>

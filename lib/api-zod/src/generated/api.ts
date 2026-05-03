@@ -781,6 +781,8 @@ export const GetSettingsResponse = zod.object({
   contactPhone: zod.string().nullish(),
   addressLine: zod.string().nullish(),
   acceptingApplications: zod.boolean(),
+  dailyReminderEnabled: zod.boolean(),
+  dailyReminderHour: zod.number().int().min(0).max(23),
   updatedAt: zod.coerce.date(),
 });
 
@@ -794,6 +796,8 @@ export const UpdateSettingsBody = zod.object({
   contactPhone: zod.string().optional(),
   addressLine: zod.string().optional(),
   acceptingApplications: zod.boolean().optional(),
+  dailyReminderEnabled: zod.boolean().optional(),
+  dailyReminderHour: zod.number().int().min(0).max(23).optional(),
 });
 
 export const UpdateSettingsResponse = zod.object({
@@ -804,6 +808,8 @@ export const UpdateSettingsResponse = zod.object({
   contactPhone: zod.string().nullish(),
   addressLine: zod.string().nullish(),
   acceptingApplications: zod.boolean(),
+  dailyReminderEnabled: zod.boolean(),
+  dailyReminderHour: zod.number().int().min(0).max(23),
   updatedAt: zod.coerce.date(),
 });
 

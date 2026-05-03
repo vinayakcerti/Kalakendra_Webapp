@@ -4,6 +4,7 @@ import {
   varchar,
   boolean,
   timestamp,
+  smallint,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
@@ -20,6 +21,12 @@ export const settingsTable = pgTable("settings", {
   acceptingApplications: boolean("accepting_applications")
     .notNull()
     .default(true),
+  dailyReminderEnabled: boolean("daily_reminder_enabled")
+    .notNull()
+    .default(true),
+  dailyReminderHour: smallint("daily_reminder_hour")
+    .notNull()
+    .default(8),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
