@@ -13,6 +13,10 @@ import {
   MessageSquare,
   CalendarCheck,
   UserPlus,
+  Users,
+  BookOpen,
+  Bell,
+  Inbox,
 } from "lucide-react";
 
 function formatSek(amountOre: number): string {
@@ -65,7 +69,36 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8 animate-in fade-in">
-      <h2 className="text-3xl font-serif text-primary">Overview</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-3xl font-serif text-primary">Overview</h2>
+        <p className="text-xs text-muted-foreground uppercase tracking-widest">Kala Kendra Sweden</p>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {[
+          { label: "View Admissions", icon: FileText, href: "/admin/admissions", color: "text-blue-700", bg: "bg-blue-50 hover:bg-blue-100" },
+          { label: "Manage Fees", icon: CreditCard, href: "/admin/fees", color: "text-emerald-700", bg: "bg-emerald-50 hover:bg-emerald-100" },
+          { label: "Enquiries", icon: Inbox, href: "/admin/enquiries", color: "text-violet-700", bg: "bg-violet-50 hover:bg-violet-100" },
+          { label: "Announcements", icon: Bell, href: "/admin/announcements", color: "text-amber-700", bg: "bg-amber-50 hover:bg-amber-100" },
+          { label: "All Students", icon: Users, href: "/admin/students", color: "text-primary", bg: "bg-primary/5 hover:bg-primary/10" },
+          { label: "Batches", icon: BookOpen, href: "/admin/batches", color: "text-teal-700", bg: "bg-teal-50 hover:bg-teal-100" },
+          { label: "Attendance", icon: CalendarCheck, href: "/admin/attendance", color: "text-rose-700", bg: "bg-rose-50 hover:bg-rose-100" },
+          { label: "New Admission", icon: UserPlus, href: "/apply", color: "text-indigo-700", bg: "bg-indigo-50 hover:bg-indigo-100" },
+        ].map((action) => {
+          const Icon = action.icon;
+          return (
+            <Link key={action.label} href={action.href}>
+              <div className={`flex items-center gap-3 px-4 py-3 border border-secondary/15 cursor-pointer transition-colors rounded-none ${action.bg}`}>
+                <div className={`shrink-0 h-7 w-7 flex items-center justify-center`}>
+                  <Icon className={`h-4 w-4 ${action.color}`} />
+                </div>
+                <span className="text-sm font-medium text-foreground truncate">{action.label}</span>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
 
       {/* Stat cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

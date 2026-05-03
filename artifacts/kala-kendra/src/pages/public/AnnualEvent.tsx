@@ -1,39 +1,19 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 
-const pastEvents = [
-  {
-    year: "2024",
-    title: "Natyanjali — An Offering Through Dance",
-    description: "Fourteen students performed solo and ensemble pieces across an evening of Bharatanatyam and Carnatic music. The evening culminated in a group Alarippu and Pushpanjali, offered in gratitude to the tradition.",
-    highlight: "Two Arangetrams — Priya Suresh and Ananya Krishnan",
-  },
-  {
-    year: "2023",
-    title: "Sangama — A Confluence",
-    description: "A joint presentation combining Bharatanatyam, Carnatic vocal, and Kerala percussion. Students from all three disciplines performed together for the first time, demonstrating the deep interconnection of the classical arts.",
-    highlight: "First-ever Panchavadyam ensemble at Kala Kendra",
-  },
-  {
-    year: "2022",
-    title: "Natya Utsavam — Festival of Dance",
-    description: "Our post-pandemic return to the stage, bringing together over twenty students in a full evening programme. Guest artist Smt. Revathi Murthy performed a special Padam recital.",
-    highlight: "Guest performance by Smt. Revathi Murthy",
-  },
-  {
-    year: "2019",
-    title: "Mrityunjaya — Triumph Over Impermanence",
-    description: "A thematically unified programme exploring the cycle of creation, preservation, and dissolution through Bharatanatyam and Carnatic composition. Three Arangetrams were held.",
-    highlight: "Three Arangetrams in a single season",
-  },
+const timeline = [
+  { month: "Jan – Mar 2025", activity: "Foundation batch classes begin; students assessed for showcase readiness" },
+  { month: "Apr – May", activity: "Showcase theme announced; repertoire selection and rehearsals begin" },
+  { month: "June – July", activity: "Rehearsals intensify; costume design and fittings" },
+  { month: "August", activity: "Tech rehearsal and dress rehearsal at the venue" },
+  { month: "September", activity: "Inaugural Annual Showcase — third Saturday of September" },
 ];
 
-const timeline = [
-  { month: "May – June", activity: "Rehearsals intensify; students confirmed for the programme" },
-  { month: "July", activity: "Costume fittings and stage lighting design" },
-  { month: "August", activity: "Tech rehearsal and dress rehearsal at the venue" },
-  { month: "September", activity: "Annual Showcase — typically the third Saturday of September" },
-  { month: "October", activity: "Arangetrams (if any) held within four weeks of the showcase" },
+const arangetramFacts = [
+  { label: "Duration of Study", value: "7 – 10 years" },
+  { label: "Decision", value: "At the Guru's sole discretion" },
+  { label: "Format", value: "Full solo programme, 3+ hours" },
+  { label: "Significance", value: "First independent public performance" },
 ];
 
 export default function AnnualEvent() {
@@ -70,10 +50,14 @@ export default function AnnualEvent() {
           </div>
 
           <div className="space-y-6">
+            {/* 2025 Showcase card */}
             <div className="bg-background border border-secondary/20 p-8">
-              <p className="text-secondary text-xs tracking-widest uppercase mb-4 font-semibold">2025 Showcase</p>
+              <div className="flex items-start justify-between mb-4">
+                <p className="text-secondary text-xs tracking-widest uppercase font-semibold">Inaugural Showcase · 2025</p>
+                <span className="text-[10px] bg-primary/10 border border-primary/20 text-primary px-2 py-1 uppercase tracking-widest font-semibold">Upcoming</span>
+              </div>
               <h4 className="text-3xl font-serif text-primary mb-2">Swara Tarangini</h4>
-              <p className="text-muted-foreground text-sm italic mb-6">"Waves of Melody"</p>
+              <p className="text-muted-foreground text-sm italic mb-6">"Waves of Melody" — our first public offering to Gothenburg</p>
               <div className="space-y-3 text-sm text-muted-foreground">
                 <div className="flex justify-between border-b border-secondary/10 pb-2">
                   <span className="font-medium text-primary">Date</span>
@@ -85,20 +69,20 @@ export default function AnnualEvent() {
                 </div>
                 <div className="flex justify-between border-b border-secondary/10 pb-2">
                   <span className="font-medium text-primary">Venue</span>
-                  <span>Göteborgs Konserthus, Gothenburg</span>
+                  <span>Gothenburg — TBA</span>
                 </div>
                 <div className="flex justify-between border-b border-secondary/10 pb-2">
                   <span className="font-medium text-primary">Admission</span>
                   <span>Free — all welcome</span>
                 </div>
                 <div className="flex justify-between pb-2">
-                  <span className="font-medium text-primary">Arangetrams</span>
-                  <span>2 — Meera Nair & Vikram Sundaram</span>
+                  <span className="font-medium text-primary">Programme</span>
+                  <span>Bharatanatyam, Mohiniyattam, Carnatic</span>
                 </div>
               </div>
               <div className="mt-8">
                 <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-none w-full">
-                  <Link href="/contact">Enquire About Tickets</Link>
+                  <Link href="/contact">Register Interest</Link>
                 </Button>
               </div>
             </div>
@@ -113,51 +97,65 @@ export default function AnnualEvent() {
         </div>
       </section>
 
+      {/* Inaugural Year Banner */}
+      <section className="py-20 px-6 md:px-12 bg-primary text-primary-foreground">
+        <div className="max-w-4xl mx-auto text-center">
+          <p className="tracking-[0.3em] uppercase text-xs mb-6 text-primary-foreground/60 font-semibold">December 2024 — Our First Season</p>
+          <h3 className="text-4xl md:text-5xl font-serif mb-6 leading-tight">
+            Writing the First Chapter
+          </h3>
+          <div className="h-[1px] w-32 bg-primary-foreground/20 mx-auto mb-8" />
+          <p className="text-primary-foreground/80 text-lg leading-relaxed max-w-2xl mx-auto mb-6">
+            Kala Kendra Sweden opened its doors in December 2024 — bringing an unbroken lineage of classical arts from Trivandrum, Kerala to Gothenburg, Sweden. The 2025 Annual Showcase will be our first, and we intend it to set a standard that endures for generations.
+          </p>
+          <p className="text-primary-foreground/60 text-sm italic">
+            Founded by Mrs. Noopura Parvathi A · Under the mentorship of Padmashree Kaithapram Damodaran Namboodiri
+          </p>
+        </div>
+      </section>
+
+      {/* Arangetram facts */}
+      <section className="py-24 px-6 md:px-12 bg-card border-b border-secondary/20">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-6 font-semibold">Milestone</p>
+            <h3 className="text-3xl font-serif text-primary">The Arangetram</h3>
+            <p className="text-muted-foreground mt-4 max-w-xl mx-auto">The most significant event in a classical artist's journey — held only when the Guru deems the student worthy.</p>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-0 border border-secondary/20">
+            {arangetramFacts.map((fact, i) => (
+              <div key={fact.label} className={`p-8 text-center ${i < 3 ? "border-r-0 sm:border-r border-secondary/20" : ""} ${i >= 2 ? "border-t border-secondary/20 sm:border-t-0 lg:border-t-0" : ""}`}>
+                <p className="text-secondary text-[10px] uppercase tracking-widest font-semibold mb-3">{fact.label}</p>
+                <p className="font-serif text-xl text-primary leading-snug">{fact.value}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Timeline */}
       <section className="py-24 px-6 max-w-3xl mx-auto">
         <div className="text-center mb-16">
-          <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-6 font-semibold">Annual Calendar</p>
+          <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-6 font-semibold">2025 Calendar</p>
           <h3 className="text-4xl font-serif text-primary">The Year in Preparation</h3>
         </div>
         <div className="space-y-0">
           {timeline.map((item, idx) => (
-            <div key={item.month} className="grid grid-cols-[140px_1fr] gap-8 items-start relative">
+            <div key={item.month} className="grid grid-cols-[180px_1fr] gap-8 items-start relative">
               <div className="text-right pr-8 pt-1">
                 <p className="text-sm font-medium text-primary">{item.month}</p>
               </div>
               <div className="relative pb-10 pl-4 border-l border-secondary/30">
-                <div className="absolute left-[-5px] top-2 w-2 h-2 border border-secondary/60 rotate-45 bg-background" />
+                {idx === timeline.length - 1 && (
+                  <div className="absolute left-[-5px] top-2 w-2 h-2 bg-primary rotate-45" />
+                )}
+                {idx < timeline.length - 1 && (
+                  <div className="absolute left-[-5px] top-2 w-2 h-2 border border-secondary/60 rotate-45 bg-background" />
+                )}
                 <p className="text-muted-foreground">{item.activity}</p>
               </div>
             </div>
           ))}
-        </div>
-      </section>
-
-      {/* Past Events */}
-      <section className="py-24 px-6 md:px-12 bg-card border-t border-secondary/20">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-16">
-            <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-6 font-semibold">Archive</p>
-            <h3 className="text-4xl font-serif text-primary">Past Showcases</h3>
-          </div>
-          <div className="space-y-6">
-            {pastEvents.map((event) => (
-              <div key={event.year} className="bg-background border border-secondary/20 p-8 grid md:grid-cols-[80px_1fr] gap-6 hover:border-secondary/50 transition-colors">
-                <div>
-                  <p className="font-serif text-3xl text-secondary">{event.year}</p>
-                </div>
-                <div>
-                  <h4 className="font-serif text-2xl text-primary mb-3">{event.title}</h4>
-                  <p className="text-muted-foreground leading-relaxed mb-4">{event.description}</p>
-                  <div className="flex items-center gap-2 text-sm">
-                    <span className="text-secondary">✦</span>
-                    <span className="text-muted-foreground italic">{event.highlight}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 

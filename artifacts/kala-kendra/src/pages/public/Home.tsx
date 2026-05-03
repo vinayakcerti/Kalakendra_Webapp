@@ -262,6 +262,135 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Kerala ↔ Gothenburg Connection */}
+      <section className="py-24 px-6 md:px-12 overflow-hidden">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-6 font-semibold">The Journey</p>
+            <h3 className="text-4xl font-serif text-primary">Where Two Worlds Meet</h3>
+            <div className="gold-divider max-w-xs mx-auto mt-6" />
+          </div>
+
+          {/* Arc visual */}
+          <div className="relative">
+            <svg
+              viewBox="0 0 900 220"
+              className="w-full"
+              aria-hidden="true"
+            >
+              {/* Gradient definition */}
+              <defs>
+                <linearGradient id="arcGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#B8893A" stopOpacity="0.3" />
+                  <stop offset="50%" stopColor="#B8893A" stopOpacity="1" />
+                  <stop offset="100%" stopColor="#B8893A" stopOpacity="0.3" />
+                </linearGradient>
+              </defs>
+
+              {/* Dashed arc from Gothenburg (left) to Kerala (right) */}
+              <path
+                d="M 120 170 Q 450 -30 780 170"
+                stroke="url(#arcGrad)"
+                strokeDasharray="8 5"
+                strokeWidth="1.5"
+                fill="none"
+              />
+
+              {/* Gothenburg marker */}
+              <circle cx="120" cy="170" r="5" fill="#5C1416" />
+              <circle cx="120" cy="170" r="11" fill="none" stroke="#B8893A" strokeWidth="1" opacity="0.5" />
+              <circle cx="120" cy="170" r="18" fill="none" stroke="#B8893A" strokeWidth="0.5" opacity="0.25" />
+
+              {/* Kerala marker */}
+              <circle cx="780" cy="170" r="5" fill="#5C1416" />
+              <circle cx="780" cy="170" r="11" fill="none" stroke="#B8893A" strokeWidth="1" opacity="0.5" />
+              <circle cx="780" cy="170" r="18" fill="none" stroke="#B8893A" strokeWidth="0.5" opacity="0.25" />
+
+              {/* Centre diamond + distance */}
+              <rect x="447" y="46" width="6" height="6" fill="#B8893A" transform="rotate(45 450 49)" />
+              <text x="450" y="78" textAnchor="middle" fontSize="11" fill="#B8893A" fontFamily="Manrope, sans-serif" letterSpacing="3" opacity="0.9">7 , 8 0 0  K M</text>
+
+              {/* Gothenburg label */}
+              <text x="120" y="200" textAnchor="middle" fontSize="11" fill="#5C1416" fontFamily="'Cormorant Garamond', serif" letterSpacing="1">Gothenburg</text>
+              <text x="120" y="214" textAnchor="middle" fontSize="9" fill="#B8893A" fontFamily="Manrope, sans-serif" letterSpacing="1" opacity="0.8">Sweden</text>
+
+              {/* Kerala label */}
+              <text x="780" y="200" textAnchor="middle" fontSize="11" fill="#5C1416" fontFamily="'Cormorant Garamond', serif" letterSpacing="1">Trivandrum</text>
+              <text x="780" y="214" textAnchor="middle" fontSize="9" fill="#B8893A" fontFamily="Manrope, sans-serif" letterSpacing="1" opacity="0.8">Kerala, India</text>
+            </svg>
+          </div>
+
+          {/* Two detail panels */}
+          <div className="grid md:grid-cols-2 gap-0 mt-2 border border-secondary/20">
+            {/* Gothenburg */}
+            <div className="p-10 border-b md:border-b-0 md:border-r border-secondary/20">
+              <p className="text-secondary text-[10px] uppercase tracking-[0.3em] font-semibold mb-4">Gothenburg, Sweden</p>
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between border-b border-secondary/10 pb-2">
+                  <span className="text-muted-foreground">Coordinates</span>
+                  <span className="text-primary font-medium tabular-nums">57°42′N · 11°58′E</span>
+                </div>
+                <div className="flex justify-between border-b border-secondary/10 pb-2">
+                  <span className="text-muted-foreground">Time Zone</span>
+                  <span className="text-primary font-medium">CET · UTC +1</span>
+                </div>
+                <div className="flex justify-between border-b border-secondary/10 pb-2">
+                  <span className="text-muted-foreground">Population</span>
+                  <span className="text-primary font-medium">590,000</span>
+                </div>
+                <div className="flex justify-between pb-2">
+                  <span className="text-muted-foreground">Indian Diaspora</span>
+                  <span className="text-primary font-medium">~8,000 residents</span>
+                </div>
+              </div>
+              <blockquote className="mt-6 pl-4 border-l-2 border-secondary/30 text-muted-foreground text-sm italic leading-relaxed">
+                "Sweden's second city — a port of culture, architecture, and now, a home for the classical arts of South India."
+              </blockquote>
+            </div>
+
+            {/* Kerala */}
+            <div className="p-10">
+              <p className="text-secondary text-[10px] uppercase tracking-[0.3em] font-semibold mb-4">Trivandrum, Kerala, India</p>
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between border-b border-secondary/10 pb-2">
+                  <span className="text-muted-foreground">Coordinates</span>
+                  <span className="text-primary font-medium tabular-nums">8°28′N · 76°54′E</span>
+                </div>
+                <div className="flex justify-between border-b border-secondary/10 pb-2">
+                  <span className="text-muted-foreground">Time Zone</span>
+                  <span className="text-primary font-medium">IST · UTC +5:30</span>
+                </div>
+                <div className="flex justify-between border-b border-secondary/10 pb-2">
+                  <span className="text-muted-foreground">Classical Tradition</span>
+                  <span className="text-primary font-medium">2,000+ years</span>
+                </div>
+                <div className="flex justify-between pb-2">
+                  <span className="text-muted-foreground">Home of</span>
+                  <span className="text-primary font-medium">Mohiniyattam · Carnatic</span>
+                </div>
+              </div>
+              <blockquote className="mt-6 pl-4 border-l-2 border-secondary/30 text-muted-foreground text-sm italic leading-relaxed">
+                "The capital of Kerala — cradle of Mohiniyattam, Carnatic music, and the traditions carried to Scandinavia by Mrs. Noopura Parvathi."
+              </blockquote>
+            </div>
+          </div>
+
+          {/* Bottom stat strip */}
+          <div className="grid grid-cols-3 border-x border-b border-secondary/20">
+            {[
+              { label: "Distance", value: "7,800 km" },
+              { label: "Time Difference", value: "4.5 hours" },
+              { label: "Tradition Carried", value: "2,000+ years" },
+            ].map((s, i) => (
+              <div key={s.label} className={`py-5 text-center ${i < 2 ? "border-r border-secondary/20" : ""}`}>
+                <p className="font-serif text-2xl text-primary">{s.value}</p>
+                <p className="text-secondary text-[10px] uppercase tracking-widest mt-1 font-semibold">{s.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="py-28 px-6 md:px-12 bg-primary text-primary-foreground text-center">
         <p className="tracking-[0.3em] uppercase text-xs mb-6 text-primary-foreground/60 font-semibold">Admissions Open</p>
