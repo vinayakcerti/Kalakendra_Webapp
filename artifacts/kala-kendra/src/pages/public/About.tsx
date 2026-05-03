@@ -105,28 +105,28 @@ export default function About() {
           {/* Vertical connector line */}
           <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-[1px] bg-secondary/25 -translate-x-1/2" />
 
-          {/* Node 1 — Padmashree */}
+          {/* Node 1 — Original Institution */}
           <div className="relative flex flex-col md:flex-row items-center gap-8 mb-16">
             <div className="md:w-1/2 md:text-right md:pr-12">
-              <p className="text-secondary text-xs uppercase tracking-widest font-semibold mb-1">The Origin</p>
-              <h4 className="text-2xl font-serif text-primary mb-2">Padmashree Kaithapuram Damodaran Namboodiri</h4>
-              <p className="text-muted-foreground text-sm leading-relaxed">Padmashree awardee, celebrated lyricist, and visionary founder of Kala Kendra — the institution that set the standard for classical arts education rooted in the Guru-Shishya tradition.</p>
+              <p className="text-secondary text-xs uppercase tracking-widest font-semibold mb-1">The Original</p>
+              <h4 className="text-2xl font-serif text-primary mb-2">Padmashree Kaithapram Damodaran Namboodiri</h4>
+              <p className="text-muted-foreground text-sm leading-relaxed">Padmashree awardee, celebrated lyricist, and visionary founder of Swathi Thirunnal Kalakendram — the institution that set the standard for classical arts education rooted in the Guru-Shishya tradition.</p>
             </div>
             <div className="relative z-10 flex-shrink-0 w-10 h-10 border-2 border-secondary bg-background rotate-45 flex items-center justify-center">
               <div className="w-2.5 h-2.5 bg-secondary" />
             </div>
             <div className="md:w-1/2 md:pl-12">
               <div className="inline-block bg-secondary/10 border border-secondary/30 px-4 py-2 text-xs text-primary font-semibold uppercase tracking-widest">
-                Kala Kendra · Founded in Kerala
+                Swathi Thirunnal Kalakendram · Kerala
               </div>
             </div>
           </div>
 
-          {/* Node 2 — Swathi Thirunnal Kalakendram */}
+          {/* Node 2 — First Franchise */}
           <div className="relative flex flex-col md:flex-row items-center gap-8 mb-16">
             <div className="md:w-1/2 md:text-right md:pr-12 md:order-1">
               <div className="inline-block bg-secondary/10 border border-secondary/30 px-4 py-2 text-xs text-primary font-semibold uppercase tracking-widest">
-                Swathi Thirunnal Kalakendram · Kochi, Kerala
+                Kala Kendra Kochi · Kerala
               </div>
             </div>
             <div className="relative z-10 flex-shrink-0 w-10 h-10 border-2 border-secondary bg-background rotate-45 flex items-center justify-center md:order-2">
@@ -134,70 +134,70 @@ export default function About() {
             </div>
             <div className="md:w-1/2 md:pl-12 md:order-3">
               <p className="text-secondary text-xs uppercase tracking-widest font-semibold mb-1">First Franchise</p>
-              <h4 className="text-2xl font-serif text-primary mb-2">Deepankuran Kaithapuram</h4>
-              <p className="text-muted-foreground text-sm leading-relaxed">Son of Padmashree Kaithapuram Damodaran Namboodiri, Deepankuran founded Swathi Thirunnal Kalakendram in Kochi — extending the tradition with his own artistic vision and deep musicianship.</p>
+              <h4 className="text-2xl font-serif text-primary mb-2">Deepankuran Kaithapram</h4>
+              <p className="text-muted-foreground text-sm leading-relaxed">Son of Padmashree Kaithapram Damodaran Namboodiri, Deepankuran founded Kala Kendra Kochi — the first franchise — extending the tradition with his own artistic vision and deep musicianship.</p>
             </div>
           </div>
 
-          {/* Node 3 — Kala Kendra Sweden */}
+          {/* Node 3 — Second Franchise */}
           <div className="relative flex flex-col md:flex-row items-center gap-8">
             <div className="md:w-1/2 md:text-right md:pr-12">
               <p className="text-secondary text-xs uppercase tracking-widest font-semibold mb-1">Second Franchise</p>
               <h4 className="text-2xl font-serif text-primary mb-2">Kala Kendra Sweden</h4>
-              <p className="text-muted-foreground text-sm leading-relaxed">Established in Gothenburg under the blessing and mentorship of Deepankuran Kaithapuram — bringing Bharatanatyam, Kuchipudi, Mohiniyattam, and Carnatic Music to the Indian diaspora in Scandinavia.</p>
+              <p className="text-muted-foreground text-sm leading-relaxed">Established in Gothenburg under the blessing and mentorship of Deepankuran Kaithapram — bringing Bharatanatyam, Kuchipudi, Mohiniyattam, and Carnatic Music to the Indian diaspora in Scandinavia.</p>
             </div>
             <div className="relative z-10 flex-shrink-0 w-10 h-10 border-2 border-primary bg-primary rotate-45 flex items-center justify-center">
               <div className="w-2.5 h-2.5 bg-primary-foreground" />
             </div>
             <div className="md:w-1/2 md:pl-12">
               <div className="inline-block bg-primary/10 border border-primary/30 px-4 py-2 text-xs text-primary font-semibold uppercase tracking-widest">
-                Gothenburg, Sweden · Est. 2009
+                Kala Kendra Sweden · Gothenburg, Est. 2009
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Padmashree Kaithapuram Damodaran Namboodiri — Patron Founder */}
+      {/* Padmashree Kaithapram Damodaran Namboodiri — Patron Founder */}
       <section className="py-20 px-6 md:px-12 bg-card border-y border-secondary/20">
         <div className="max-w-5xl mx-auto grid md:grid-cols-[280px_1fr] gap-16 items-center">
           <div className="flex flex-col items-center">
             <div className="gold-frame w-full max-w-[260px]">
               <img
                 src="/images/kaithapuram-damodaran-namboodiri.jpg"
-                alt="Padmashree Kaithapuram Damodaran Namboodiri"
+                alt="Padmashree Kaithapram Damodaran Namboodiri"
                 className="w-full aspect-[3/4] object-cover object-top"
               />
             </div>
           </div>
           <div>
-            <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-4 font-semibold">Patron & Inspiration</p>
-            <h3 className="text-4xl font-serif text-primary mb-2">Padmashree Kaithapuram Damodaran Namboodiri</h3>
-            <p className="text-muted-foreground text-sm uppercase tracking-widest mb-6">Founder, Kala Kendra · Padmashree Awardee</p>
+            <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-4 font-semibold">Founder · Swathi Thirunnal Kalakendram</p>
+            <h3 className="text-4xl font-serif text-primary mb-2">Padmashree Kaithapram Damodaran Namboodiri</h3>
+            <p className="text-muted-foreground text-sm uppercase tracking-widest mb-6">Founder, Swathi Thirunnal Kalakendram · Padmashree Awardee</p>
             <div className="h-[1px] w-16 bg-secondary/40 mb-6" />
             <p className="text-muted-foreground leading-relaxed mb-5 text-lg">
-              Padmashree Kaithapuram Damodaran Namboodiri is one of India's most celebrated lyricists and a devoted patron of the classical arts. As the visionary founder of Kala Kendra, his life-long mission has been to nurture and preserve India's rich cultural heritage — from Carnatic music and Bharatanatyam to the great literary traditions of Kerala.
+              Padmashree Kaithapram Damodaran Namboodiri is one of India's most celebrated lyricists and a devoted patron of the classical arts. As the visionary founder of Swathi Thirunnal Kalakendram, his life-long mission has been to nurture and preserve India's rich cultural heritage — from Carnatic music and Bharatanatyam to the great literary traditions of Kerala.
             </p>
             <p className="text-muted-foreground leading-relaxed">
-              His establishment of Kala Kendra created an institution that has shaped generations of artists. The school's ethos — rigorous classical training delivered with spiritual depth and personal mentorship — flows directly from his philosophy. Kala Kendra Sweden is honoured to carry that flame to Scandinavia.
+              His establishment of Swathi Thirunnal Kalakendram created an institution that has shaped generations of artists. The school's ethos — rigorous classical training delivered with spiritual depth and personal mentorship — flows directly from his philosophy. Kala Kendra Sweden is honoured to carry that flame to Scandinavia.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Deepankuran Kaithapuram — Founder of Kala Kendra Kochi, Mentor of Kala Kendra Sweden */}
+      {/* Deepankuran Kaithapram — Founder of Kala Kendra Kochi */}
       <section className="py-20 px-6 md:px-12">
         <div className="max-w-5xl mx-auto grid md:grid-cols-[1fr_280px] gap-16 items-center">
           <div>
-            <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-4 font-semibold">Founder · Swathi Thirunnal Kalakendram</p>
-            <h3 className="text-4xl font-serif text-primary mb-2">Deepankuran Kaithapuram</h3>
-            <p className="text-muted-foreground text-sm uppercase tracking-widest mb-6">Founder, Swathi Thirunnal Kalakendram, Kochi, Kerala · Artistic Mentor, Kala Kendra Sweden</p>
+            <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-4 font-semibold">Founder · Kala Kendra Kochi</p>
+            <h3 className="text-4xl font-serif text-primary mb-2">Deepankuran Kaithapram</h3>
+            <p className="text-muted-foreground text-sm uppercase tracking-widest mb-6">Founder, Kala Kendra Kochi, Kerala · Artistic Mentor, Kala Kendra Sweden</p>
             <div className="h-[1px] w-16 bg-secondary/40 mb-6" />
             <p className="drop-cap text-muted-foreground leading-relaxed mb-5 text-lg">
-              Deepankuran Kaithapuram is the founder of Swathi Thirunnal Kalakendram in Kochi, Kerala — carrying forward the luminous legacy of his father, Padmashree Kaithapuram Damodaran Namboodiri. Under his artistic leadership, the Kochi institution has grown into a beacon of classical arts in Kerala, nurturing generations of dancers and musicians.
+              Deepankuran Kaithapram is the founder of Kala Kendra Kochi — the first franchise of Swathi Thirunnal Kalakendram — carrying forward the luminous legacy of his father, Padmashree Kaithapram Damodaran Namboodiri. Under his artistic leadership, Kala Kendra Kochi has grown into a beacon of classical arts in Kerala, nurturing generations of dancers and musicians.
             </p>
             <p className="text-muted-foreground leading-relaxed mb-5">
-              Kala Kendra Sweden is honoured to be the second franchise of this prestigious institution — a direct extension of the same tradition, the same values, and the same unbroken Guru-Shishya lineage that Deepankuran embodies. A gifted musician and devoted practitioner of Carnatic music, his mentorship and blessings remain a guiding light for the Sweden chapter.
+              Kala Kendra Sweden is the second franchise of this prestigious lineage — a direct extension of the same tradition, the same values, and the same unbroken Guru-Shishya bond that Deepankuran embodies. A gifted musician and devoted practitioner of Carnatic music, his mentorship and blessings remain a guiding light for the Sweden chapter.
             </p>
             <blockquote className="pull-quote">
               "We are not teaching steps or notes. We are transmitting a way of seeing the world."
@@ -207,7 +207,7 @@ export default function About() {
             <div className="gold-frame w-full max-w-[260px]">
               <img
                 src="/images/deepankuran-kaithapuram.jpg"
-                alt="Deepankuran Kaithapuram"
+                alt="Deepankuran Kaithapram"
                 className="w-full aspect-[3/4] object-cover object-top"
               />
             </div>

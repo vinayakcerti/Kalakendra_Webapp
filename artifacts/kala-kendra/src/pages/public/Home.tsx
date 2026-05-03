@@ -171,6 +171,60 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Founding Lineage */}
+      <section className="py-24 px-6 md:px-12">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-6 font-semibold">Our Roots</p>
+            <h3 className="text-4xl font-serif text-primary">A Lineage from Kerala to Gothenburg</h3>
+            <div className="gold-divider max-w-xs mx-auto mt-6" />
+          </div>
+          <div className="grid md:grid-cols-3 gap-0 items-stretch">
+            {/* Padmashree */}
+            <div className="border border-secondary/20 p-8 flex flex-col items-center text-center">
+              <div className="w-32 h-32 rounded-none overflow-hidden border-2 border-secondary/40 mb-5 shrink-0">
+                <img src="/images/kaithapuram-damodaran-namboodiri.jpg" alt="Padmashree Kaithapram Damodaran Namboodiri" className="w-full h-full object-cover object-top" />
+              </div>
+              <p className="text-secondary text-xs uppercase tracking-widest font-semibold mb-2">The Original</p>
+              <h4 className="font-serif text-xl text-primary mb-1 leading-snug">Padmashree Kaithapram Damodaran Namboodiri</h4>
+              <p className="text-muted-foreground text-xs mb-3 uppercase tracking-widest">Founder, Swathi Thirunnal Kalakendram</p>
+              <p className="text-muted-foreground text-sm leading-relaxed">Padmashree awardee and celebrated lyricist who founded the institution that set the standard for classical arts education in Kerala.</p>
+            </div>
+            {/* Connector */}
+            <div className="border-y border-secondary/20 px-4 flex flex-col items-center justify-center text-center py-8">
+              <div className="hidden md:flex flex-col items-center gap-3 w-full">
+                <div className="h-[1px] w-full bg-secondary/30 relative">
+                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 border border-secondary/60 rotate-45 bg-background" />
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-2 h-2 border border-secondary/60 rotate-45 bg-background" />
+                </div>
+              </div>
+              <div className="w-32 h-32 rounded-none overflow-hidden border-2 border-secondary/40 mb-5 shrink-0 mt-6 md:mt-0">
+                <img src="/images/deepankuran-kaithapuram.jpg" alt="Deepankuran Kaithapram" className="w-full h-full object-cover object-top" />
+              </div>
+              <p className="text-secondary text-xs uppercase tracking-widest font-semibold mb-2">First Franchise</p>
+              <h4 className="font-serif text-xl text-primary mb-1">Deepankuran Kaithapram</h4>
+              <p className="text-muted-foreground text-xs mb-3 uppercase tracking-widest">Founder, Kala Kendra Kochi</p>
+              <p className="text-muted-foreground text-sm leading-relaxed">Son of Padmashree Kaithapram, he founded Kala Kendra Kochi — the first franchise — extending the lineage with his own musicianship.</p>
+            </div>
+            {/* Kala Kendra Sweden */}
+            <div className="border border-secondary/20 p-8 flex flex-col items-center text-center bg-primary/5">
+              <div className="w-32 h-32 rounded-none overflow-hidden border-2 border-primary/40 mb-5 shrink-0 flex items-center justify-center bg-background">
+                <img src="/images/kala-kendra-logo.jpg" alt="Kala Kendra Sweden" className="w-full h-full object-cover" />
+              </div>
+              <p className="text-secondary text-xs uppercase tracking-widest font-semibold mb-2">Second Franchise</p>
+              <h4 className="font-serif text-xl text-primary mb-1">Kala Kendra Sweden</h4>
+              <p className="text-muted-foreground text-xs mb-3 uppercase tracking-widest">Gothenburg · Est. 2009</p>
+              <p className="text-muted-foreground text-sm leading-relaxed">Established under the blessing of Deepankuran Kaithapram — carrying the same Guru-Shishya tradition to the Indian diaspora in Scandinavia.</p>
+            </div>
+          </div>
+          <div className="mt-10 text-center">
+            <Button asChild variant="outline" className="rounded-none border-secondary text-primary hover:bg-secondary/10">
+              <Link href="/about">Read the Full Lineage Story &rarr;</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
       {/* Testimonials */}
       <section className="py-28 px-6 max-w-6xl mx-auto">
         <div className="text-center mb-16">
