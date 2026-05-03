@@ -79,7 +79,7 @@ export default function Contact() {
               
               <div>
                 <h4 className="text-sm font-semibold uppercase tracking-widest text-secondary mb-2">Email</h4>
-                <p className="text-muted-foreground">namaskaram@kalakendra.se</p>
+                <a href="mailto:kalakendrasweden@gmail.com" className="text-primary hover:underline">kalakendrasweden@gmail.com</a>
               </div>
             </div>
           </div>

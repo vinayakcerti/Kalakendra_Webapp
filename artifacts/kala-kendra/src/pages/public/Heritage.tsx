@@ -1,7 +1,6 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import carnaticImg from "@/assets/images/carnatic.png";
-import keralaImg from "@/assets/images/kerala-arts.png";
 
 const traditions = [
   {
@@ -30,7 +29,7 @@ const traditions = [
     title: "Kuchipudi",
     origin: "Andhra Pradesh",
     age: "600+ years",
-    img: "/images/bharatanatyam-real.jpg",
+    img: "/images/kuchipudi-real.jpg",
     sections: [
       {
         heading: "Village of Dancers",
@@ -51,7 +50,7 @@ const traditions = [
     title: "Mohiniyattam",
     origin: "Kerala",
     age: "400+ years",
-    img: keralaImg,
+    img: "/images/mohiniyattam-real.jpg",
     sections: [
       {
         heading: "Dance of the Enchantress",

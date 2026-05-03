@@ -82,8 +82,8 @@ export function PublicLayout({ children }: { children: ReactNode }) {
             <p className="text-xs uppercase tracking-widest text-secondary font-semibold mb-4">Contact</p>
             <div className="space-y-3 text-sm text-muted-foreground">
               <p>Gothenburg, Sweden</p>
-              <a href="mailto:namaskaram@kalakendra.se" className="block hover:text-primary transition-colors">
-                namaskaram@kalakendra.se
+              <a href="mailto:kalakendrasweden@gmail.com" className="block hover:text-primary transition-colors">
+                kalakendrasweden@gmail.com
               </a>
               <div className="pt-2">
                 <Link href="/privacy" className="text-xs hover:text-primary transition-colors underline underline-offset-2">
