@@ -206,9 +206,23 @@ export default function AnnualEvent() {
               <p className="text-primary-foreground/60 text-sm italic mb-8">
                 "What began as a first offering has become a tradition. We return — with greater depth, greater devotion."
               </p>
-              <Button asChild className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-none px-10 py-5 text-base">
-                <Link href="/contact">Register Your Interest</Link>
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button asChild className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-none px-10 py-5 text-base">
+                  <Link href="/contact">Register Your Interest</Link>
+                </Button>
+                <Button asChild variant="outline" className="rounded-none border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 px-10 py-5 text-base">
+                  <Link href="/consent">Submit Consent Form</Link>
+                </Button>
+              </div>
+
+              {/* Performer note */}
+              <div className="mt-8 border border-secondary/30 bg-primary-foreground/5 px-6 py-4 max-w-xl">
+                <p className="text-secondary text-[10px] uppercase tracking-widest font-semibold mb-2">Performing in Taal Tarang 2026?</p>
+                <p className="text-primary-foreground/75 text-sm leading-relaxed">
+                  All students participating as performers are required to submit a signed participant consent form before rehearsals begin.
+                  The form covers performance terms, photo consent, attendance commitment, and liability.
+                </p>
+              </div>
             </div>
 
             {/* Date card */}
@@ -264,13 +278,33 @@ export default function AnnualEvent() {
         <p className="text-muted-foreground max-w-lg mx-auto mb-8">
           Taal Tarang is free and open to all. Students wishing to perform should speak with their Guru. Those wishing to begin their journey should apply now.
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center flex-wrap">
           <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-none px-10 py-6 text-lg">
             <Link href="/apply">Apply for Admission</Link>
           </Button>
           <Button asChild variant="outline" className="rounded-none border-secondary text-primary hover:bg-secondary/10 px-10 py-6 text-lg">
+            <Link href="/consent">Participant Consent Form</Link>
+          </Button>
+          <Button asChild variant="outline" className="rounded-none border-secondary text-primary hover:bg-secondary/10 px-10 py-6 text-lg">
             <Link href="/contact">General Enquiries</Link>
           </Button>
+        </div>
+
+        {/* Consent form callout */}
+        <div className="max-w-xl mx-auto mt-10 border border-secondary/25 bg-card px-6 py-5 text-left">
+          <div className="flex items-start gap-4">
+            <div className="shrink-0 w-8 h-8 bg-primary/10 flex items-center justify-center mt-0.5">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-4 h-4 text-primary">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
+              </svg>
+            </div>
+            <div>
+              <p className="font-serif text-primary text-base mb-1">Performing students — submit your consent form</p>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                All students selected to perform in Taal Tarang 2026 must complete and submit the participant consent form before rehearsals begin. This covers performance terms, photo &amp; video consent, attendance requirements, and liability. The form can be submitted digitally or printed for a physical signature.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
