@@ -170,10 +170,14 @@ export default function Classes() {
             </p>
           </div>
           <div>
-            <p className="text-xs uppercase tracking-widest text-secondary font-semibold mb-3">Fees</p>
-            <p className="text-muted-foreground text-sm leading-relaxed">
+            <p className="text-xs uppercase tracking-widest text-secondary font-semibold mb-3">Fees & Payment</p>
+            <p className="text-muted-foreground text-sm leading-relaxed mb-3">
               Monthly fees are communicated during the admissions process. No student is turned away for financial reasons.
             </p>
+            <div className="inline-flex items-center gap-2 bg-[#00B9F1]/10 border border-[#00B9F1]/30 rounded px-3 py-2">
+              <span className="text-xs font-semibold text-[#0095C7]">Swish</span>
+              <span className="text-sm font-mono font-bold text-primary">0764 505 117</span>
+            </div>
           </div>
         </div>
       </section>

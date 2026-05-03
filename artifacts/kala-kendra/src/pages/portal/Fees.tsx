@@ -105,6 +105,53 @@ function PaymentForm({
   );
 }
 
+function PaymentMethods() {
+  return (
+    <div className="rounded-xl border border-secondary/30 bg-card overflow-hidden">
+      <div className="bg-secondary/10 px-5 py-3 border-b border-secondary/20">
+        <p className="text-xs uppercase tracking-widest text-secondary font-semibold">How to Pay</p>
+      </div>
+      <div className="divide-y divide-secondary/10">
+        {/* Swish */}
+        <div className="px-5 py-4 flex items-center gap-4">
+          <div className="w-10 h-10 rounded-full bg-[#00B9F1] flex items-center justify-center shrink-0">
+            <svg viewBox="0 0 40 40" width="28" height="28" fill="none">
+              <circle cx="20" cy="20" r="20" fill="#00B9F1"/>
+              <text x="20" y="26" textAnchor="middle" fontSize="14" fontWeight="bold" fill="white" fontFamily="sans-serif">S</text>
+            </svg>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-foreground">Swish</p>
+            <p className="text-xs text-muted-foreground">Send payment directly to our Swish number</p>
+          </div>
+          <div className="text-right shrink-0">
+            <p className="text-base font-mono font-bold text-primary tracking-wide">0764 505 117</p>
+            <p className="text-[10px] text-muted-foreground">Kala Kendra Sweden</p>
+          </div>
+        </div>
+        {/* Card */}
+        <div className="px-5 py-4 flex items-center gap-4">
+          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+            <CreditCard size={18} className="text-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-foreground">Card Payment</p>
+            <p className="text-xs text-muted-foreground">Pay securely online by card — coming soon</p>
+          </div>
+          <span className="text-[10px] uppercase tracking-widest border border-secondary/30 text-muted-foreground px-2 py-0.5 rounded shrink-0">
+            Soon
+          </span>
+        </div>
+      </div>
+      <div className="px-5 py-3 bg-amber-50/50 border-t border-amber-100">
+        <p className="text-[11px] text-amber-800 leading-relaxed">
+          After paying by Swish, use the <strong>"Mark as paid"</strong> button on the fee below and enter your Swish reference number so the school can confirm.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export default function PortalFees() {
   const [fees, setFees] = useState<Fee[]>([]);
   const [loading, setLoading] = useState(true);
@@ -140,6 +187,9 @@ export default function PortalFees() {
         <h1 className="font-serif text-3xl text-primary mb-1">Fees</h1>
         <p className="text-muted-foreground text-sm">Your fee history and outstanding payments</p>
       </div>
+
+      {/* Payment methods */}
+      <PaymentMethods />
 
       {/* Summary */}
       {!loading && fees.length > 0 && (
