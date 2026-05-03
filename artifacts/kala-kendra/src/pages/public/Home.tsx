@@ -48,7 +48,7 @@ export default function Home() {
       {/* Hero */}
       <section className="min-h-[80vh] flex flex-col items-center justify-center text-center px-6 py-32 relative">
         <p className="text-secondary tracking-[0.4em] uppercase text-xs mb-8 font-semibold">
-          Gothenburg, Sweden · Est. 2009
+          Gothenburg, Sweden · Est. December 2024
         </p>
         <h2 className="text-5xl md:text-7xl lg:text-8xl font-serif text-primary mb-8 max-w-4xl leading-[1.05]">
           Preserving the Classical Arts of South India
@@ -187,7 +187,7 @@ export default function Home() {
               </div>
               <p className="text-secondary text-xs uppercase tracking-widest font-semibold mb-2">The Original</p>
               <h4 className="font-serif text-xl text-primary mb-1 leading-snug">Padmashree Kaithapram Damodaran Namboodiri</h4>
-              <p className="text-muted-foreground text-xs mb-3 uppercase tracking-widest">Founder, Swathi Thirunnal Kalakendram</p>
+              <p className="text-muted-foreground text-xs mb-3 uppercase tracking-widest">Founder, Swathi Thirunnal Kalakendram Trust</p>
               <p className="text-muted-foreground text-sm leading-relaxed">Padmashree awardee and celebrated lyricist who founded the institution that set the standard for classical arts education in Kerala.</p>
             </div>
             {/* Connector */}
@@ -213,8 +213,8 @@ export default function Home() {
               </div>
               <p className="text-secondary text-xs uppercase tracking-widest font-semibold mb-2">Second Franchise</p>
               <h4 className="font-serif text-xl text-primary mb-1">Kala Kendra Sweden</h4>
-              <p className="text-muted-foreground text-xs mb-3 uppercase tracking-widest">Gothenburg · Est. 2009</p>
-              <p className="text-muted-foreground text-sm leading-relaxed">Established under the blessing of Deepankuran Kaithapram — carrying the same Guru-Shishya tradition to the Indian diaspora in Scandinavia.</p>
+              <p className="text-muted-foreground text-xs mb-3 uppercase tracking-widest">Gothenburg · Est. December 2024</p>
+              <p className="text-muted-foreground text-sm leading-relaxed">Founded in December 2024 by Mrs. Noopura Parvathi under the blessing of Deepankuran Kaithapram — carrying the same Guru-Shishya tradition to the Indian diaspora in Scandinavia.</p>
             </div>
           </div>
           <div className="mt-10 text-center">

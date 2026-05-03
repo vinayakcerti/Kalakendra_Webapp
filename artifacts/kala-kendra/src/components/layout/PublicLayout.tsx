@@ -63,7 +63,7 @@ export function PublicLayout({ children }: { children: ReactNode }) {
           <div>
             <p className="font-serif text-2xl text-primary mb-4">Kala Kendra Sweden</p>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              Preserving the classical arts of South India in Scandinavia since 2009.
+              Preserving the classical arts of South India in Scandinavia since December 2024.
             </p>
           </div>
           <div>
