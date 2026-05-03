@@ -34,6 +34,7 @@ import Settings from "@/pages/admin/Settings";
 import Announcements from "@/pages/admin/Announcements";
 import Schedule from "@/pages/admin/Schedule";
 import ActivityLog from "@/pages/admin/ActivityLog";
+import ConsentForms from "@/pages/admin/ConsentForms";
 import PortalLogin from "@/pages/portal/Login";
 import PortalVerify from "@/pages/portal/Verify";
 import PortalDashboard from "@/pages/portal/Dashboard";
@@ -90,6 +91,7 @@ function AdminRoutes() {
         <Route path="/admin/schedule" component={Schedule} />
         <Route path="/admin/settings" component={Settings} />
         <Route path="/admin/activity-log" component={ActivityLog} />
+        <Route path="/admin/consent-forms" component={ConsentForms} />
         <Route component={NotFound} />
       </Switch>
     </AdminLayout>

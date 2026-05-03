@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
 import { SidebarProvider, Sidebar, SidebarHeader, SidebarContent, SidebarGroup, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarTrigger, SidebarFooter } from "@/components/ui/sidebar";
-import { LayoutDashboard, Users, BookOpen, Settings, InboxIcon, MessageSquare, CreditCard, CalendarCheck, Megaphone, CalendarDays, ClipboardList } from "lucide-react";
+import { LayoutDashboard, Users, BookOpen, Settings, InboxIcon, MessageSquare, CreditCard, CalendarCheck, Megaphone, CalendarDays, ClipboardList, FileCheck } from "lucide-react";
 import { useListEnquiries, getListEnquiriesQueryKey } from "@workspace/api-client-react";
 
 export function AdminLayout({ children }: { children: ReactNode }) {
@@ -104,6 +104,14 @@ export function AdminLayout({ children }: { children: ReactNode }) {
                           {unreadCount > 9 ? "9+" : unreadCount}
                         </span>
                       )}
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild isActive={location.startsWith("/admin/consent-forms")}>
+                    <Link href="/admin/consent-forms">
+                      <FileCheck />
+                      <span>Consent Forms</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
