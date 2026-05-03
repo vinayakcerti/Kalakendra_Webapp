@@ -150,7 +150,7 @@ export default function Home() {
                     <img
                       src={prog.img}
                       alt={prog.title}
-                      className="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-700"
+                      className="w-full aspect-[3/4] object-cover object-top group-hover:scale-105 transition-transform duration-700"
                     />
                   </div>
                   <div className="p-6 bg-background">

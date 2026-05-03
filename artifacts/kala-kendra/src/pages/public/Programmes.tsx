@@ -163,7 +163,7 @@ export default function Programmes() {
                   <p className="text-muted-foreground text-lg leading-relaxed">{prog.intro}</p>
                 </div>
                 <div className="gold-frame">
-                  <img src={prog.image} alt={prog.title} className="w-full aspect-square object-cover object-top" />
+                  <img src={prog.image} alt={prog.title} className="w-full aspect-[3/4] object-cover object-top" />
                 </div>
               </div>
 
