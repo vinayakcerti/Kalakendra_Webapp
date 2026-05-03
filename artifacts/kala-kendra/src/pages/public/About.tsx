@@ -125,12 +125,12 @@ export default function About() {
       <section className="py-20 px-6 md:px-12">
         <div className="max-w-5xl mx-auto grid md:grid-cols-[1fr_280px] gap-16 items-center">
           <div>
-            <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-4 font-semibold">Founder · Kala Kendra Kochi</p>
+            <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-4 font-semibold">Founder · Swathi Thirunnal Kalakendram</p>
             <h3 className="text-4xl font-serif text-primary mb-2">Deepankuran Kaithapuram</h3>
-            <p className="text-muted-foreground text-sm uppercase tracking-widest mb-6">Founder, Kala Kendra Kochi, Kerala · Artistic Mentor, Kala Kendra Sweden</p>
+            <p className="text-muted-foreground text-sm uppercase tracking-widest mb-6">Founder, Swathi Thirunnal Kalakendram, Kochi, Kerala · Artistic Mentor, Kala Kendra Sweden</p>
             <div className="h-[1px] w-16 bg-secondary/40 mb-6" />
             <p className="drop-cap text-muted-foreground leading-relaxed mb-5 text-lg">
-              Deepankuran Kaithapuram is the founder of Kala Kendra in Kochi, Kerala — carrying forward the luminous legacy of his father, Padmashree Kaithapuram Damodaran Namboodiri. Under his artistic leadership, the Kochi institution has grown into a beacon of classical arts in Kerala, nurturing generations of dancers and musicians.
+              Deepankuran Kaithapuram is the founder of Swathi Thirunnal Kalakendram in Kochi, Kerala — carrying forward the luminous legacy of his father, Padmashree Kaithapuram Damodaran Namboodiri. Under his artistic leadership, the Kochi institution has grown into a beacon of classical arts in Kerala, nurturing generations of dancers and musicians.
             </p>
             <p className="text-muted-foreground leading-relaxed mb-5">
               Kala Kendra Sweden is honoured to be the second franchise of this prestigious institution — a direct extension of the same tradition, the same values, and the same unbroken Guru-Shishya lineage that Deepankuran embodies. A gifted musician and devoted practitioner of Carnatic music, his mentorship and blessings remain a guiding light for the Sweden chapter.

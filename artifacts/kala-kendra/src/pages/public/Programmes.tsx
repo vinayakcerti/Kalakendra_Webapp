@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import bharatanatyamImg from "@/assets/images/bharatanatyam.png";
 import carnaticImg from "@/assets/images/carnatic.png";
 import keralaImg from "@/assets/images/kerala-arts.png";
 
@@ -9,7 +8,7 @@ const programmes = [
     id: "bharatanatyam",
     title: "Bharatanatyam",
     subtitle: "Classical Dance — Tamil Nadu",
-    image: bharatanatyamImg,
+    image: "/images/bharatanatyam-real.jpg",
     intro:
       "One of the oldest and most widely practiced classical dance forms of India, originating in the temples of Tamil Nadu. It is known for its grace, sculptural poses, intricate footwork, and the power of expressive storytelling (abhinaya).",
     levels: [
@@ -24,8 +23,63 @@ const programmes = [
       "Preparation for Arangetram (solo public debut)",
       "Participation in the Annual Showcase from Year 2",
     ],
-    batches: ["Junior Batch (Ages 6–12)", "Senior Batch (Ages 13+)", "Adult Batch (18+)"],
+    batches: [
+      "Kids Batch (Ages 4–8) — gentle introduction to rhythm and movement",
+      "Junior Batch (Ages 9–14)",
+      "Senior Batch (Ages 15+)",
+      "Adult Batch (18+)",
+    ],
     batchCode: "BHAR",
+  },
+  {
+    id: "kuchipudi",
+    title: "Kuchipudi",
+    subtitle: "Classical Dance — Andhra Pradesh",
+    image: "/images/bharatanatyam-real.jpg",
+    intro:
+      "A vibrant classical dance-drama form originating from the village of Kuchipudi in Andhra Pradesh. Renowned for its fast rhythmic footwork, graceful movements, expressive abhinaya, and the unique tradition of performing on a brass plate (tarangam). Both lyrical and athletic in equal measure.",
+    levels: [
+      { name: "Foundation", duration: "Years 1 – 3", desc: "Basic steps, postures, and jatis. Introduction to the Kuchipudi aesthetic and basic nritta." },
+      { name: "Intermediate", duration: "Years 4 – 6", desc: "Tillana, sabdams, and short dance-drama pieces. Deepening abhinaya and layam." },
+      { name: "Advanced", duration: "Years 7+", desc: "Full dance-drama roles, tarangam, and solo performance repertoire." },
+    ],
+    details: [
+      "Classical nritta (pure dance) in the Kuchipudi tradition",
+      "Abhinaya and the art of dance-drama storytelling",
+      "Tarangam — the unique brass-plate balancing dance",
+      "Layam (rhythmic precision) and footwork mastery",
+      "Ensemble performance from Year 2 onwards",
+    ],
+    batches: [
+      "Junior Batch (Ages 9–14)",
+      "Senior Batch (Ages 15+)",
+    ],
+    batchCode: "KUCH",
+  },
+  {
+    id: "mohiniyattam",
+    title: "Mohiniyattam",
+    subtitle: "Classical Dance — Kerala",
+    image: keralaImg,
+    intro:
+      "The classical dance of Kerala — lyrical, graceful, and deeply feminine in its aesthetic. Characterised by gentle swaying movements, soft hand gestures, and the white-and-gold kasavu costume that sets it apart from all other classical forms. Mohiniyattam draws from the lasya (gentle) aspect of Indian classical aesthetics.",
+    levels: [
+      { name: "Foundation", duration: "Years 1 – 2", desc: "Atavukal (basic steps), body posture, swaying movements, and introductory cholkettu." },
+      { name: "Intermediate", duration: "Years 3 – 5", desc: "Solo padams, varnam, and short compositions. Developing the distinctive Mohiniyattam lyrical quality." },
+      { name: "Advanced", duration: "Years 6+", desc: "Full performance repertoire, manodharma, and stage experience." },
+    ],
+    details: [
+      "Graceful lasya aesthetic — the softer, lyrical side of classical dance",
+      "Distinctive swaying torso movements unique to Kerala",
+      "Sopana sangeetham — the devotional music tradition of Kerala temples",
+      "Mudras rooted in the Kerala Hastalakshana Deepika",
+      "Cultural context and spiritual depth of the Mohini legend",
+    ],
+    batches: [
+      "Junior Batch (Ages 9–14)",
+      "Senior Batch (Ages 15+)",
+    ],
+    batchCode: "MOHI",
   },
   {
     id: "carnatic",
@@ -46,30 +100,11 @@ const programmes = [
       "Manodharma — improvisation and creative expression",
       "Ear training, shruti, and tala literacy",
     ],
-    batches: ["Carnatic Vocal Batch", "Veena / Instrumental Batch"],
+    batches: [
+      "Carnatic Vocal Batch",
+      "Veena / Instrumental Batch",
+    ],
     batchCode: "CARN",
-  },
-  {
-    id: "kerala",
-    title: "Kerala Arts",
-    subtitle: "Dance & Percussion — Kerala",
-    image: keralaImg,
-    intro:
-      "A programme introducing the rhythmic and performative traditions of Kerala — from the graceful, swaying movements of Mohiniyattam to the powerful percussion traditions of the temple festival. Kerala's arts are among the most distinctive on the subcontinent.",
-    levels: [
-      { name: "Foundation", duration: "Years 1 – 2", desc: "Basic Mohiniyattam postures, Kerala tala system, introduction to Chenda technique." },
-      { name: "Intermediate", duration: "Years 3 – 5", desc: "Solo Mohiniyattam items, ensemble percussion practice, Sopana sangeetham." },
-      { name: "Advanced", duration: "Years 6+", desc: "Performance repertoire, percussion ensemble leadership, stage experience." },
-    ],
-    details: [
-      "Graceful, swaying lasya movements of Mohiniyattam",
-      "Kerala's unique rhythmic structures (talams)",
-      "Introduction to Chenda and Maddalam technique",
-      "Cultural context of temple festivals and Kerala's arts ecology",
-      "Ensemble performance experience from Year 2",
-    ],
-    batches: ["Kerala Arts Batch (All ages welcome)"],
-    batchCode: "KERA",
   },
 ];
 
@@ -106,7 +141,7 @@ export default function Programmes() {
         <h2 className="text-5xl md:text-6xl font-serif text-primary mb-8 leading-tight">Programmes of Study</h2>
         <div className="gold-divider max-w-sm mx-auto" />
         <p className="text-xl text-muted-foreground mt-8 leading-relaxed max-w-2xl mx-auto">
-          We offer three classical disciplines across multiple levels. Admission is reviewed individually, and we welcome beginners as well as students seeking to deepen an existing practice.
+          We offer four classical disciplines across multiple levels — Bharatanatyam, Kuchipudi, Mohiniyattam, and Carnatic Music. Admission is reviewed individually, and we welcome beginners as well as students seeking to deepen an existing practice.
         </p>
       </section>
 
@@ -165,8 +200,8 @@ export default function Programmes() {
                   <h4 className="text-xs uppercase tracking-widest text-secondary font-semibold mb-6">Available Batches</h4>
                   <div className="space-y-2 mb-8">
                     {prog.batches.map((batch) => (
-                      <div key={batch} className="flex items-center gap-3 text-sm text-muted-foreground border-b border-secondary/10 pb-2">
-                        <span className="w-2 h-2 border border-secondary/50 rotate-45 shrink-0" />
+                      <div key={batch} className="flex items-start gap-3 text-sm text-muted-foreground border-b border-secondary/10 pb-2">
+                        <span className="w-2 h-2 border border-secondary/50 rotate-45 shrink-0 mt-1" />
                         {batch}
                       </div>
                     ))}

@@ -55,7 +55,7 @@ export default function Home() {
         </h2>
         <div className="gold-divider max-w-sm mx-auto" />
         <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mt-6 mb-14 leading-relaxed">
-          Authentic, rigorous instruction in Bharatanatyam, Carnatic Music, and Kerala Arts — rooted in the Guru-Shishya tradition, taught in the heart of Scandinavia.
+          Authentic, rigorous instruction in Bharatanatyam, Kuchipudi, Mohiniyattam, and Carnatic Music — rooted in the Guru-Shishya tradition, taught in the heart of Scandinavia.
         </p>
         <div className="flex flex-col sm:flex-row gap-4">
           <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 text-lg px-10 py-6 rounded-none border border-primary/20">
@@ -114,14 +114,28 @@ export default function Home() {
             <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-6 font-semibold">Disciplines</p>
             <h3 className="text-4xl font-serif text-primary">Programmes of Study</h3>
           </div>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               {
                 img: "/images/bharatanatyam-real.jpg",
                 title: "Bharatanatyam",
-                subtitle: "Classical Dance",
+                subtitle: "Classical Dance · Tamil Nadu",
                 desc: "The ancient temple dance of Tamil Nadu — intricate footwork, expressive abhinaya, and sculptural precision.",
                 href: "/programmes#bharatanatyam",
+              },
+              {
+                img: "/images/bharatanatyam-real.jpg",
+                title: "Kuchipudi",
+                subtitle: "Classical Dance · Andhra Pradesh",
+                desc: "A vibrant dance-drama tradition from Andhra Pradesh — athletic footwork, graceful abhinaya, and the iconic tarangam.",
+                href: "/programmes#kuchipudi",
+              },
+              {
+                img: keralaImg,
+                title: "Mohiniyattam",
+                subtitle: "Classical Dance · Kerala",
+                desc: "The lyrical, graceful classical dance of Kerala — soft swaying movements and deeply devotional expression.",
+                href: "/programmes#mohiniyattam",
               },
               {
                 img: carnaticImg,
@@ -129,13 +143,6 @@ export default function Home() {
                 subtitle: "Vocal & Instrumental",
                 desc: "One of the world's oldest and most complex musical systems, offered in vocal and instrumental streams.",
                 href: "/programmes#carnatic",
-              },
-              {
-                img: keralaImg,
-                title: "Kerala Arts",
-                subtitle: "Dance & Percussion",
-                desc: "The graceful traditions of Kerala — Mohiniyattam and the powerful rhythms of traditional percussion.",
-                href: "/programmes#kerala",
               },
             ].map((prog) => (
               <Link key={prog.title} href={prog.href} className="group block">
