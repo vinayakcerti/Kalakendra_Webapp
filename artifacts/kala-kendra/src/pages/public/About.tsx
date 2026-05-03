@@ -1,6 +1,5 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import bharatanatyamImg from "@/assets/images/bharatanatyam.png";
 
 const lineage = [
   {
@@ -17,27 +16,6 @@ const lineage = [
     era: "Diaspora",
     period: "1990s – present",
     text: "As the Indian diaspora settled in Europe, dedicated teachers carried the tradition westward. Today, classical arts thrive in cities from London to Gothenburg — rooted in the same Guru-Shishya bond.",
-  },
-];
-
-const faculty = [
-  {
-    name: "Sri Ramachandran Iyer",
-    title: "Founder & Artistic Director",
-    discipline: "Bharatanatyam & Carnatic Vocal",
-    bio: "Trained under Padmashri Smt. Alarmel Valli and Sri T.V. Gopalakrishnan in Chennai, Sri Ramachandran has devoted over four decades to the classical arts. He established Kala Kendra Sweden in 2009 with a single conviction: that authentic classical teaching belongs wherever devoted students exist.",
-  },
-  {
-    name: "Smt. Geetha Krishnaswamy",
-    title: "Senior Faculty",
-    discipline: "Bharatanatyam",
-    bio: "A disciple of the Pandanallur style, Smt. Geetha brings extraordinary precision to her teaching. She has conducted more than thirty Arangetrams and is known for her patient, exacting approach to abhinaya.",
-  },
-  {
-    name: "Sri Venkatesh Subramaniam",
-    title: "Faculty — Music",
-    discipline: "Carnatic Vocal & Veena",
-    bio: "Sri Venkatesh studied at the Music College in Thiruvananthapuram before joining Kala Kendra. His teaching weaves together the theoretical (shastra) and the intuitive (manodharma) in equal measure.",
   },
 ];
 
@@ -77,7 +55,11 @@ export default function About() {
             </p>
           </div>
           <div className="gold-frame -rotate-1 hover:rotate-0 transition-transform duration-500">
-            <img src={bharatanatyamImg} alt="Bharatanatyam" className="w-full h-auto aspect-[4/5] object-cover" />
+            <img
+              src="/images/bharatanatyam-real.jpg"
+              alt="Bharatanatyam performance"
+              className="w-full h-auto aspect-[4/5] object-cover object-top"
+            />
           </div>
         </div>
       </section>
@@ -112,49 +94,71 @@ export default function About() {
         </div>
       </section>
 
-      {/* Our Guruji */}
-      <section className="py-16 px-6 bg-primary text-primary-foreground">
-        <div className="max-w-3xl mx-auto text-center">
-          <p className="tracking-[0.3em] uppercase text-xs mb-6 text-primary-foreground/60 font-semibold">Founder</p>
-          <h3 className="text-4xl font-serif mb-4">Sri Ramachandran Iyer</h3>
-          <p className="text-primary-foreground/70 text-sm uppercase tracking-widest mb-8">Artistic Director & Chief Guru</p>
-          <div className="h-[1px] w-24 bg-primary-foreground/20 mx-auto mb-8" />
-          <p className="text-primary-foreground/85 text-lg leading-relaxed mb-6">
-            Trained under Padmashri Smt. Alarmel Valli and Sri T.V. Gopalakrishnan in Chennai, Sri Ramachandran has devoted over four decades to the classical arts. He established Kala Kendra Sweden in 2009 with a single conviction: that authentic classical teaching belongs wherever devoted students exist.
-          </p>
-          <p className="text-primary-foreground/75 leading-relaxed">
-            His pedagogy emphasises deep emotional resonance (bhava) and strict adherence to classical grammar. He has guided over two hundred students on their path, many of whom have gone on to perform professionally in India, Sweden, and beyond.
-          </p>
+      {/* Padmashree Kaithapuram Damodaran Namboodiri — Patron Founder */}
+      <section className="py-20 px-6 md:px-12 bg-card border-y border-secondary/20">
+        <div className="max-w-5xl mx-auto grid md:grid-cols-[280px_1fr] gap-16 items-center">
+          <div className="flex flex-col items-center">
+            <div className="gold-frame w-full max-w-[260px]">
+              <img
+                src="/images/kaithapuram-damodaran-namboodiri.jpg"
+                alt="Padmashree Kaithapuram Damodaran Namboodiri"
+                className="w-full aspect-[3/4] object-cover object-top"
+              />
+            </div>
+          </div>
+          <div>
+            <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-4 font-semibold">Patron & Inspiration</p>
+            <h3 className="text-4xl font-serif text-primary mb-2">Padmashree Kaithapuram Damodaran Namboodiri</h3>
+            <p className="text-muted-foreground text-sm uppercase tracking-widest mb-6">Founder, Kala Kendra · Padmashree Awardee</p>
+            <div className="h-[1px] w-16 bg-secondary/40 mb-6" />
+            <p className="text-muted-foreground leading-relaxed mb-5 text-lg">
+              Padmashree Kaithapuram Damodaran Namboodiri is one of India's most celebrated lyricists and a devoted patron of the classical arts. As the visionary founder of Kala Kendra, his life-long mission has been to nurture and preserve India's rich cultural heritage — from Carnatic music and Bharatanatyam to the great literary traditions of Kerala.
+            </p>
+            <p className="text-muted-foreground leading-relaxed">
+              His establishment of Kala Kendra created an institution that has shaped generations of artists. The school's ethos — rigorous classical training delivered with spiritual depth and personal mentorship — flows directly from his philosophy. Kala Kendra Sweden is honoured to carry that flame to Scandinavia.
+            </p>
+          </div>
         </div>
       </section>
 
-      {/* Faculty */}
-      <section className="py-28 px-6 max-w-5xl mx-auto">
-        <div className="text-center mb-16">
-          <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-6 font-semibold">Our Teachers</p>
-          <h3 className="text-4xl font-serif text-primary">The Faculty</h3>
-        </div>
-        <div className="space-y-8">
-          {faculty.map((member) => (
-            <div key={member.name} className="bg-card border border-secondary/20 p-8 md:p-10 grid md:grid-cols-[200px_1fr] gap-8">
-              <div>
-                <h4 className="text-2xl font-serif text-primary mb-2">{member.name}</h4>
-                <p className="text-secondary text-xs uppercase tracking-widest mb-1">{member.title}</p>
-                <p className="text-muted-foreground text-xs">{member.discipline}</p>
-              </div>
-              <p className="text-muted-foreground leading-relaxed">{member.bio}</p>
+      {/* Deepankuran Kaithapuram — Founder of Kala Kendra Sweden */}
+      <section className="py-20 px-6 md:px-12">
+        <div className="max-w-5xl mx-auto grid md:grid-cols-[1fr_280px] gap-16 items-center">
+          <div>
+            <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-4 font-semibold">Founder · Kala Kendra Sweden</p>
+            <h3 className="text-4xl font-serif text-primary mb-2">Deepankuran Kaithapuram</h3>
+            <p className="text-muted-foreground text-sm uppercase tracking-widest mb-6">Artistic Director · First Franchise of Kala Kendra</p>
+            <div className="h-[1px] w-16 bg-secondary/40 mb-6" />
+            <p className="drop-cap text-muted-foreground leading-relaxed mb-5 text-lg">
+              Deepankuran Kaithapuram is the founder of Kala Kendra Sweden — the first international franchise of the celebrated Kala Kendra institution. Carrying forward the legacy of his father, Padmashree Kaithapuram Damodaran Namboodiri, Deepankuran established the school in Gothenburg with a singular commitment: to bring authentic, lineage-rooted classical arts training to the Indian diaspora in Scandinavia.
+            </p>
+            <p className="text-muted-foreground leading-relaxed mb-5">
+              A gifted musician and devoted practitioner of Carnatic classical music, Deepankuran's teaching brings together technical mastery and the warmth of a true Guru. He believes that art must be lived, not merely performed — and that the discipline of classical study shapes not just artists but human beings.
+            </p>
+            <blockquote className="pull-quote">
+              "We are not teaching steps or notes. We are transmitting a way of seeing the world."
+            </blockquote>
+          </div>
+          <div className="flex flex-col items-center">
+            <div className="gold-frame w-full max-w-[260px]">
+              <img
+                src="/images/deepankuran-kaithapuram.jpg"
+                alt="Deepankuran Kaithapuram"
+                className="w-full aspect-[3/4] object-cover object-top"
+              />
             </div>
-          ))}
+          </div>
         </div>
       </section>
 
       {/* CTA */}
-      <section className="py-20 px-6 bg-card border-t border-secondary/20 text-center">
-        <h3 className="text-3xl font-serif text-primary mb-4">Ready to Begin?</h3>
-        <p className="text-muted-foreground max-w-lg mx-auto mb-8">
-          The path begins with a single step. Submit an application and our team will be in touch.
+      <section className="py-20 px-6 bg-primary text-primary-foreground text-center">
+        <p className="tracking-[0.3em] uppercase text-xs mb-6 text-primary-foreground/60 font-semibold">Join Us</p>
+        <h3 className="text-3xl font-serif mb-4">Ready to Begin?</h3>
+        <p className="text-primary-foreground/80 max-w-lg mx-auto mb-8">
+          The path begins with a single step. Submit an application and our team will be in touch within a few days.
         </p>
-        <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-none px-10 py-6 text-lg">
+        <Button asChild className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-none px-10 py-6 text-lg">
           <Link href="/apply">Apply for Admission</Link>
         </Button>
       </section>

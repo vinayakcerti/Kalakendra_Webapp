@@ -24,11 +24,18 @@ export function PublicLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
-      <header className="border-b border-secondary/20 py-8 px-6 md:px-12 flex flex-col items-center">
+      <header className="border-b border-secondary/20 py-6 px-6 md:px-12 flex flex-col items-center">
         <Link href="/">
-          <h1 className="text-3xl md:text-4xl text-primary font-serif tracking-wide mb-6 hover:text-primary/80 transition-colors cursor-pointer">
-            Kala Kendra Sweden
-          </h1>
+          <div className="flex flex-col items-center gap-3 mb-5 hover:opacity-80 transition-opacity cursor-pointer">
+            <img
+              src="/images/kala-kendra-logo.jpg"
+              alt="Kala Kendra Sweden"
+              className="h-20 w-auto object-contain"
+            />
+            <h1 className="text-3xl md:text-4xl text-primary font-serif tracking-wide">
+              Kala Kendra Sweden
+            </h1>
+          </div>
         </Link>
         <nav className="flex flex-wrap justify-center gap-5 text-xs uppercase tracking-widest text-muted-foreground">
           {NAV_LINKS.map((link) => (

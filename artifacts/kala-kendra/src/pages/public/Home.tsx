@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 
-import bharatanatyamImg from "@/assets/images/bharatanatyam.png";
+
 import carnaticImg from "@/assets/images/carnatic.png";
 import keralaImg from "@/assets/images/kerala-arts.png";
 
@@ -71,7 +71,7 @@ export default function Home() {
       <section className="py-28 px-6 md:px-12 lg:px-24 bg-card border-y border-secondary/20">
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-20 items-center">
           <div className="gold-frame rotate-1 hover:rotate-0 transition-transform duration-500">
-            <img src={bharatanatyamImg} alt="Bharatanatyam Dancer" className="w-full h-auto aspect-[4/5] object-cover" />
+            <img src="/images/bharatanatyam-real.jpg" alt="Bharatanatyam Dancer" className="w-full h-auto aspect-[4/5] object-cover object-top" />
           </div>
           <div>
             <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-6 font-semibold">Our Ethos</p>
@@ -117,7 +117,7 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
-                img: bharatanatyamImg,
+                img: "/images/bharatanatyam-real.jpg",
                 title: "Bharatanatyam",
                 subtitle: "Classical Dance",
                 desc: "The ancient temple dance of Tamil Nadu — intricate footwork, expressive abhinaya, and sculptural precision.",
