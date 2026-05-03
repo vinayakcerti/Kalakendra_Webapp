@@ -1,6 +1,5 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import bharatanatyamImg from "@/assets/images/bharatanatyam.png";
 import carnaticImg from "@/assets/images/carnatic.png";
 import keralaImg from "@/assets/images/kerala-arts.png";
 
@@ -10,7 +9,7 @@ const traditions = [
     title: "Bharatanatyam",
     origin: "Tamil Nadu",
     age: "2,000+ years",
-    img: bharatanatyamImg,
+    img: "/images/bharatanatyam-real.jpg",
     sections: [
       {
         heading: "Origins in the Temple",
@@ -23,6 +22,48 @@ const traditions = [
       {
         heading: "The Arangetram",
         body: "The Arangetram — literally 'ascending the stage' — marks a student's first solo public recital and is among the most sacred milestones in a classical dancer's life. It typically occurs after seven to ten years of dedicated training and is a formal declaration of the student's readiness to carry the tradition forward.",
+      },
+    ],
+  },
+  {
+    id: "kuchipudi",
+    title: "Kuchipudi",
+    origin: "Andhra Pradesh",
+    age: "600+ years",
+    img: "/images/bharatanatyam-real.jpg",
+    sections: [
+      {
+        heading: "Village of Dancers",
+        body: "Kuchipudi takes its name from the village of Kuchipudi in Andhra Pradesh, where Brahmin men performed dance-dramas in honour of Lord Krishna. The form was codified in the 17th century by the saint-poet Siddhendra Yogi, who shaped it into the Bhama Kalapam — a dance-drama in which a woman's longing for Krishna is expressed through abhinaya of extraordinary depth.",
+      },
+      {
+        heading: "Dance and Drama United",
+        body: "Kuchipudi is unique among Indian classical forms in its seamless integration of pure dance (nritta), expressive storytelling (nritya), and dramatic enactment (natya). The performer must be at once an athlete, actor, and musician — able to sing while dancing, to shift instantly between abstract rhythm and emotional narrative, and to sustain both technical and emotional demands simultaneously.",
+      },
+      {
+        heading: "Tarangam — The Brass Plate Dance",
+        body: "Among Kuchipudi's most spectacular traditions is the tarangam — in which the dancer balances on the rim of a brass plate while executing precise rhythmic sequences, arms extended, face radiant. Performed to compositions in praise of Lord Krishna, the tarangam requires extraordinary balance, concentration, and years of dedicated practice to master.",
+      },
+    ],
+  },
+  {
+    id: "mohiniyattam",
+    title: "Mohiniyattam",
+    origin: "Kerala",
+    age: "400+ years",
+    img: keralaImg,
+    sections: [
+      {
+        heading: "Dance of the Enchantress",
+        body: "Mohiniyattam — 'the dance of Mohini, the enchantress' — is the classical dance of Kerala. Unlike the vigorous tandava of Bharatanatyam, Mohiniyattam embodies the lasya aesthetic: soft, swaying, lyrical. It draws on the legend of Mohini, the female avatar of Vishnu, and is performed exclusively by women in costumes of white and gold — the colours of the Kerala tradition.",
+      },
+      {
+        heading: "The Lasya Aesthetic",
+        body: "The distinctive feature of Mohiniyattam is its swaying, circular torso movement — the idakkai — which gives it a quality of gentle undulation that no other classical form possesses. The mudras are drawn from the Kerala Hastalakshana Deepika rather than the Natyashastra, giving the hand gestures a distinct regional identity. The overall effect is one of devotional tenderness and spiritual surrender.",
+      },
+      {
+        heading: "Sopana Sangeetham",
+        body: "Mohiniyattam is performed to Sopana sangeetham — the devotional music of the Kerala temple steps — rather than Carnatic music. This gives the form its unique sonic character: slow, contemplative, rooted in temple devotion. The compositions (padam, churnika, shlokam) draw from Sanskrit and Malayalam devotional literature, evoking the full range of divine love.",
       },
     ],
   },
@@ -44,27 +85,6 @@ const traditions = [
       {
         heading: "The Kacheri Tradition",
         body: "A classical Carnatic concert (kacheri) typically begins with a Varnam — a structured, fast-paced piece that establishes the evening's primary raga — before moving through a series of compositions, each elaborating a different raga, and culminating in a Tillana of rhythmic joy. The tradition demands both technical precision and emotional spontaneity.",
-      },
-    ],
-  },
-  {
-    id: "kerala",
-    title: "Kerala Arts",
-    origin: "Kerala",
-    age: "600+ years",
-    img: keralaImg,
-    sections: [
-      {
-        heading: "God's Own Country, Its Own Arts",
-        body: "Kerala has nurtured a remarkable array of classical and folk arts, many of which draw from the same Sanskrit-Vedic sources as Bharatanatyam and Carnatic music, but developed unique local expressions. The state's long tradition of temple festivals, martial arts (Kalaripayattu), and devotional practice gave rise to forms of extraordinary distinctiveness.",
-      },
-      {
-        heading: "Mohiniyattam — Dance of the Enchantress",
-        body: "Mohiniyattam is a classical dance form characterised by its gentle, swaying movements — lasya — in contrast to the more angular, vigorous tandava of Bharatanatyam. Performed exclusively by women, it draws on the Lasya tradition and features costumes of white and gold, evoking the purity of the form. Its content is invariably devotional, drawing from the great epics and Puranas.",
-      },
-      {
-        heading: "The Percussion Tradition",
-        body: "Kerala's percussion tradition is unlike any other. The Chenda, Maddalam, and Mizhavu are instruments of immense power, used in temple festivals and percussion ensembles (Panchavadyam and Melam) that can involve dozens of musicians playing in intricate, interlocking rhythmic cycles. Kala Kendra offers introductory training in these traditions.",
       },
     ],
   },

@@ -94,6 +94,70 @@ export default function About() {
         </div>
       </section>
 
+      {/* Franchise Lineage Timeline */}
+      <section className="py-24 px-6 max-w-4xl mx-auto">
+        <div className="text-center mb-16">
+          <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-6 font-semibold">Franchise Lineage</p>
+          <h3 className="text-4xl font-serif text-primary">From Kerala to Scandinavia</h3>
+          <div className="gold-divider max-w-xs mx-auto mt-6" />
+        </div>
+        <div className="relative">
+          {/* Vertical connector line */}
+          <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-[1px] bg-secondary/25 -translate-x-1/2" />
+
+          {/* Node 1 — Padmashree */}
+          <div className="relative flex flex-col md:flex-row items-center gap-8 mb-16">
+            <div className="md:w-1/2 md:text-right md:pr-12">
+              <p className="text-secondary text-xs uppercase tracking-widest font-semibold mb-1">The Origin</p>
+              <h4 className="text-2xl font-serif text-primary mb-2">Padmashree Kaithapuram Damodaran Namboodiri</h4>
+              <p className="text-muted-foreground text-sm leading-relaxed">Padmashree awardee, celebrated lyricist, and visionary founder of Kala Kendra — the institution that set the standard for classical arts education rooted in the Guru-Shishya tradition.</p>
+            </div>
+            <div className="relative z-10 flex-shrink-0 w-10 h-10 border-2 border-secondary bg-background rotate-45 flex items-center justify-center">
+              <div className="w-2.5 h-2.5 bg-secondary" />
+            </div>
+            <div className="md:w-1/2 md:pl-12">
+              <div className="inline-block bg-secondary/10 border border-secondary/30 px-4 py-2 text-xs text-primary font-semibold uppercase tracking-widest">
+                Kala Kendra · Founded in Kerala
+              </div>
+            </div>
+          </div>
+
+          {/* Node 2 — Swathi Thirunnal Kalakendram */}
+          <div className="relative flex flex-col md:flex-row items-center gap-8 mb-16">
+            <div className="md:w-1/2 md:text-right md:pr-12 md:order-1">
+              <div className="inline-block bg-secondary/10 border border-secondary/30 px-4 py-2 text-xs text-primary font-semibold uppercase tracking-widest">
+                Swathi Thirunnal Kalakendram · Kochi, Kerala
+              </div>
+            </div>
+            <div className="relative z-10 flex-shrink-0 w-10 h-10 border-2 border-secondary bg-background rotate-45 flex items-center justify-center md:order-2">
+              <div className="w-2.5 h-2.5 bg-secondary" />
+            </div>
+            <div className="md:w-1/2 md:pl-12 md:order-3">
+              <p className="text-secondary text-xs uppercase tracking-widest font-semibold mb-1">First Franchise</p>
+              <h4 className="text-2xl font-serif text-primary mb-2">Deepankuran Kaithapuram</h4>
+              <p className="text-muted-foreground text-sm leading-relaxed">Son of Padmashree Kaithapuram Damodaran Namboodiri, Deepankuran founded Swathi Thirunnal Kalakendram in Kochi — extending the tradition with his own artistic vision and deep musicianship.</p>
+            </div>
+          </div>
+
+          {/* Node 3 — Kala Kendra Sweden */}
+          <div className="relative flex flex-col md:flex-row items-center gap-8">
+            <div className="md:w-1/2 md:text-right md:pr-12">
+              <p className="text-secondary text-xs uppercase tracking-widest font-semibold mb-1">Second Franchise</p>
+              <h4 className="text-2xl font-serif text-primary mb-2">Kala Kendra Sweden</h4>
+              <p className="text-muted-foreground text-sm leading-relaxed">Established in Gothenburg under the blessing and mentorship of Deepankuran Kaithapuram — bringing Bharatanatyam, Kuchipudi, Mohiniyattam, and Carnatic Music to the Indian diaspora in Scandinavia.</p>
+            </div>
+            <div className="relative z-10 flex-shrink-0 w-10 h-10 border-2 border-primary bg-primary rotate-45 flex items-center justify-center">
+              <div className="w-2.5 h-2.5 bg-primary-foreground" />
+            </div>
+            <div className="md:w-1/2 md:pl-12">
+              <div className="inline-block bg-primary/10 border border-primary/30 px-4 py-2 text-xs text-primary font-semibold uppercase tracking-widest">
+                Gothenburg, Sweden · Est. 2009
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Padmashree Kaithapuram Damodaran Namboodiri — Patron Founder */}
       <section className="py-20 px-6 md:px-12 bg-card border-y border-secondary/20">
         <div className="max-w-5xl mx-auto grid md:grid-cols-[280px_1fr] gap-16 items-center">
