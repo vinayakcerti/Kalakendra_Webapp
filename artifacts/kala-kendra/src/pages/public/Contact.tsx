@@ -100,6 +100,23 @@ export default function Contact() {
               </div>
 
               <div>
+                <h4 className="text-sm font-semibold uppercase tracking-widest text-secondary mb-2">Instagram</h4>
+                <a
+                  href="https://www.instagram.com/kala_kendra_sweden"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-primary hover:underline"
+                >
+                  <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                    <circle cx="12" cy="12" r="4"/>
+                    <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none"/>
+                  </svg>
+                  @kala_kendra_sweden
+                </a>
+              </div>
+
+              <div>
                 <h4 className="text-sm font-semibold uppercase tracking-widest text-secondary mb-2">Phone · Sweden</h4>
                 <div className="space-y-1">
                   <a href="tel:+46769649871" className="flex items-center gap-2 text-primary hover:underline text-sm">

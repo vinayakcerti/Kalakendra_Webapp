@@ -111,6 +111,19 @@ export function PublicLayout({ children }: { children: ReactNode }) {
                 </svg>
                 +46 720 464 163
               </a>
+              <a
+                href="https://www.instagram.com/kala_kendra_sweden"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 hover:text-primary transition-colors"
+              >
+                <svg className="h-3.5 w-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                  <circle cx="12" cy="12" r="4"/>
+                  <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none"/>
+                </svg>
+                @kala_kendra_sweden
+              </a>
               <div className="pt-2">
                 <Link href="/privacy" className="text-xs hover:text-primary transition-colors underline underline-offset-2">
                   Privacy Policy
