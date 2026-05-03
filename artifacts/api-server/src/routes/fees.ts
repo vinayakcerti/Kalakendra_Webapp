@@ -11,7 +11,7 @@ import {
   ListAllFeesResponseItem,
   BulkCreateFeesBody,
 } from "@workspace/api-zod";
-import { sendFeeReminder } from "../lib/email";
+import { markOverdueAndRemind, remindAllCurrentlyOverdue } from "../lib/feeReminderService";
 
 const router: IRouter = Router();
 
@@ -35,121 +35,21 @@ function feeWithStudentSelect() {
 
 /** POST /fees/mark-overdue — mark all pending fees with past dueDate as overdue, then email those students */
 router.post("/fees/mark-overdue", async (req, res) => {
-  const today = new Date().toISOString().split("T")[0];
-
-  // Fetch fees that are about to be marked overdue (so we can email them)
-  const toMark = await db
-    .select({
-      id: feesTable.id,
-      description: feesTable.description,
-      amountOre: feesTable.amountOre,
-      dueDate: feesTable.dueDate,
-      studentName: studentsTable.fullName,
-      studentEmail: studentsTable.primaryContactEmail,
-    })
-    .from(feesTable)
-    .innerJoin(studentsTable, eq(feesTable.studentId, studentsTable.id))
-    .where(
-      and(
-        eq(feesTable.status, "pending"),
-        sql`due_date IS NOT NULL AND due_date < ${today}::date`
-      )
-    );
-
-  if (toMark.length === 0) {
-    res.json({ updated: 0, reminded: 0 });
-    return;
+  // Respond immediately, run work in background
+  res.json({ updated: 0, reminded: 0 });
+  try {
+    const { marked, reminded } = await markOverdueAndRemind();
+    req.log.info({ marked, reminded }, "mark-overdue completed");
+  } catch (err) {
+    req.log.error({ err }, "mark-overdue failed");
   }
-
-  // Mark them all overdue
-  const ids = toMark.map((f) => f.id);
-  await db.execute(
-    sql`UPDATE fees SET status = 'overdue', updated_at = NOW()
-        WHERE id = ANY(${ids}::uuid[])`
-  );
-
-  // Send reminder emails (fire-and-forget, don't block the response)
-  const domain = (process.env["REPLIT_DOMAINS"] ?? "").split(",")[0]?.trim();
-  const portalUrl = domain ? `https://${domain}/portal/login` : "";
-
-  let reminded = 0;
-  const reminderPromises = toMark
-    .filter((f) => f.studentEmail)
-    .map(async (f) => {
-      try {
-        await sendFeeReminder({
-          to: f.studentEmail!,
-          studentName: f.studentName,
-          feeDescription: f.description,
-          amountOre: f.amountOre,
-          dueDate: f.dueDate ?? null,
-          portalUrl,
-        });
-        await db
-          .update(feesTable)
-          .set({ reminderSentAt: new Date(), updatedAt: new Date() })
-          .where(eq(feesTable.id, f.id));
-        reminded++;
-      } catch (err) {
-        req.log.error({ err, feeId: f.id }, "Failed to send overdue reminder");
-      }
-    });
-
-  // Respond immediately, let emails send in background
-  res.json({ updated: toMark.length, reminded: toMark.filter((f) => f.studentEmail).length });
-
-  // Await after response (background)
-  await Promise.allSettled(reminderPromises);
 });
 
 /** POST /fees/remind-all-overdue — send reminder emails to all currently overdue fees */
 router.post("/fees/remind-all-overdue", async (req, res) => {
-  const overdueFees = await db
-    .select({
-      id: feesTable.id,
-      description: feesTable.description,
-      amountOre: feesTable.amountOre,
-      dueDate: feesTable.dueDate,
-      studentName: studentsTable.fullName,
-      studentEmail: studentsTable.primaryContactEmail,
-    })
-    .from(feesTable)
-    .innerJoin(studentsTable, eq(feesTable.studentId, studentsTable.id))
-    .where(eq(feesTable.status, "overdue"));
-
-  const withEmail = overdueFees.filter((f) => f.studentEmail);
-
-  if (withEmail.length === 0) {
-    res.json({ sent: 0, skipped: overdueFees.length });
-    return;
-  }
-
-  const domain = (process.env["REPLIT_DOMAINS"] ?? "").split(",")[0]?.trim();
-  const portalUrl = domain ? `https://${domain}/portal/login` : "";
-
-  // Respond immediately, send emails in background
-  res.json({ sent: withEmail.length, skipped: overdueFees.length - withEmail.length });
-
-  await Promise.allSettled(
-    withEmail.map(async (f) => {
-      try {
-        await sendFeeReminder({
-          to: f.studentEmail!,
-          studentName: f.studentName,
-          feeDescription: f.description,
-          amountOre: f.amountOre,
-          dueDate: f.dueDate ?? null,
-          portalUrl,
-        });
-        await db
-          .update(feesTable)
-          .set({ reminderSentAt: new Date(), updatedAt: new Date() })
-          .where(eq(feesTable.id, f.id));
-      } catch (err) {
-        req.log.error({ err, feeId: f.id }, "Failed to send overdue reminder");
-      }
-    })
-  );
+  const { sent, skipped, failed } = await remindAllCurrentlyOverdue();
+  req.log.info({ sent, skipped, failed }, "remind-all-overdue completed");
+  res.json({ sent, skipped });
 });
 
 /** POST /fees/bulk — create the same fee for all active students (optionally filtered by batch) */
