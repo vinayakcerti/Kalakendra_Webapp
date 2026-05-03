@@ -144,7 +144,7 @@ export default function About() {
             <div className="md:w-1/2 md:text-right md:pr-12">
               <p className="text-secondary text-xs uppercase tracking-widest font-semibold mb-1">Second Franchise</p>
               <h4 className="text-2xl font-serif text-primary mb-2">Kala Kendra Sweden</h4>
-              <p className="text-muted-foreground text-sm leading-relaxed">Founded in December 2024 by Mrs. Noopura Parvathi, under the blessing and mentorship of Deepankuran Kaithapram — bringing Bharatanatyam, Kuchipudi, Mohiniyattam, and Carnatic Music to the Indian diaspora in Scandinavia.</p>
+              <p className="text-muted-foreground text-sm leading-relaxed">Founded in December 2024 by Mrs. Noopura Parvathi, under the blessing and mentorship of Padmashree Kaithapram Damodaran Namboodiri — bringing Bharatanatyam, Kuchipudi, Mohiniyattam, and Carnatic Music to the Indian diaspora in Scandinavia.</p>
             </div>
             <div className="relative z-10 flex-shrink-0 w-10 h-10 border-2 border-primary bg-primary rotate-45 flex items-center justify-center">
               <div className="w-2.5 h-2.5 bg-primary-foreground" />
@@ -191,13 +191,13 @@ export default function About() {
           <div>
             <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-4 font-semibold">Founder · Kala Kendra Kochi</p>
             <h3 className="text-4xl font-serif text-primary mb-2">Deepankuran Kaithapram</h3>
-            <p className="text-muted-foreground text-sm uppercase tracking-widest mb-6">Founder, Kala Kendra Kochi, Kerala · Artistic Mentor, Kala Kendra Sweden</p>
+            <p className="text-muted-foreground text-sm uppercase tracking-widest mb-6">Founder, Kala Kendra Kochi, Kerala</p>
             <div className="h-[1px] w-16 bg-secondary/40 mb-6" />
             <p className="drop-cap text-muted-foreground leading-relaxed mb-5 text-lg">
               Deepankuran Kaithapram is the founder of Kala Kendra Kochi — the first franchise of Swathi Thirunnal Kalakendram Trust — carrying forward the luminous legacy of his father, Padmashree Kaithapram Damodaran Namboodiri. Under his artistic leadership, Kala Kendra Kochi has grown into a beacon of classical arts in Kerala, nurturing generations of dancers and musicians.
             </p>
             <p className="text-muted-foreground leading-relaxed mb-5">
-              Kala Kendra Sweden — founded in December 2024 by Mrs. Noopura Parvathi — is the second franchise of this prestigious lineage. A direct extension of the same tradition, values, and unbroken Guru-Shishya bond that Deepankuran embodies, it was established with his blessing and continues under his artistic mentorship.
+              Kala Kendra Sweden — founded in December 2024 by Mrs. Noopura Parvathi — is the second franchise of this prestigious lineage. A direct extension of the same tradition, values, and unbroken Guru-Shishya bond, it was established under the blessing and mentorship of Padmashree Kaithapram Damodaran Namboodiri — the guiding light of the entire lineage.
             </p>
             <blockquote className="pull-quote">
               "We are not teaching steps or notes. We are transmitting a way of seeing the world."

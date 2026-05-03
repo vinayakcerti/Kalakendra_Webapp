@@ -214,7 +214,7 @@ export default function Home() {
               <p className="text-secondary text-xs uppercase tracking-widest font-semibold mb-2">Second Franchise</p>
               <h4 className="font-serif text-xl text-primary mb-1">Kala Kendra Sweden</h4>
               <p className="text-muted-foreground text-xs mb-3 uppercase tracking-widest">Gothenburg · Est. December 2024</p>
-              <p className="text-muted-foreground text-sm leading-relaxed">Founded in December 2024 by Mrs. Noopura Parvathi under the blessing of Deepankuran Kaithapram — carrying the same Guru-Shishya tradition to the Indian diaspora in Scandinavia.</p>
+              <p className="text-muted-foreground text-sm leading-relaxed">Founded in December 2024 by Mrs. Noopura Parvathi under the blessing and mentorship of Padmashree Kaithapram Damodaran Namboodiri — carrying the same Guru-Shishya tradition to the Indian diaspora in Scandinavia.</p>
             </div>
           </div>
           <div className="mt-10 text-center">
