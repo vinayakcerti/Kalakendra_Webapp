@@ -24,13 +24,16 @@ function CapacityBar({ enrolled, max }: { enrolled: number; max: number }) {
 }
 
 export default function Classes() {
-  const { data: batches, isLoading } = useListBatches({
-    query: {
-      queryKey: getListBatchesQueryKey({ active: true }),
-      select: (data) => data.filter((b) => b.active).sort((a, b) => a.displayOrder - b.displayOrder),
+  const { data: batches, isLoading } = useListBatches(
+    { active: true },
+    {
+      query: {
+        queryKey: getListBatchesQueryKey({ active: true }),
+        select: (data: import("@workspace/api-client-react").Batch[]) =>
+          data.filter((b) => b.active).sort((a, b) => a.displayOrder - b.displayOrder),
+      },
     },
-    active: true,
-  });
+  );
 
   return (
     <div className="animate-in fade-in duration-700">

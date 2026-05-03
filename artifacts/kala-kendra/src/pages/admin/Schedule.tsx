@@ -167,9 +167,10 @@ function ScheduleRow({ batch }: { batch: Batch }) {
 }
 
 export default function Schedule() {
-  const { data: batches, isLoading } = useListBatches({
-    query: { queryKey: getListBatchesQueryKey() },
-  });
+  const { data: batches, isLoading } = useListBatches(
+    {},
+    { query: { queryKey: getListBatchesQueryKey() } },
+  );
 
   const sorted = batches?.slice().sort((a, b) => a.displayOrder - b.displayOrder);
   const withSchedule = sorted?.filter((b) => b.schedule && b.schedule !== "Schedule on application") ?? [];

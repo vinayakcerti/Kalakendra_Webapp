@@ -24,6 +24,8 @@ tags:
     description: School settings
   - name: attendance
     description: Student attendance records
+  - name: reminderRuns
+    description: Fee reminder job run history
 
 paths:
   /healthz:
@@ -623,6 +625,10 @@ paths:
           in: query
           schema:
             type: boolean
+        - name: query
+          in: query
+          schema:
+            type: string
       responses:
         "200":
           description: List of batches
@@ -825,6 +831,28 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SchoolSettings"
+
+  # ─── REMINDER RUNS ────────────────────────────────────────────────────────
+  /reminder-runs:
+    get:
+      operationId: listReminderRuns
+      tags: [reminderRuns]
+      summary: List fee reminder job run history
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 100
+      responses:
+        "200":
+          description: List of reminder job runs, newest first
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ReminderRun"
 
   # ─── STATS ────────────────────────────────────────────────────────────────
   /stats/dashboard:
@@ -1328,6 +1356,15 @@ components:
         description:
           type: string
           nullable: true
+        ageRange:
+          type: string
+          nullable: true
+        schedule:
+          type: string
+          nullable: true
+        maxStudents:
+          type: integer
+          nullable: true
         active:
           type: boolean
         students:
@@ -1623,6 +1660,10 @@ components:
           nullable: true
         acceptingApplications:
           type: boolean
+        dailyReminderEnabled:
+          type: boolean
+        dailyReminderHour:
+          type: integer
         updatedAt:
           type: string
           format: date-time
@@ -1631,6 +1672,8 @@ components:
         - monthlyFeeSek
         - schoolName
         - acceptingApplications
+        - dailyReminderEnabled
+        - dailyReminderHour
         - updatedAt
 
     UpdateSettingsBody:
@@ -1648,6 +1691,30 @@ components:
           type: string
         acceptingApplications:
           type: boolean
+        dailyReminderEnabled:
+          type: boolean
+        dailyReminderHour:
+          type: integer
+
+    # ─── REMINDER RUNS ──────────────────────────────────────────────────────
+    ReminderRun:
+      type: object
+      properties:
+        id:
+          type: integer
+        triggeredBy:
+          type: string
+          enum: [scheduled, manual_mark_overdue, manual_remind_all]
+        markedCount:
+          type: integer
+        remindedCount:
+          type: integer
+        failedCount:
+          type: integer
+        ranAt:
+          type: string
+          format: date-time
+      required: [id, triggeredBy, markedCount, remindedCount, failedCount, ranAt]
 
     # ─── STATS ──────────────────────────────────────────────────────────────
     DashboardStats:

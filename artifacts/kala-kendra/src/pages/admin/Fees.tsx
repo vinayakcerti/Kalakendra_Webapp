@@ -353,19 +353,13 @@ export default function Fees() {
                         </span>
                       )}
                     </div>
-                    {fee.status === "payment_pending" && (fee as FeeWithStudent & { paymentReference?: string }).paymentReference && (
-                      <div className="mt-1 flex items-center gap-1.5 text-xs text-blue-700">
-                        <Hourglass className="h-3 w-3" />
-                        Ref: <code className="font-mono bg-blue-50 px-1 rounded">{(fee as FeeWithStudent & { paymentReference?: string }).paymentReference}</code>
-                      </div>
-                    )}
                   </div>
                   <div className="flex items-center gap-2 shrink-0 mt-0.5">
                     <Badge variant="outline" className={`rounded-none text-xs border ${cfg.badgeClass}`}>
                       <cfg.Icon className="h-3 w-3 mr-1" />
                       {cfg.label}
                     </Badge>
-                    {(fee.status === "pending" || fee.status === "overdue" || fee.status === "payment_pending") && (
+                    {(fee.status === "pending" || fee.status === "overdue") && (
                       <Button
                         size="sm"
                         variant="outline"
@@ -380,7 +374,7 @@ export default function Fees() {
                         }
                       </Button>
                     )}
-                    {(fee.status === "pending" || fee.status === "payment_pending") && (
+                    {fee.status === "pending" && (
                       <Button
                         size="sm"
                         variant="outline"

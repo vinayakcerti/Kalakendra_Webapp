@@ -71,7 +71,7 @@ export default function Apply() {
   const [preselectedBatch, setPreselectedBatch] = useState<string | null>(null);
   const [bannerDismissed, setBannerDismissed] = useState(false);
   const search = useSearch();
-  const { data: batches } = useListBatches({ query: { queryKey: getListBatchesQueryKey() } });
+  const { data: batches } = useListBatches({}, { query: { queryKey: getListBatchesQueryKey() } });
   const { data: settings } = useGetSettings({ query: { queryKey: getGetSettingsQueryKey() } });
 
   const form = useForm<FormValues>({

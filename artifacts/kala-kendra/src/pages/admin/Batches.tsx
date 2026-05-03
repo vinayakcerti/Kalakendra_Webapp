@@ -96,9 +96,10 @@ export default function Batches() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: batches, isLoading } = useListBatches({
-    query: { queryKey: getListBatchesQueryKey() },
-  });
+  const { data: batches, isLoading } = useListBatches(
+    {},
+    { query: { queryKey: getListBatchesQueryKey() } },
+  );
 
   const createBatch = useCreateBatch();
   const updateBatch = useUpdateBatch();
@@ -128,7 +129,7 @@ export default function Batches() {
   };
 
   const onCreate = (values: z.infer<typeof formSchema>) => {
-    createBatch.mutate({ data: values }, {
+    createBatch.mutate({ data: { ...values, maxStudents: values.maxStudents === "" ? undefined : Number(values.maxStudents) } }, {
       onSuccess: () => {
         toast({ title: "Batch created" });
         setCreateOpen(false);

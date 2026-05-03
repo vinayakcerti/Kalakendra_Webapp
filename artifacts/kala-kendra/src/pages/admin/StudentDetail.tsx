@@ -490,9 +490,10 @@ export default function StudentDetail() {
     query: { queryKey: getGetStudentQueryKey(id) },
   });
 
-  const { data: batches = [] } = useListBatches({
-    query: { queryKey: getListBatchesQueryKey() },
-  });
+  const { data: batches = [] } = useListBatches(
+    {},
+    { query: { queryKey: getListBatchesQueryKey() } },
+  );
 
   const updateStudent = useUpdateStudent();
   const deleteStudent = useDeleteStudent();

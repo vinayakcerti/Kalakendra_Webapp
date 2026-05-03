@@ -592,6 +592,7 @@ export const DeleteFeeParams = zod.object({
  */
 export const ListBatchesQueryParams = zod.object({
   active: zod.coerce.boolean().optional(),
+  query: zod.coerce.string().optional(),
 });
 
 export const ListBatchesResponseItem = zod.object({
@@ -633,6 +634,9 @@ export const GetBatchResponse = zod.object({
   id: zod.string().uuid(),
   name: zod.string(),
   description: zod.string().nullish(),
+  ageRange: zod.string().nullish(),
+  schedule: zod.string().nullish(),
+  maxStudents: zod.number().nullish(),
   active: zod.boolean(),
   students: zod.array(
     zod.object({
@@ -782,7 +786,7 @@ export const GetSettingsResponse = zod.object({
   addressLine: zod.string().nullish(),
   acceptingApplications: zod.boolean(),
   dailyReminderEnabled: zod.boolean(),
-  dailyReminderHour: zod.number().int().min(0).max(23),
+  dailyReminderHour: zod.number(),
   updatedAt: zod.coerce.date(),
 });
 
@@ -797,7 +801,7 @@ export const UpdateSettingsBody = zod.object({
   addressLine: zod.string().optional(),
   acceptingApplications: zod.boolean().optional(),
   dailyReminderEnabled: zod.boolean().optional(),
-  dailyReminderHour: zod.number().int().min(0).max(23).optional(),
+  dailyReminderHour: zod.number().optional(),
 });
 
 export const UpdateSettingsResponse = zod.object({
@@ -809,9 +813,32 @@ export const UpdateSettingsResponse = zod.object({
   addressLine: zod.string().nullish(),
   acceptingApplications: zod.boolean(),
   dailyReminderEnabled: zod.boolean(),
-  dailyReminderHour: zod.number().int().min(0).max(23),
+  dailyReminderHour: zod.number(),
   updatedAt: zod.coerce.date(),
 });
+
+/**
+ * @summary List fee reminder job run history
+ */
+export const listReminderRunsQueryLimitDefault = 100;
+
+export const ListReminderRunsQueryParams = zod.object({
+  limit: zod.coerce.number().default(listReminderRunsQueryLimitDefault),
+});
+
+export const ListReminderRunsResponseItem = zod.object({
+  id: zod.number(),
+  triggeredBy: zod.enum([
+    "scheduled",
+    "manual_mark_overdue",
+    "manual_remind_all",
+  ]),
+  markedCount: zod.number(),
+  remindedCount: zod.number(),
+  failedCount: zod.number(),
+  ranAt: zod.coerce.date(),
+});
+export const ListReminderRunsResponse = zod.array(ListReminderRunsResponseItem);
 
 /**
  * @summary Aggregated admin dashboard statistics

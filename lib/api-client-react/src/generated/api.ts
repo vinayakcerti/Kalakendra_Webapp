@@ -19,7 +19,6 @@ import type {
 import type {
   ActivityItem,
   Admission,
-  ReminderJobRun,
   AttendanceRecord,
   Batch,
   BatchDetail,
@@ -44,10 +43,12 @@ import type {
   ListBatchesParams,
   ListEnquiriesParams,
   ListFeesParams,
+  ListReminderRunsParams,
   ListStudentsParams,
   MarkFeesOverdue200,
   RecordAttendance201,
   RecordAttendanceBody,
+  ReminderRun,
   SchoolSettings,
   Student,
   StudentNote,
@@ -3304,6 +3305,103 @@ export const useUpdateSettings = <
 };
 
 /**
+ * @summary List fee reminder job run history
+ */
+export const getListReminderRunsUrl = (params?: ListReminderRunsParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/reminder-runs?${stringifiedParams}`
+    : `/api/reminder-runs`;
+};
+
+export const listReminderRuns = async (
+  params?: ListReminderRunsParams,
+  options?: RequestInit,
+): Promise<ReminderRun[]> => {
+  return customFetch<ReminderRun[]>(getListReminderRunsUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListReminderRunsQueryKey = (
+  params?: ListReminderRunsParams,
+) => {
+  return [`/api/reminder-runs`, ...(params ? [params] : [])] as const;
+};
+
+export const getListReminderRunsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listReminderRuns>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListReminderRunsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listReminderRuns>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getListReminderRunsQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listReminderRuns>>
+  > = ({ signal }) => listReminderRuns(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listReminderRuns>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListReminderRunsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listReminderRuns>>
+>;
+export type ListReminderRunsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List fee reminder job run history
+ */
+
+export function useListReminderRuns<
+  TData = Awaited<ReturnType<typeof listReminderRuns>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListReminderRunsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listReminderRuns>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListReminderRunsQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
  * @summary Aggregated admin dashboard statistics
  */
 export const getGetDashboardStatsUrl = () => {
@@ -3375,63 +3473,5 @@ export function useGetDashboardStats<
     queryKey: QueryKey;
   };
 
-  return { ...query, queryKey: queryOptions.queryKey };
-}
-
-/**
- * @summary List reminder job run history
- */
-export const getListReminderRunsUrl = (params?: { limit?: number }) => {
-  const stringifiedParams = params ? new URLSearchParams(Object.entries(params).filter(([, v]) => v !== undefined).map(([k, v]) => [k, String(v)])).toString() : "";
-  return stringifiedParams ? `/api/reminder-runs?${stringifiedParams}` : `/api/reminder-runs`;
-};
-
-export const listReminderRuns = async (
-  params?: { limit?: number },
-  options?: RequestInit,
-): Promise<ReminderJobRun[]> => {
-  return customFetch<ReminderJobRun[]>(getListReminderRunsUrl(params), {
-    ...options,
-    method: "GET",
-  });
-};
-
-export const getListReminderRunsQueryKey = (params?: { limit?: number }) => {
-  return [`/api/reminder-runs`, ...(params ? [params] : [])] as const;
-};
-
-export const getListReminderRunsQueryOptions = <
-  TData = Awaited<ReturnType<typeof listReminderRuns>>,
-  TError = ErrorType<unknown>,
->(
-  params?: { limit?: number },
-  options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof listReminderRuns>>, TError, TData>;
-    request?: SecondParameter<typeof customFetch>;
-  },
-) => {
-  const { query: queryOptions, request: requestOptions } = options ?? {};
-  const queryKey = queryOptions?.queryKey ?? getListReminderRunsQueryKey(params);
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof listReminderRuns>>> = ({ signal }) =>
-    listReminderRuns(params, { signal, ...requestOptions });
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof listReminderRuns>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
-
-export function useListReminderRuns<
-  TData = Awaited<ReturnType<typeof listReminderRuns>>,
-  TError = ErrorType<unknown>,
->(
-  params?: { limit?: number },
-  options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof listReminderRuns>>, TError, TData>;
-    request?: SecondParameter<typeof customFetch>;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getListReminderRunsQueryOptions(params, options);
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & { queryKey: QueryKey };
   return { ...query, queryKey: queryOptions.queryKey };
 }

@@ -367,6 +367,9 @@ export interface BatchDetail {
   id: string;
   name: string;
   description?: string | null;
+  ageRange?: string | null;
+  schedule?: string | null;
+  maxStudents?: number | null;
   active: boolean;
   students: BatchStudentSummary[];
 }
@@ -549,6 +552,8 @@ export interface SchoolSettings {
   contactPhone?: string | null;
   addressLine?: string | null;
   acceptingApplications: boolean;
+  dailyReminderEnabled: boolean;
+  dailyReminderHour: number;
   updatedAt: string;
 }
 
@@ -559,6 +564,26 @@ export interface UpdateSettingsBody {
   contactPhone?: string;
   addressLine?: string;
   acceptingApplications?: boolean;
+  dailyReminderEnabled?: boolean;
+  dailyReminderHour?: number;
+}
+
+export type ReminderRunTriggeredBy =
+  (typeof ReminderRunTriggeredBy)[keyof typeof ReminderRunTriggeredBy];
+
+export const ReminderRunTriggeredBy = {
+  scheduled: "scheduled",
+  manual_mark_overdue: "manual_mark_overdue",
+  manual_remind_all: "manual_remind_all",
+} as const;
+
+export interface ReminderRun {
+  id: number;
+  triggeredBy: ReminderRunTriggeredBy;
+  markedCount: number;
+  remindedCount: number;
+  failedCount: number;
+  ranAt: string;
 }
 
 export interface DashboardStats {
@@ -657,6 +682,7 @@ export type MarkFeesOverdue200 = {
 
 export type ListBatchesParams = {
   active?: boolean;
+  query?: string;
 };
 
 export type ListEnquiriesParams = {
@@ -665,16 +691,6 @@ export type ListEnquiriesParams = {
 
 export type ListActivityParams = {
   limit?: number;
-};
-
-
-export type ReminderJobRun = {
-  id: number;
-  triggeredBy: string;
-  markedCount: number;
-  remindedCount: number;
-  failedCount: number;
-  ranAt: string;
 };
 
 export type ListReminderRunsParams = {

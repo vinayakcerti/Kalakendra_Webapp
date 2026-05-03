@@ -1,18 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
-import { CalendarCheck, CreditCard, BookOpen, ArrowRight, CheckCircle, XCircle, Clock, Info, AlertTriangle, CalendarDays, X as XIcon, Megaphone } from "lucide-react";
+import { CalendarCheck, CreditCard, BookOpen, ArrowRight, CheckCircle, XCircle, Clock, Info, AlertTriangle, CalendarDays, X as XIcon } from "lucide-react";
 import { usePortal } from "@/components/layout/PortalLayout";
 import { format } from "date-fns";
-
-interface Fee {
-  id: string;
-  description: string;
-  amountOre: number;
-  currency: string;
-  dueDate: string | null;
-  paidDate: string | null;
-  status: string;
-}
 
 interface AttendanceRecord {
   id: string;
@@ -40,7 +30,7 @@ function formatDate(d: string) {
 }
 
 const STATUS_STYLE: Record<string, string> = {
-  paid: "bg-green-50 text-green-700 border-green-200",
+  paid:    "bg-green-50 text-green-700 border-green-200",
   pending: "bg-amber-50 text-amber-700 border-amber-200",
   overdue: "bg-red-50 text-red-700 border-red-200",
 };
@@ -59,8 +49,7 @@ const ANNOUNCEMENT_CFG: Record<string, {
 };
 
 export default function PortalDashboard() {
-  const { student } = usePortal();
-  const [fees, setFees] = useState<Fee[]>([]);
+  const { student, fees, feesLoading } = usePortal();
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
@@ -70,11 +59,9 @@ export default function PortalDashboard() {
 
   useEffect(() => {
     Promise.all([
-      fetch(`${BASE}api/portal/fees`, { credentials: "include" }).then(r => r.json()),
       fetch(`${BASE}api/portal/attendance`, { credentials: "include" }).then(r => r.json()),
       fetch(`${BASE}api/announcements?active=true`).then(r => r.json()),
-    ]).then(([f, a, ann]) => {
-      setFees(f);
+    ]).then(([a, ann]) => {
       setAttendance(a);
       setAnnouncements(ann);
       setLoading(false);
@@ -84,6 +71,7 @@ export default function PortalDashboard() {
   if (!student) return null;
 
   const pendingFees = fees.filter(f => f.status === "pending" || f.status === "overdue");
+  const overdueFees = fees.filter(f => f.status === "overdue");
   const totalOwed = pendingFees.reduce((s, f) => s + f.amountOre, 0);
   const recent = attendance.slice(0, 5);
   const presentCount = attendance.filter(a => a.status === "present").length;
@@ -106,6 +94,39 @@ export default function PortalDashboard() {
         <p className="text-muted-foreground text-sm">Enrolled {enrolledDate}</p>
       </div>
 
+      {/* Overdue fee call-to-action — only when there IS overdue, as a reinforcement below the layout banner */}
+      {!feesLoading && overdueFees.length > 0 && (
+        <div className="rounded-xl border-2 border-red-200 bg-red-50 p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+          <div className="flex items-start gap-3 flex-1">
+            <div className="w-9 h-9 rounded-full bg-red-100 flex items-center justify-center shrink-0 mt-0.5">
+              <AlertTriangle size={16} className="text-red-600" />
+            </div>
+            <div>
+              <p className="font-semibold text-red-800 text-sm">
+                {overdueFees.length === 1 ? "1 overdue fee" : `${overdueFees.length} overdue fees`}
+              </p>
+              <div className="mt-1 space-y-0.5">
+                {overdueFees.slice(0, 3).map(f => (
+                  <p key={f.id} className="text-xs text-red-700">
+                    {f.description} — <strong>{formatSek(f.amountOre)}</strong>
+                    {f.dueDate ? ` (was due ${formatDate(f.dueDate)})` : ""}
+                  </p>
+                ))}
+                {overdueFees.length > 3 && (
+                  <p className="text-xs text-red-700">…and {overdueFees.length - 3} more</p>
+                )}
+              </div>
+            </div>
+          </div>
+          <Link href="/portal/fees">
+            <a className="shrink-0 inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+              Pay now
+              <ArrowRight size={14} />
+            </a>
+          </Link>
+        </div>
+      )}
+
       {/* Announcements */}
       {!loading && visibleAnnouncements.length > 0 && (
         <div className="space-y-3">
@@ -113,10 +134,7 @@ export default function PortalDashboard() {
             const cfg = ANNOUNCEMENT_CFG[ann.type] ?? ANNOUNCEMENT_CFG["info"];
             const Icon = cfg.Icon;
             return (
-              <div
-                key={ann.id}
-                className={`rounded-xl border ${cfg.border} ${cfg.bg} overflow-hidden`}
-              >
+              <div key={ann.id} className={`rounded-xl border ${cfg.border} ${cfg.bg} overflow-hidden`}>
                 <div className={`h-1 ${cfg.bar}`} />
                 <div className="px-5 py-4 flex items-start gap-4">
                   <div className="shrink-0 mt-0.5">
@@ -149,7 +167,7 @@ export default function PortalDashboard() {
         </div>
       )}
 
-      {/* Loading skeleton for announcements */}
+      {/* Skeleton for announcements */}
       {loading && (
         <div className="space-y-3">
           <div className="h-20 bg-muted/30 rounded-xl animate-pulse" />
@@ -176,14 +194,22 @@ export default function PortalDashboard() {
       <div className="grid md:grid-cols-2 gap-4">
         {/* Fees */}
         <Link href="/portal/fees">
-          <a className="block rounded-xl border border-secondary/30 bg-card p-6 hover:shadow-md transition-shadow cursor-pointer group">
+          <a className={`block rounded-xl border-2 bg-card p-6 hover:shadow-md transition-shadow cursor-pointer group ${
+            overdueFees.length > 0
+              ? "border-red-200 bg-red-50/30"
+              : pendingFees.length > 0
+              ? "border-amber-200"
+              : "border-secondary/30"
+          }`}>
             <div className="flex items-center justify-between mb-4">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <CreditCard size={18} className="text-primary" />
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                overdueFees.length > 0 ? "bg-red-100" : "bg-primary/10"
+              }`}>
+                <CreditCard size={18} className={overdueFees.length > 0 ? "text-red-600" : "text-primary"} />
               </div>
               <ArrowRight size={16} className="text-muted-foreground group-hover:text-primary transition-colors" />
             </div>
-            {loading ? (
+            {feesLoading ? (
               <div className="h-8 bg-muted/40 rounded animate-pulse w-24" />
             ) : pendingFees.length === 0 ? (
               <>
@@ -192,9 +218,14 @@ export default function PortalDashboard() {
               </>
             ) : (
               <>
-                <p className="font-serif text-2xl text-primary">{formatSek(totalOwed)}</p>
+                <p className={`font-serif text-2xl ${overdueFees.length > 0 ? "text-red-700" : "text-primary"}`}>
+                  {formatSek(totalOwed)}
+                </p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  {pendingFees.length} fee{pendingFees.length !== 1 ? "s" : ""} outstanding
+                  {overdueFees.length > 0
+                    ? `${overdueFees.length} overdue · ${pendingFees.length - overdueFees.length} pending`
+                    : `${pendingFees.length} fee${pendingFees.length !== 1 ? "s" : ""} outstanding`
+                  }
                 </p>
               </>
             )}
@@ -203,7 +234,7 @@ export default function PortalDashboard() {
 
         {/* Attendance */}
         <Link href="/portal/attendance">
-          <a className="block rounded-xl border border-secondary/30 bg-card p-6 hover:shadow-md transition-shadow cursor-pointer group">
+          <a className="block rounded-xl border-2 border-secondary/30 bg-card p-6 hover:shadow-md transition-shadow cursor-pointer group">
             <div className="flex items-center justify-between mb-4">
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                 <CalendarCheck size={18} className="text-primary" />
@@ -259,7 +290,7 @@ export default function PortalDashboard() {
       )}
 
       {/* Outstanding fees detail */}
-      {!loading && pendingFees.length > 0 && (
+      {!feesLoading && pendingFees.length > 0 && (
         <div>
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-serif text-lg text-primary">Outstanding Fees</h2>

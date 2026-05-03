@@ -70,7 +70,7 @@ export default function Students() {
     query: { queryKey: getListStudentsQueryKey(queryParams) },
   });
 
-  const { data: batches } = useListBatches({ query: { queryKey: getListBatchesQueryKey() } });
+  const { data: batches } = useListBatches({}, { query: { queryKey: getListBatchesQueryKey() } });
 
   const createStudent = useCreateStudent();
   const deleteStudent = useDeleteStudent();
