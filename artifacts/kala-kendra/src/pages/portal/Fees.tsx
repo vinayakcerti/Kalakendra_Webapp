@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { QRCodeSVG } from "qrcode.react";
 import { CreditCard, CheckCircle2, Send, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -113,20 +114,29 @@ function PaymentMethods() {
       </div>
       <div className="divide-y divide-secondary/10">
         {/* Swish */}
-        <div className="px-5 py-4 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-full bg-[#00B9F1] flex items-center justify-center shrink-0">
-            <svg viewBox="0 0 40 40" width="28" height="28" fill="none">
-              <circle cx="20" cy="20" r="20" fill="#00B9F1"/>
-              <text x="20" y="26" textAnchor="middle" fontSize="14" fontWeight="bold" fill="white" fontFamily="sans-serif">S</text>
-            </svg>
+        <div className="px-5 py-5 flex flex-col sm:flex-row items-center gap-5">
+          <div className="flex flex-col items-center gap-2 shrink-0">
+            <div className="p-2 bg-white border border-secondary/20 rounded-lg shadow-sm">
+              <QRCodeSVG
+                value="https://app.swish.nu/1/p/sw/?sw=0764505117&edit=0"
+                size={120}
+                fgColor="#3D0A0C"
+                bgColor="#ffffff"
+                level="M"
+              />
+            </div>
+            <p className="text-[10px] text-muted-foreground">Scan with Swish app</p>
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-foreground">Swish</p>
-            <p className="text-xs text-muted-foreground">Send payment directly to our Swish number</p>
-          </div>
-          <div className="text-right shrink-0">
-            <p className="text-base font-mono font-bold text-primary tracking-wide">0764 505 117</p>
-            <p className="text-[10px] text-muted-foreground">Kala Kendra Sweden</p>
+          <div className="flex-1 min-w-0 text-center sm:text-left">
+            <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
+              <div className="w-6 h-6 rounded-full bg-[#00B9F1] flex items-center justify-center shrink-0">
+                <span className="text-white text-[10px] font-bold">S</span>
+              </div>
+              <p className="text-sm font-semibold text-foreground">Swish</p>
+            </div>
+            <p className="text-2xl font-mono font-bold text-primary tracking-wide mb-1">0764 505 117</p>
+            <p className="text-xs text-muted-foreground">Kala Kendra Sweden</p>
+            <p className="text-xs text-muted-foreground mt-2">Monthly fee: <span className="font-semibold text-foreground">400 SEK</span></p>
           </div>
         </div>
         {/* Card */}

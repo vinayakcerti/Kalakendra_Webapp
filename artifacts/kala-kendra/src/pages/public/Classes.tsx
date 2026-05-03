@@ -174,6 +174,7 @@ export default function Classes() {
             <p className="text-muted-foreground text-sm leading-relaxed mb-3">
               Monthly fees are communicated during the admissions process. No student is turned away for financial reasons.
             </p>
+            <p className="text-sm font-semibold text-primary mb-2">400 SEK / month</p>
             <div className="inline-flex items-center gap-2 bg-[#00B9F1]/10 border border-[#00B9F1]/30 rounded px-3 py-2">
               <span className="text-xs font-semibold text-[#0095C7]">Swish</span>
               <span className="text-sm font-mono font-bold text-primary">0764 505 117</span>
