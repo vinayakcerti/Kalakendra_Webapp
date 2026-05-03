@@ -35,7 +35,7 @@ const programmes = [
     id: "kuchipudi",
     title: "Kuchipudi",
     subtitle: "Classical Dance — Andhra Pradesh",
-    image: "/images/bharatanatyam-real.jpg",
+    image: "/images/kuchipudi-real.jpg",
     intro:
       "A vibrant classical dance-drama form originating from the village of Kuchipudi in Andhra Pradesh. Renowned for its fast rhythmic footwork, graceful movements, expressive abhinaya, and the unique tradition of performing on a brass plate (tarangam). Both lyrical and athletic in equal measure.",
     levels: [
@@ -60,7 +60,7 @@ const programmes = [
     id: "mohiniyattam",
     title: "Mohiniyattam",
     subtitle: "Classical Dance — Kerala",
-    image: keralaImg,
+    image: "/images/mohiniyattam-real.jpg",
     intro:
       "The classical dance of Kerala — lyrical, graceful, and deeply feminine in its aesthetic. Characterised by gentle swaying movements, soft hand gestures, and the white-and-gold kasavu costume that sets it apart from all other classical forms. Mohiniyattam draws from the lasya (gentle) aspect of Indian classical aesthetics.",
     levels: [
