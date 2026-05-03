@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 
 
 import carnaticImg from "@/assets/images/carnatic.png";
-import keralaImg from "@/assets/images/kerala-arts.png";
 
 const testimonials = [
   {
@@ -124,14 +123,14 @@ export default function Home() {
                 href: "/programmes#bharatanatyam",
               },
               {
-                img: "/images/bharatanatyam-real.jpg",
+                img: "/images/kuchipudi-real.jpg",
                 title: "Kuchipudi",
                 subtitle: "Classical Dance · Andhra Pradesh",
                 desc: "A vibrant dance-drama tradition from Andhra Pradesh — athletic footwork, graceful abhinaya, and the iconic tarangam.",
                 href: "/programmes#kuchipudi",
               },
               {
-                img: keralaImg,
+                img: "/images/mohiniyattam-real.jpg",
                 title: "Mohiniyattam",
                 subtitle: "Classical Dance · Kerala",
                 desc: "The lyrical, graceful classical dance of Kerala — soft swaying movements and deeply devotional expression.",
