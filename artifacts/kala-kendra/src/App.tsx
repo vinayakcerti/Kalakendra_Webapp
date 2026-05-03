@@ -17,6 +17,7 @@ import Apply from "@/pages/public/Apply";
 import Contact from "@/pages/public/Contact";
 import Privacy from "@/pages/public/Privacy";
 import Classes from "@/pages/public/Classes";
+import ConsentForm from "@/pages/public/ConsentForm";
 
 import Dashboard from "@/pages/admin/Dashboard";
 import Admissions from "@/pages/admin/Admissions";
@@ -60,6 +61,7 @@ function PublicRoutes() {
         <Route path="/apply" component={Apply} />
         <Route path="/contact" component={Contact} />
         <Route path="/classes" component={Classes} />
+        <Route path="/consent" component={ConsentForm} />
         <Route path="/privacy" component={Privacy} />
         <Route component={NotFound} />
       </Switch>

@@ -1,26 +1,7 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 
-
 import carnaticImg from "@/assets/images/carnatic.png";
-
-const testimonials = [
-  {
-    quote: "The discipline instilled here is unlike any other. My daughter has grown not only as a dancer but as a person of depth and character.",
-    name: "Priya Venkataraman",
-    role: "Parent of student since 2019",
-  },
-  {
-    quote: "I came with no background in classical music. Three years later I performed my first kacheri. The patience and rigour of the teaching is extraordinary.",
-    name: "Erik Johansson",
-    role: "Carnatic Vocal student",
-  },
-  {
-    quote: "Finding authentic Bharatanatyam instruction in Gothenburg was something I had given up on. Kala Kendra is a true miracle for our community.",
-    name: "Lakshmi Iyer",
-    role: "Parent & community member",
-  },
-];
 
 const pillars = [
   {
@@ -224,24 +205,14 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="py-28 px-6 max-w-6xl mx-auto">
-        <div className="text-center mb-16">
-          <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-6 font-semibold">Voices</p>
-          <h3 className="text-4xl font-serif text-primary">From Our Community</h3>
-        </div>
-        <div className="grid md:grid-cols-3 gap-8">
-          {testimonials.map((t) => (
-            <div key={t.name} className="bg-card border border-secondary/20 p-8 relative">
-              <div className="absolute top-4 left-6 font-serif text-6xl text-secondary/20 leading-none select-none">"</div>
-              <p className="text-muted-foreground leading-relaxed mb-6 pt-6 italic font-serif text-lg">
-                {t.quote}
-              </p>
-              <div className="h-[1px] w-12 bg-secondary/40 mb-4" />
-              <p className="text-primary font-medium text-sm">{t.name}</p>
-              <p className="text-muted-foreground text-xs mt-1">{t.role}</p>
-            </div>
-          ))}
+      {/* Quote */}
+      <section className="py-28 px-6 bg-primary">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="font-serif text-8xl text-primary-foreground/20 leading-none select-none mb-2">"</div>
+          <p className="font-serif text-3xl md:text-4xl lg:text-5xl text-primary-foreground leading-relaxed italic">
+            Where words fail, music and dance speak.
+          </p>
+          <div className="h-[1px] w-24 bg-primary-foreground/30 mx-auto mt-10" />
         </div>
       </section>
 

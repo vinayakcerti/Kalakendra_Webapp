@@ -11,6 +11,7 @@ import settingsRouter from "./settings";
 import portalRouter from "./portal";
 import announcementsRouter from "./announcements";
 import reminderLogRouter from "./reminderLog";
+import consentFormsRouter from "./consentForms";
 
 const router: IRouter = Router();
 
@@ -26,5 +27,6 @@ router.use(settingsRouter);
 router.use(portalRouter);
 router.use(announcementsRouter);
 router.use(reminderLogRouter);
+router.use(consentFormsRouter);
 
 export default router;

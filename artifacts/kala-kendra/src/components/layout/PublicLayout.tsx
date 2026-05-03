@@ -9,6 +9,7 @@ const NAV_LINKS = [
   { href: "/programmes", label: "Programmes" },
   { href: "/classes", label: "Classes" },
   { href: "/annual-event", label: "Annual Event" },
+  { href: "/consent", label: "Consent Form" },
   { href: "/apply", label: "Apply" },
   { href: "/contact", label: "Contact" },
   { href: "/portal/login", label: "Student Portal" },

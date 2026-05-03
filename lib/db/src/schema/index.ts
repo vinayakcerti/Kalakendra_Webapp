@@ -9,3 +9,4 @@ export * from "./enquiries";
 export * from "./audit_log";
 export * from "./student_notes";
 export * from "./reminder_job_runs";
+export * from "./consent_forms";

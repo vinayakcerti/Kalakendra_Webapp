@@ -20,7 +20,8 @@
     "node-cron": "^4.2.1",
     "pino": "^9",
     "pino-http": "^10",
-    "resend": "^6.12.2"
+    "resend": "^6.12.2",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.10",
