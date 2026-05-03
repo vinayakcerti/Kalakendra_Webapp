@@ -11,6 +11,7 @@ import {
   ListAllFeesResponseItem,
   BulkCreateFeesBody,
 } from "@workspace/api-zod";
+import { sendFeeReminder } from "../lib/email";
 
 const router: IRouter = Router();
 
@@ -148,6 +149,51 @@ router.patch("/fees/:id", async (req, res) => {
     .returning();
   if (!row) { res.status(404).json({ error: "Not found" }); return; }
   res.json(UpdateFeeResponse.parse(row));
+});
+
+/** POST /fees/:id/reminder — send a fee reminder email to the student */
+router.post("/fees/:id/reminder", async (req, res) => {
+  // Fetch fee + student contact email
+  const [row] = await db
+    .select({
+      id: feesTable.id,
+      description: feesTable.description,
+      amountOre: feesTable.amountOre,
+      dueDate: feesTable.dueDate,
+      status: feesTable.status,
+      studentName: studentsTable.fullName,
+      studentEmail: studentsTable.primaryContactEmail,
+    })
+    .from(feesTable)
+    .innerJoin(studentsTable, eq(feesTable.studentId, studentsTable.id))
+    .where(eq(feesTable.id, req.params.id));
+
+  if (!row) { res.status(404).json({ error: "Fee not found" }); return; }
+  if (!row.studentEmail) { res.status(422).json({ error: "Student has no email address" }); return; }
+  if (row.status === "paid" || row.status === "waived") {
+    res.status(422).json({ error: "Cannot send reminder for a paid or waived fee" });
+    return;
+  }
+
+  const domain = (process.env["REPLIT_DOMAINS"] ?? "").split(",")[0]?.trim();
+  const portalUrl = domain ? `https://${domain}/portal/login` : "https://kalakendra.se/portal/login";
+
+  await sendFeeReminder({
+    to: row.studentEmail,
+    studentName: row.studentName,
+    feeDescription: row.description,
+    amountOre: row.amountOre,
+    dueDate: row.dueDate ?? null,
+    portalUrl,
+  });
+
+  // Record the reminder timestamp
+  await db
+    .update(feesTable)
+    .set({ reminderSentAt: new Date(), updatedAt: new Date() })
+    .where(eq(feesTable.id, req.params.id));
+
+  res.json({ sent: true, to: row.studentEmail });
 });
 
 /** DELETE /fees/:id — delete a fee */

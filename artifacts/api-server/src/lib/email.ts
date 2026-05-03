@@ -75,6 +75,81 @@ export async function sendPaymentNotification(params: PaymentNotificationParams)
   }
 }
 
+export interface FeeReminderParams {
+  to: string;
+  studentName: string;
+  feeDescription: string;
+  amountOre: number;
+  dueDate: string | null;
+  portalUrl: string;
+}
+
+export async function sendFeeReminder(params: FeeReminderParams): Promise<void> {
+  const client = getClient();
+  if (!client) {
+    logger.warn("RESEND_API_KEY not set — skipping fee reminder email");
+    return;
+  }
+  const { to, studentName, feeDescription, amountOre, dueDate, portalUrl } = params;
+  const amount = (amountOre / 100).toLocaleString("sv-SE", { style: "currency", currency: "SEK", maximumFractionDigits: 0 });
+  const dueLine = dueDate
+    ? `<tr style="border-bottom:1px solid #e8e0d6;"><td style="padding:10px 0;font-size:13px;color:#7a6a58;width:40%;">Due date</td><td style="padding:10px 0;font-size:14px;font-weight:600;color:#8B1A1C;">${new Date(dueDate).toLocaleDateString("en-SE", { day: "numeric", month: "long", year: "numeric" })}</td></tr>`
+    : "";
+
+  const html = `<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/></head>
+<body style="margin:0;padding:0;background:#F4EBD9;font-family:'Georgia',serif;color:#1F1612;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F4EBD9;padding:40px 0;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+        <tr><td style="background:#3D0A0C;padding:28px 40px;text-align:center;">
+          <p style="margin:0;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:#B8893A;">Fee Reminder</p>
+          <h1 style="margin:8px 0 0;font-size:24px;font-weight:400;color:#F4EBD9;letter-spacing:1px;">Kala Kendra Sweden</h1>
+        </td></tr>
+        <tr><td style="background:#B8893A;height:2px;"></td></tr>
+        <tr><td style="background:#ffffff;padding:36px 48px;">
+          <p style="margin:0 0 20px;font-size:15px;line-height:1.7;">Dear ${studentName},</p>
+          <p style="margin:0 0 20px;font-size:15px;line-height:1.7;color:#5a4a3a;">This is a gentle reminder that the following fee is outstanding on your account:</p>
+          <table cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;margin:24px 0;border:1px solid #e8e0d6;">
+            <tr style="border-bottom:1px solid #e8e0d6;"><td style="padding:10px 14px;font-size:13px;color:#7a6a58;width:40%;background:#faf7f2;">Fee</td><td style="padding:10px 14px;font-size:14px;">${feeDescription}</td></tr>
+            <tr style="border-bottom:1px solid #e8e0d6;"><td style="padding:10px 14px;font-size:13px;color:#7a6a58;background:#faf7f2;">Amount</td><td style="padding:10px 14px;font-size:15px;font-weight:700;color:#3D0A0C;">${amount}</td></tr>
+            ${dueLine}
+          </table>
+          <p style="margin:0 0 24px;font-size:14px;line-height:1.7;color:#5a4a3a;">
+            To settle this fee, please log in to your student portal and mark it as paid by entering your payment reference (Swish number, bank transfer reference, etc.).
+          </p>
+          <div style="text-align:center;margin:32px 0;">
+            <a href="${portalUrl}" style="display:inline-block;background:#3D0A0C;color:#F4EBD9;text-decoration:none;padding:14px 40px;font-size:14px;letter-spacing:1px;">
+              Open Student Portal &rarr;
+            </a>
+          </div>
+          <p style="margin:24px 0 0;font-size:13px;color:#9a8a78;line-height:1.6;">
+            If you have already made payment, please ignore this reminder or contact us to confirm.
+          </p>
+        </td></tr>
+        <tr><td style="background:#B8893A;height:2px;"></td></tr>
+        <tr><td style="background:#F4EBD9;padding:16px 48px;text-align:center;">
+          <p style="margin:0;font-size:11px;color:#7a6a58;">Kala Kendra Sweden · namaskaram@kalakendra.se</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>`;
+
+  try {
+    const r = await client.emails.send({
+      from: FROM,
+      to,
+      subject: `Fee reminder: ${feeDescription} — ${amount}`,
+      html,
+    });
+    logger.info({ to, id: r.data?.id }, "Fee reminder email sent");
+  } catch (err) {
+    logger.error({ err, to }, "Failed to send fee reminder email");
+    throw err;
+  }
+}
+
 export interface MagicLinkParams {
   to: string;
   studentName: string;

@@ -21,7 +21,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle2, Clock, AlertCircle, MinusCircle, Trash2, ExternalLink, PlusCircle, RefreshCw, Download, Hourglass } from "lucide-react";
+import { CheckCircle2, Clock, AlertCircle, MinusCircle, Trash2, ExternalLink, PlusCircle, RefreshCw, Download, Hourglass, Bell, BellRing } from "lucide-react";
 import { exportToCsv } from "@/lib/utils";
 
 const FEE_STATUS_CONFIG = {
@@ -69,6 +69,8 @@ export default function Fees() {
   });
   const { data: batches = [] } = useListBatches();
 
+  const [sendingReminder, setSendingReminder] = useState<string | null>(null);
+
   const updateFee = useUpdateFee();
   const deleteFee = useDeleteFee();
   const bulkCreate = useBulkCreateFees();
@@ -108,6 +110,26 @@ export default function Fees() {
         onError: () => toast({ title: "Delete failed", variant: "destructive" }),
       }
     );
+  }
+
+  async function handleSendReminder(fee: FeeWithStudent) {
+    if (sendingReminder) return;
+    setSendingReminder(fee.id);
+    try {
+      const BASE = import.meta.env.BASE_URL;
+      const res = await fetch(`${BASE}api/fees/${fee.id}/reminder`, { method: "POST" });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error((err as { error?: string }).error ?? "Send failed");
+      }
+      const data = await res.json() as { to: string };
+      toast({ title: `Reminder sent to ${data.to}` });
+      queryClient.invalidateQueries({ queryKey: getListAllFeesQueryKey() });
+    } catch (e) {
+      toast({ title: e instanceof Error ? e.message : "Failed to send reminder", variant: "destructive" });
+    } finally {
+      setSendingReminder(null);
+    }
   }
 
   function handleBulkSubmit(e: React.FormEvent) {
@@ -310,6 +332,21 @@ export default function Fees() {
                       <cfg.Icon className="h-3 w-3 mr-1" />
                       {cfg.label}
                     </Badge>
+                    {(fee.status === "pending" || fee.status === "overdue" || fee.status === "payment_pending") && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleSendReminder(fee)}
+                        disabled={sendingReminder === fee.id}
+                        title="Send fee reminder email to student"
+                        className="rounded-none border-amber-300 text-amber-800 hover:bg-amber-50 h-7 text-xs px-2 gap-1"
+                      >
+                        {sendingReminder === fee.id
+                          ? <><BellRing className="h-3 w-3 animate-pulse" />Sending…</>
+                          : <><Bell className="h-3 w-3" />Remind</>
+                        }
+                      </Button>
+                    )}
                     {(fee.status === "pending" || fee.status === "payment_pending") && (
                       <Button
                         size="sm"

@@ -24,6 +24,7 @@ export const feesTable = pgTable("fees", {
   status: varchar("status", { length: 20 }).notNull().default("pending"),
   notes: text("notes"),
   paymentReference: varchar("payment_reference", { length: 200 }),
+  reminderSentAt: timestamp("reminder_sent_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
