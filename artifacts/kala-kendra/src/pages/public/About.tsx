@@ -54,12 +54,15 @@ export default function About() {
               We accept students who are prepared to commit — not to a term, but to a path. Many of our students study with us for a decade or more, progressing through the full curriculum to performance readiness.
             </p>
           </div>
-          <div className="gold-frame -rotate-1 hover:rotate-0 transition-transform duration-500">
-            <img
-              src="/images/bharatanatyam-real.jpg"
-              alt="Bharatanatyam performance"
-              className="w-full h-auto aspect-[4/5] object-cover object-top"
-            />
+          <div className="flex flex-col items-end gap-3">
+            <div className="gold-frame -rotate-1 hover:rotate-0 transition-transform duration-500 w-full">
+              <img
+                src="/images/bharatanatyam-real.jpg"
+                alt="Mrs. Noopura Parvathi A — Bharatanatyam performance"
+                className="w-full h-auto aspect-[4/5] object-cover object-top"
+              />
+            </div>
+            <p className="text-xs text-muted-foreground italic pr-1">Mrs. Noopura Parvathi A — Founder, Kala Kendra Sweden</p>
           </div>
         </div>
       </section>
@@ -210,6 +213,83 @@ export default function About() {
                 alt="Deepankuran Kaithapram"
                 className="w-full aspect-[3/4] object-cover object-top"
               />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Mrs. Noopura Parvathi A — Founder, Kala Kendra Sweden */}
+      <section className="py-20 px-6 md:px-12 bg-card border-y border-secondary/20">
+        <div className="max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-[280px_1fr] gap-16 items-start">
+            <div className="flex flex-col items-center">
+              <div className="gold-frame w-full max-w-[260px]">
+                <img
+                  src="/images/bharatanatyam-real.jpg"
+                  alt="Mrs. Noopura Parvathi A"
+                  className="w-full aspect-[3/4] object-cover object-top"
+                />
+              </div>
+              <div className="mt-6 w-full max-w-[260px] space-y-2">
+                <div className="border border-secondary/30 bg-secondary/5 px-3 py-2 text-center">
+                  <p className="text-secondary text-[10px] uppercase tracking-widest font-semibold mb-1">Disciplines</p>
+                  <p className="text-primary text-xs font-medium leading-relaxed">Bharatanatyam · Mohiniyattam<br />Kuchipudi · Carnatic Music</p>
+                </div>
+                <div className="border border-secondary/30 bg-secondary/5 px-3 py-2 text-center">
+                  <p className="text-secondary text-[10px] uppercase tracking-widest font-semibold mb-1">Experience</p>
+                  <p className="text-primary text-xs font-medium">21+ Years of Practice & Teaching</p>
+                </div>
+                <div className="border border-secondary/30 bg-secondary/5 px-3 py-2 text-center">
+                  <p className="text-secondary text-[10px] uppercase tracking-widest font-semibold mb-1">Origin</p>
+                  <p className="text-primary text-xs font-medium">Trivandrum, Kerala, India</p>
+                </div>
+              </div>
+            </div>
+            <div>
+              <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-4 font-semibold">Founder · Kala Kendra Sweden</p>
+              <h3 className="text-4xl font-serif text-primary mb-2">Mrs. Noopura Parvathi A</h3>
+              <p className="text-muted-foreground text-sm uppercase tracking-widest mb-6">Classical Performing Artist · Educator · Cultural Ambassador</p>
+              <div className="h-[1px] w-16 bg-secondary/40 mb-6" />
+              <p className="drop-cap text-muted-foreground leading-relaxed mb-5 text-lg">
+                Mrs. Noopura Parvathi A is a highly accomplished classical performing artist, educator, and cultural ambassador based in Gothenburg, Sweden. Hailing from Trivandrum (Thiruvananthapuram), Kerala — the cradle of some of India's most revered classical arts traditions — she has devoted over 21 years to the mastery, performance, and teaching of Indian classical dance and music.
+              </p>
+              <p className="text-muted-foreground leading-relaxed mb-8">
+                Her artistic journey spans four major classical disciplines: Bharatanatyam, Mohiniyattam, Kuchipudi, and Carnatic music. This rare breadth of mastery across three distinct classical dance forms — each with its own aesthetic grammar, movement vocabulary, and philosophical underpinning — places her among a small group of artists who can speak authentically across the full spectrum of South Indian classical performance.
+              </p>
+
+              <div className="border-t border-secondary/20 pt-8">
+                <p className="text-secondary tracking-[0.25em] uppercase text-xs mb-6 font-semibold">Training &amp; Gurus</p>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {[
+                    {
+                      name: "Smt. Girija Chandra",
+                      role: "Classical Foundation in Dance",
+                      note: "A revered guru whose training formed the bedrock of Noopura's classical foundation.",
+                    },
+                    {
+                      name: "Sri Vineeth",
+                      role: "Expressive & Performative Range",
+                      note: "Celebrated dancer and actor who deepened her expressive and performative range.",
+                    },
+                    {
+                      name: "Smt. Drowpathi Praveen",
+                      role: "Mohiniyattam & Kuchipudi",
+                      note: "An accomplished classical dance master who shaped her understanding of the Mohiniyattam and Kuchipudi traditions.",
+                    },
+                    {
+                      name: "Smt. Hema Gomes",
+                      role: "Bharatanatyam · Kalakshetra",
+                      note: "A teacher from the legendary Kalakshetra school — one of India's most prestigious classical arts institutions.",
+                    },
+                  ].map((guru) => (
+                    <div key={guru.name} className="border border-secondary/20 p-4">
+                      <p className="font-serif text-primary text-lg mb-1">{guru.name}</p>
+                      <p className="text-secondary text-[10px] uppercase tracking-widest font-semibold mb-2">{guru.role}</p>
+                      <p className="text-muted-foreground text-sm leading-relaxed">{guru.note}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
