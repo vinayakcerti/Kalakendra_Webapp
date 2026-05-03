@@ -70,6 +70,7 @@ export default function Fees() {
   const { data: batches = [] } = useListBatches();
 
   const [sendingReminder, setSendingReminder] = useState<string | null>(null);
+  const [sendingAllReminders, setSendingAllReminders] = useState(false);
 
   const updateFee = useUpdateFee();
   const deleteFee = useDeleteFee();
@@ -110,6 +111,25 @@ export default function Fees() {
         onError: () => toast({ title: "Delete failed", variant: "destructive" }),
       }
     );
+  }
+
+  async function handleSendAllReminders() {
+    if (!confirm("Send reminder emails to all students with overdue fees? This will email every student who has an overdue balance.")) return;
+    setSendingAllReminders(true);
+    try {
+      const BASE = import.meta.env.BASE_URL;
+      const res = await fetch(`${BASE}api/fees/remind-all-overdue`, { method: "POST" });
+      if (!res.ok) throw new Error("Request failed");
+      const data = await res.json() as { sent: number; skipped: number };
+      toast({
+        title: `Reminders sent to ${data.sent} student${data.sent !== 1 ? "s" : ""}`,
+        description: data.skipped > 0 ? `${data.skipped} skipped (no email on file)` : undefined,
+      });
+    } catch {
+      toast({ title: "Failed to send reminders", variant: "destructive" });
+    } finally {
+      setSendingAllReminders(false);
+    }
   }
 
   async function handleSendReminder(fee: FeeWithStudent) {
@@ -208,11 +228,15 @@ export default function Fees() {
           <Button
             variant="outline"
             onClick={() => {
-              if (!confirm("Mark all pending fees past their due date as overdue?")) return;
+              if (!confirm("Mark all pending fees past their due date as overdue? Reminder emails will be sent automatically to affected students.")) return;
               markOverdue.mutate(undefined, {
                 onSuccess: (data) => {
                   queryClient.invalidateQueries({ queryKey: getListAllFeesQueryKey() });
-                  toast({ title: `${data.updated} fee${data.updated !== 1 ? "s" : ""} marked overdue` });
+                  const reminded = (data as unknown as { reminded?: number }).reminded ?? 0;
+                  toast({
+                    title: `${data.updated} fee${data.updated !== 1 ? "s" : ""} marked overdue`,
+                    description: reminded > 0 ? `Reminder emails sent to ${reminded} student${reminded !== 1 ? "s" : ""}` : undefined,
+                  });
                 },
                 onError: () => toast({ title: "Failed to mark overdue", variant: "destructive" }),
               });
@@ -222,6 +246,15 @@ export default function Fees() {
           >
             <RefreshCw className={`h-3.5 w-3.5 ${markOverdue.isPending ? "animate-spin" : ""}`} />
             Mark Overdue
+          </Button>
+          <Button
+            variant="outline"
+            onClick={handleSendAllReminders}
+            disabled={sendingAllReminders}
+            className="rounded-none border-amber-300 text-amber-800 hover:bg-amber-50 gap-2 text-sm"
+          >
+            <BellRing className={`h-3.5 w-3.5 ${sendingAllReminders ? "animate-pulse" : ""}`} />
+            {sendingAllReminders ? "Sending…" : "Send All Reminders"}
           </Button>
           <Button
             onClick={() => setShowBulk(true)}
