@@ -21,14 +21,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle2, Clock, AlertCircle, MinusCircle, Trash2, ExternalLink, PlusCircle, RefreshCw, Download } from "lucide-react";
+import { CheckCircle2, Clock, AlertCircle, MinusCircle, Trash2, ExternalLink, PlusCircle, RefreshCw, Download, Hourglass } from "lucide-react";
 import { exportToCsv } from "@/lib/utils";
 
 const FEE_STATUS_CONFIG = {
-  pending: { label: "Pending",  badgeClass: "bg-amber-50 text-amber-800 border-amber-200",       Icon: Clock },
-  paid:    { label: "Paid",     badgeClass: "bg-emerald-50 text-emerald-800 border-emerald-200", Icon: CheckCircle2 },
-  overdue: { label: "Overdue",  badgeClass: "bg-red-50 text-red-800 border-red-200",             Icon: AlertCircle },
-  waived:  { label: "Waived",   badgeClass: "bg-slate-100 text-slate-600 border-slate-200",      Icon: MinusCircle },
+  pending:         { label: "Pending",             badgeClass: "bg-amber-50 text-amber-800 border-amber-200",       Icon: Clock },
+  paid:            { label: "Paid",                badgeClass: "bg-emerald-50 text-emerald-800 border-emerald-200", Icon: CheckCircle2 },
+  overdue:         { label: "Overdue",             badgeClass: "bg-red-50 text-red-800 border-red-200",             Icon: AlertCircle },
+  waived:          { label: "Waived",              badgeClass: "bg-slate-100 text-slate-600 border-slate-200",      Icon: MinusCircle },
+  payment_pending: { label: "Payment submitted",   badgeClass: "bg-blue-50 text-blue-800 border-blue-200",          Icon: Hourglass },
 } as const;
 
 function formatSek(amountOre: number): string {
@@ -244,6 +245,7 @@ export default function Fees() {
             <SelectItem value="all">All statuses</SelectItem>
             <SelectItem value="pending">Pending</SelectItem>
             <SelectItem value="overdue">Overdue</SelectItem>
+            <SelectItem value="payment_pending">Payment submitted</SelectItem>
             <SelectItem value="paid">Paid</SelectItem>
             <SelectItem value="waived">Waived</SelectItem>
           </SelectContent>
@@ -296,13 +298,19 @@ export default function Fees() {
                         </span>
                       )}
                     </div>
+                    {fee.status === "payment_pending" && (fee as FeeWithStudent & { paymentReference?: string }).paymentReference && (
+                      <div className="mt-1 flex items-center gap-1.5 text-xs text-blue-700">
+                        <Hourglass className="h-3 w-3" />
+                        Ref: <code className="font-mono bg-blue-50 px-1 rounded">{(fee as FeeWithStudent & { paymentReference?: string }).paymentReference}</code>
+                      </div>
+                    )}
                   </div>
                   <div className="flex items-center gap-2 shrink-0 mt-0.5">
                     <Badge variant="outline" className={`rounded-none text-xs border ${cfg.badgeClass}`}>
                       <cfg.Icon className="h-3 w-3 mr-1" />
                       {cfg.label}
                     </Badge>
-                    {fee.status === "pending" && (
+                    {(fee.status === "pending" || fee.status === "payment_pending") && (
                       <Button
                         size="sm"
                         variant="outline"

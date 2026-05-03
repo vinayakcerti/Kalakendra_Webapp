@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
-import { CreditCard, CheckCircle2 } from "lucide-react";
+import { CreditCard, CheckCircle2, Send, X, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface Fee {
   id: string;
@@ -10,6 +13,7 @@ interface Fee {
   paidDate: string | null;
   status: string;
   notes: string | null;
+  paymentReference: string | null;
   createdAt: string;
 }
 
@@ -22,16 +26,90 @@ function formatDate(d: string) {
 }
 
 const STATUS_STYLE: Record<string, { bar: string; badge: string; label: string }> = {
-  paid:    { bar: "bg-green-500",  badge: "bg-green-50 text-green-700 border-green-200",   label: "Paid" },
-  pending: { bar: "bg-amber-400",  badge: "bg-amber-50 text-amber-700 border-amber-200",   label: "Pending" },
-  overdue: { bar: "bg-red-500",    badge: "bg-red-50 text-red-700 border-red-200",         label: "Overdue" },
-  waived:  { bar: "bg-slate-300",  badge: "bg-slate-50 text-slate-600 border-slate-200",   label: "Waived" },
+  paid:            { bar: "bg-green-500",  badge: "bg-green-50 text-green-700 border-green-200",   label: "Paid" },
+  pending:         { bar: "bg-amber-400",  badge: "bg-amber-50 text-amber-700 border-amber-200",   label: "Pending" },
+  overdue:         { bar: "bg-red-500",    badge: "bg-red-50 text-red-700 border-red-200",         label: "Overdue" },
+  waived:          { bar: "bg-slate-300",  badge: "bg-slate-50 text-slate-600 border-slate-200",   label: "Waived" },
+  payment_pending: { bar: "bg-blue-400",   badge: "bg-blue-50 text-blue-700 border-blue-200",      label: "Awaiting confirmation" },
 };
+
+function PaymentForm({
+  fee,
+  onSuccess,
+  onCancel,
+}: {
+  fee: Fee;
+  onSuccess: (updated: Fee) => void;
+  onCancel: () => void;
+}) {
+  const [ref, setRef] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!ref.trim()) return;
+    setSubmitting(true);
+    setError("");
+    try {
+      const res = await fetch(
+        `${import.meta.env.BASE_URL}api/portal/fees/${fee.id}/payment-request`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ paymentReference: ref.trim() }),
+        }
+      );
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error ?? "Request failed");
+      }
+      const updated = await res.json();
+      onSuccess(updated);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="mt-4 pt-4 border-t border-secondary/10">
+      <p className="text-xs text-muted-foreground mb-3 leading-relaxed">
+        Enter your payment reference number (e.g. Swish reference, bank transfer ID, or any identifier from your bank).
+        The school will verify and confirm once payment is received.
+      </p>
+      <div className="flex gap-2 items-end">
+        <div className="flex-1 space-y-1.5">
+          <Label htmlFor={`ref-${fee.id}`} className="text-xs">Payment reference</Label>
+          <Input
+            id={`ref-${fee.id}`}
+            value={ref}
+            onChange={e => setRef(e.target.value)}
+            placeholder="e.g. 9876543210 or REF-2026-0501"
+            required
+            autoFocus
+            className="text-sm font-mono"
+          />
+        </div>
+        <Button type="submit" size="sm" disabled={submitting || !ref.trim()} className="shrink-0">
+          {submitting ? <Loader2 size={14} className="animate-spin" /> : <><Send size={14} className="mr-1.5" />Submit</>}
+        </Button>
+        <Button type="button" size="sm" variant="ghost" onClick={onCancel} className="shrink-0 px-2">
+          <X size={14} />
+        </Button>
+      </div>
+      {error && <p className="text-xs text-destructive mt-2">{error}</p>}
+    </form>
+  );
+}
 
 export default function PortalFees() {
   const [fees, setFees] = useState<Fee[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("all");
+  const [activeForm, setActiveForm] = useState<string | null>(null);
 
   useEffect(() => {
     fetch(`${import.meta.env.BASE_URL}api/portal/fees`, { credentials: "include" })
@@ -41,14 +119,26 @@ export default function PortalFees() {
   }, []);
 
   const filtered = filter === "all" ? fees : fees.filter(f => f.status === filter);
-  const totalOwed = fees.filter(f => f.status === "pending" || f.status === "overdue").reduce((s, f) => s + f.amountOre, 0);
-  const totalPaid = fees.filter(f => f.status === "paid").reduce((s, f) => s + f.amountOre, 0);
+  const totalOwed = fees
+    .filter(f => f.status === "pending" || f.status === "overdue")
+    .reduce((s, f) => s + f.amountOre, 0);
+  const totalPaid = fees
+    .filter(f => f.status === "paid")
+    .reduce((s, f) => s + f.amountOre, 0);
+
+  const handlePaymentSuccess = (updated: Fee) => {
+    setFees(prev => prev.map(f => f.id === updated.id ? updated : f));
+    setActiveForm(null);
+  };
+
+  const canRequestPayment = (f: Fee) =>
+    (f.status === "pending" || f.status === "overdue");
 
   return (
     <div className="max-w-3xl mx-auto space-y-8">
       <div>
         <h1 className="font-serif text-3xl text-primary mb-1">Fees</h1>
-        <p className="text-muted-foreground text-sm">Your fee history and any outstanding payments</p>
+        <p className="text-muted-foreground text-sm">Your fee history and outstanding payments</p>
       </div>
 
       {/* Summary */}
@@ -67,7 +157,7 @@ export default function PortalFees() {
 
       {/* Filter tabs */}
       <div className="flex gap-2 flex-wrap">
-        {["all", "pending", "overdue", "paid"].map(s => (
+        {["all", "pending", "overdue", "payment_pending", "paid"].map(s => (
           <button
             key={s}
             onClick={() => setFilter(s)}
@@ -85,43 +175,76 @@ export default function PortalFees() {
       {/* List */}
       {loading ? (
         <div className="space-y-3">
-          {[1,2,3].map(i => (
+          {[1, 2, 3].map(i => (
             <div key={i} className="h-20 bg-muted/30 rounded-xl animate-pulse" />
           ))}
         </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-16">
           <CreditCard className="mx-auto mb-4 text-muted-foreground/40" size={40} />
-          <p className="text-muted-foreground text-sm">No fees {filter !== "all" ? `with status "${filter}"` : "recorded yet"}</p>
+          <p className="text-muted-foreground text-sm">
+            No fees {filter !== "all" ? `with status "${STATUS_STYLE[filter]?.label ?? filter}"` : "recorded yet"}
+          </p>
         </div>
       ) : (
         <div className="space-y-3">
           {filtered.map(f => {
             const st = STATUS_STYLE[f.status] ?? STATUS_STYLE["pending"];
+            const showForm = activeForm === f.id;
             return (
               <div key={f.id} className="rounded-xl border border-secondary/20 bg-card overflow-hidden">
                 <div className={`h-1 ${st.bar}`} />
-                <div className="p-5 flex items-start gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <p className="text-sm font-medium truncate">{f.description}</p>
-                      <span className={`shrink-0 text-xs px-2 py-0.5 rounded border ${st.badge}`}>
-                        {st.label}
-                      </span>
+                <div className="p-5">
+                  <div className="flex items-start gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
+                        <p className="text-sm font-medium">{f.description}</p>
+                        <span className={`shrink-0 text-xs px-2 py-0.5 rounded border ${st.badge}`}>
+                          {st.label}
+                        </span>
+                      </div>
+                      <div className="flex gap-4 text-xs text-muted-foreground flex-wrap">
+                        {f.dueDate && <span>Due {formatDate(f.dueDate)}</span>}
+                        {f.paidDate && (
+                          <span className="flex items-center gap-1 text-green-600">
+                            <CheckCircle2 size={12} /> Paid {formatDate(f.paidDate)}
+                          </span>
+                        )}
+                        {f.status === "payment_pending" && f.paymentReference && (
+                          <span className="flex items-center gap-1 text-blue-600">
+                            Ref: <code className="font-mono">{f.paymentReference}</code>
+                          </span>
+                        )}
+                      </div>
+                      {f.notes && (
+                        <p className="text-xs text-muted-foreground mt-1 italic">{f.notes}</p>
+                      )}
                     </div>
-                    <div className="flex gap-4 text-xs text-muted-foreground">
-                      {f.dueDate && <span>Due {formatDate(f.dueDate)}</span>}
-                      {f.paidDate && (
-                        <span className="flex items-center gap-1 text-green-600">
-                          <CheckCircle2 size={12} /> Paid {formatDate(f.paidDate)}
+                    <div className="flex flex-col items-end gap-2 shrink-0">
+                      <p className="text-base font-semibold tabular-nums">{formatSek(f.amountOre)}</p>
+                      {canRequestPayment(f) && !showForm && (
+                        <button
+                          onClick={() => setActiveForm(f.id)}
+                          className="text-xs text-primary hover:underline flex items-center gap-1 transition-colors"
+                        >
+                          <Send size={11} /> Mark as paid
+                        </button>
+                      )}
+                      {f.status === "payment_pending" && (
+                        <span className="text-xs text-blue-600 flex items-center gap-1">
+                          <Loader2 size={11} className="animate-spin" /> Awaiting confirmation
                         </span>
                       )}
                     </div>
-                    {f.notes && (
-                      <p className="text-xs text-muted-foreground mt-1 italic">{f.notes}</p>
-                    )}
                   </div>
-                  <p className="text-base font-semibold tabular-nums shrink-0">{formatSek(f.amountOre)}</p>
+
+                  {showForm && (
+                    <PaymentForm
+                      fee={f}
+                      onSuccess={handlePaymentSuccess}
+                      onCancel={() => setActiveForm(null)}
+                    />
+                  )}
                 </div>
               </div>
             );
@@ -130,7 +253,7 @@ export default function PortalFees() {
       )}
 
       <p className="text-xs text-muted-foreground text-center pb-4">
-        To make a payment or query a fee, please contact the school directly.
+        Payments are confirmed by the school after verification. For queries, contact us directly.
       </p>
     </div>
   );

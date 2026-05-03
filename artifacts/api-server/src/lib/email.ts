@@ -1,6 +1,80 @@
 import { Resend } from "resend";
 import { logger } from "./logger";
 
+export interface PaymentNotificationParams {
+  schoolContactEmail: string;
+  studentName: string;
+  feeDescription: string;
+  amountOre: number;
+  paymentReference: string;
+  feeId: string;
+}
+
+export async function sendPaymentNotification(params: PaymentNotificationParams): Promise<void> {
+  const client = getClient();
+  if (!client) {
+    logger.warn("RESEND_API_KEY not set — skipping payment notification email");
+    return;
+  }
+  const { schoolContactEmail, studentName, feeDescription, amountOre, paymentReference, feeId } = params;
+  const amount = (amountOre / 100).toLocaleString("sv-SE", { style: "currency", currency: "SEK", maximumFractionDigits: 0 });
+  const html = `<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/></head>
+<body style="margin:0;padding:0;background:#F4EBD9;font-family:'Georgia',serif;color:#1F1612;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F4EBD9;padding:40px 0;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+        <tr><td style="background:#3D0A0C;padding:28px 40px;text-align:center;">
+          <p style="margin:0;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:#B8893A;">Payment Received</p>
+          <h1 style="margin:8px 0 0;font-size:24px;font-weight:400;color:#F4EBD9;letter-spacing:1px;">Kala Kendra Sweden</h1>
+        </td></tr>
+        <tr><td style="background:#B8893A;height:2px;"></td></tr>
+        <tr><td style="background:#ffffff;padding:36px 48px;">
+          <p style="margin:0 0 16px;font-size:15px;line-height:1.7;">A student has submitted a payment notification and is awaiting confirmation.</p>
+          <table cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;margin:24px 0;">
+            <tr style="border-bottom:1px solid #e8e0d6;">
+              <td style="padding:10px 0;font-size:13px;color:#7a6a58;width:40%;">Student</td>
+              <td style="padding:10px 0;font-size:14px;font-weight:600;">${studentName}</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e8e0d6;">
+              <td style="padding:10px 0;font-size:13px;color:#7a6a58;">Fee</td>
+              <td style="padding:10px 0;font-size:14px;">${feeDescription}</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e8e0d6;">
+              <td style="padding:10px 0;font-size:13px;color:#7a6a58;">Amount</td>
+              <td style="padding:10px 0;font-size:14px;font-weight:600;">${amount}</td>
+            </tr>
+            <tr>
+              <td style="padding:10px 0;font-size:13px;color:#7a6a58;">Reference</td>
+              <td style="padding:10px 0;font-size:14px;font-family:monospace;">${paymentReference}</td>
+            </tr>
+          </table>
+          <p style="margin:0;font-size:13px;color:#7a6a58;">Fee ID: <code>${feeId}</code></p>
+          <p style="margin:20px 0 0;font-size:14px;line-height:1.7;color:#1F1612;">
+            Please verify the payment in your bank account and then mark it as <strong>Paid</strong> in the admin portal.
+          </p>
+        </td></tr>
+        <tr><td style="background:#B8893A;height:2px;"></td></tr>
+        <tr><td style="background:#F4EBD9;padding:16px 48px;text-align:center;">
+          <p style="margin:0;font-size:11px;color:#7a6a58;">Kala Kendra Sweden · Administration</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>`;
+  try {
+    const r = await client.emails.send({
+      from: FROM,
+      to: schoolContactEmail,
+      subject: `Payment notification: ${studentName} — ${feeDescription}`,
+      html,
+    });
+    logger.info({ feeId, to: schoolContactEmail, id: r.data?.id }, "Payment notification email sent");
+  } catch (err) {
+    logger.error({ err, feeId }, "Failed to send payment notification email");
+  }
+}
+
 export interface MagicLinkParams {
   to: string;
   studentName: string;

@@ -9,7 +9,8 @@ import {
   attendanceTable,
 } from "@workspace/db";
 import { logger } from "../lib/logger";
-import { sendMagicLink } from "../lib/email";
+import { sendMagicLink, sendPaymentNotification } from "../lib/email";
+import { settingsTable } from "@workspace/db";
 
 declare module "express-session" {
   interface SessionData {
@@ -156,6 +157,7 @@ router.get("/portal/fees", requirePortalAuth, async (req, res) => {
       paidDate: feesTable.paidDate,
       status: feesTable.status,
       notes: feesTable.notes,
+      paymentReference: feesTable.paymentReference,
       createdAt: feesTable.createdAt,
     })
     .from(feesTable)
@@ -163,6 +165,99 @@ router.get("/portal/fees", requirePortalAuth, async (req, res) => {
     .orderBy(desc(feesTable.createdAt));
 
   res.json(rows);
+});
+
+// ─── POST /portal/fees/:id/payment-request ────────────────────────────────
+
+router.post("/portal/fees/:id/payment-request", requirePortalAuth, async (req, res) => {
+  const { paymentReference } = req.body as { paymentReference?: string };
+  if (!paymentReference || typeof paymentReference !== "string" || !paymentReference.trim()) {
+    res.status(400).json({ error: "paymentReference is required" });
+    return;
+  }
+
+  // Verify fee belongs to this student and is in a payable state
+  const [fee] = await db
+    .select({
+      id: feesTable.id,
+      studentId: feesTable.studentId,
+      description: feesTable.description,
+      amountOre: feesTable.amountOre,
+      status: feesTable.status,
+    })
+    .from(feesTable)
+    .where(
+      and(
+        eq(feesTable.id, req.params.id),
+        eq(feesTable.studentId, req.session.studentId!)
+      )
+    )
+    .limit(1);
+
+  if (!fee) { res.status(404).json({ error: "Fee not found" }); return; }
+
+  if (fee.status !== "pending" && fee.status !== "overdue") {
+    res.status(409).json({ error: "Fee is not in a payable state" });
+    return;
+  }
+
+  // Update fee to payment_pending with reference
+  const [updated] = await db.execute<{
+    id: string; description: string; amount_ore: number; currency: string;
+    due_date: string | null; paid_date: string | null; status: string;
+    notes: string | null; payment_reference: string | null; created_at: string;
+  }>(sql`
+    UPDATE fees
+    SET status = 'payment_pending',
+        payment_reference = ${paymentReference.trim()},
+        updated_at = NOW()
+    WHERE id = ${fee.id}
+    RETURNING id, description, amount_ore, currency, due_date, paid_date,
+              status, notes, payment_reference, created_at
+  `);
+
+  res.json({
+    id: updated.id,
+    description: updated.description,
+    amountOre: updated.amount_ore,
+    currency: updated.currency,
+    dueDate: updated.due_date,
+    paidDate: updated.paid_date,
+    status: updated.status,
+    notes: updated.notes,
+    paymentReference: updated.payment_reference,
+    createdAt: updated.created_at,
+  });
+
+  // Fetch student name and school contact, then notify admin (fire-and-forget)
+  void (async () => {
+    try {
+      const [student] = await db
+        .select({ fullName: studentsTable.fullName })
+        .from(studentsTable)
+        .where(eq(studentsTable.id, req.session.studentId!))
+        .limit(1);
+
+      const [settings] = await db
+        .select({ contactEmail: settingsTable.contactEmail })
+        .from(settingsTable)
+        .where(eq(settingsTable.id, 1))
+        .limit(1);
+
+      if (settings?.contactEmail && student) {
+        await sendPaymentNotification({
+          schoolContactEmail: settings.contactEmail,
+          studentName: student.fullName,
+          feeDescription: fee.description,
+          amountOre: fee.amountOre,
+          paymentReference: paymentReference.trim(),
+          feeId: fee.id,
+        });
+      }
+    } catch (err) {
+      logger.error({ err }, "Error in payment notification dispatch");
+    }
+  })();
 });
 
 // ─── GET /portal/attendance ───────────────────────────────────────────────

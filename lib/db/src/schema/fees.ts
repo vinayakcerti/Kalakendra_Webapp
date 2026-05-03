@@ -23,6 +23,7 @@ export const feesTable = pgTable("fees", {
   paidDate: date("paid_date"),
   status: varchar("status", { length: 20 }).notNull().default("pending"),
   notes: text("notes"),
+  paymentReference: varchar("payment_reference", { length: 200 }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
