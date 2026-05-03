@@ -121,19 +121,19 @@ export default function About() {
         </div>
       </section>
 
-      {/* Deepankuran Kaithapuram — Founder of Kala Kendra Sweden */}
+      {/* Deepankuran Kaithapuram — Founder of Kala Kendra Kochi, Mentor of Kala Kendra Sweden */}
       <section className="py-20 px-6 md:px-12">
         <div className="max-w-5xl mx-auto grid md:grid-cols-[1fr_280px] gap-16 items-center">
           <div>
-            <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-4 font-semibold">Founder · Kala Kendra Sweden</p>
+            <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-4 font-semibold">Founder · Kala Kendra Kochi</p>
             <h3 className="text-4xl font-serif text-primary mb-2">Deepankuran Kaithapuram</h3>
-            <p className="text-muted-foreground text-sm uppercase tracking-widest mb-6">Artistic Director · First Franchise of Kala Kendra</p>
+            <p className="text-muted-foreground text-sm uppercase tracking-widest mb-6">Founder, Kala Kendra Kochi, Kerala · Artistic Mentor, Kala Kendra Sweden</p>
             <div className="h-[1px] w-16 bg-secondary/40 mb-6" />
             <p className="drop-cap text-muted-foreground leading-relaxed mb-5 text-lg">
-              Deepankuran Kaithapuram is the founder of Kala Kendra Sweden — the first international franchise of the celebrated Kala Kendra institution. Carrying forward the legacy of his father, Padmashree Kaithapuram Damodaran Namboodiri, Deepankuran established the school in Gothenburg with a singular commitment: to bring authentic, lineage-rooted classical arts training to the Indian diaspora in Scandinavia.
+              Deepankuran Kaithapuram is the founder of Kala Kendra in Kochi, Kerala — carrying forward the luminous legacy of his father, Padmashree Kaithapuram Damodaran Namboodiri. Under his artistic leadership, the Kochi institution has grown into a beacon of classical arts in Kerala, nurturing generations of dancers and musicians.
             </p>
             <p className="text-muted-foreground leading-relaxed mb-5">
-              A gifted musician and devoted practitioner of Carnatic classical music, Deepankuran's teaching brings together technical mastery and the warmth of a true Guru. He believes that art must be lived, not merely performed — and that the discipline of classical study shapes not just artists but human beings.
+              Kala Kendra Sweden is honoured to be the second franchise of this prestigious institution — a direct extension of the same tradition, the same values, and the same unbroken Guru-Shishya lineage that Deepankuran embodies. A gifted musician and devoted practitioner of Carnatic music, his mentorship and blessings remain a guiding light for the Sweden chapter.
             </p>
             <blockquote className="pull-quote">
               "We are not teaching steps or notes. We are transmitting a way of seeing the world."
