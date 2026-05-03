@@ -731,6 +731,193 @@ function consentFormAdminHtml(p: ConsentFormNotificationParams): string {
 </body></html>`;
 }
 
+// ─── Consent Form Participant Confirmation ────────────────────────────────────
+
+const CONSENT_LABELS: Record<string, string> = {
+  photo_video:       "Photo & video use for promotional purposes (Clause 1)",
+  financial:         "Personal financial responsibility for costumes & travel (Clause 2)",
+  performance:       "Participation in the annual event / performance (Clause 3)",
+  creative_direction:"Following choreography and creative direction (Clause 4)",
+  attendance:        "Attendance and rehearsal commitment (Clause 5)",
+  withdrawal:        "Withdrawal and refund policy (Clause 6)",
+  conduct:           "Code of conduct and respectful behaviour (Clause 7)",
+  communication:     "Communication protocol with the institute (Clause 8)",
+  social_media:      "Social media and confidentiality guidelines (Clause 9)",
+  liability:         "Liability waiver (Clause 10)",
+  health:            "Health declaration (Clause 11)",
+};
+
+export interface ConsentFormConfirmationParams {
+  to: string;
+  participantName: string;
+  programName: string;
+  programYear: string;
+  isMinor: boolean;
+  guardianName: string | null;
+  consentItems: string[];
+  signatureName: string;
+  submittedAt: Date;
+  schoolContactEmail: string;
+}
+
+function consentFormConfirmationHtml(p: ConsentFormConfirmationParams): string {
+  const recipientName = p.isMinor && p.guardianName ? p.guardianName : p.participantName;
+  const time = p.submittedAt.toLocaleString("sv-SE", {
+    year: "numeric", month: "long", day: "numeric",
+    hour: "2-digit", minute: "2-digit",
+    timeZone: "Europe/Stockholm",
+  });
+
+  const checkedRows = p.consentItems
+    .map((id) => CONSENT_LABELS[id] ?? id)
+    .map(
+      (label) =>
+        `<tr style="border-bottom:1px solid #f0ebe4;">
+          <td style="padding:8px 12px 8px 0;font-size:13px;color:#3D0A0C;vertical-align:top;width:18px;">✓</td>
+          <td style="padding:8px 0;font-size:13px;color:#1F1612;line-height:1.6;">${label}</td>
+        </tr>`,
+    )
+    .join("");
+
+  return `<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/></head>
+<body style="margin:0;padding:0;background:#F4EBD9;font-family:'Georgia',serif;color:#1F1612;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F4EBD9;padding:40px 0;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+
+        <!-- Header -->
+        <tr><td style="background:#3D0A0C;padding:32px 40px;text-align:center;">
+          <p style="margin:0;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:#B8893A;">Kala Kendra Sweden</p>
+          <h1 style="margin:10px 0 4px;font-size:26px;font-weight:400;color:#F4EBD9;letter-spacing:1px;">Consent Form Received</h1>
+          <p style="margin:0;font-size:13px;color:#F4EBD9;opacity:0.7;">${p.programName}${p.programYear ? ` · ${p.programYear}` : ""}</p>
+        </td></tr>
+        <tr><td style="background:#B8893A;height:3px;"></td></tr>
+
+        <!-- Body -->
+        <tr><td style="background:#ffffff;padding:40px 48px;">
+
+          <!-- Greeting -->
+          <p style="margin:0 0 6px;font-size:16px;line-height:1.7;color:#1F1612;">Dear ${recipientName},</p>
+          <p style="margin:0 0 24px;font-size:15px;line-height:1.8;color:#3a2e27;">
+            Thank you for submitting the participant consent form for
+            <strong>${p.participantName}</strong>${p.isMinor ? " (minor participant)" : ""}
+            for <strong>${p.programName}</strong>.
+            We have received your submission successfully.
+          </p>
+
+          <!-- Divider -->
+          <table cellpadding="0" cellspacing="0" style="width:100%;margin:0 0 28px;">
+            <tr>
+              <td style="border-top:1px solid #e8e0d6;"></td>
+              <td style="width:32px;text-align:center;padding:0 12px;font-size:18px;color:#B8893A;">✦</td>
+              <td style="border-top:1px solid #e8e0d6;"></td>
+            </tr>
+          </table>
+
+          <!-- Submission summary -->
+          <p style="margin:0 0 16px;font-size:12px;letter-spacing:3px;text-transform:uppercase;color:#7a6a58;font-family:Helvetica,sans-serif;">Submission Summary</p>
+          <table cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;background:#faf8f5;border:1px solid #e8e0d6;margin:0 0 28px;">
+            <tr style="border-bottom:1px solid #e8e0d6;">
+              <td style="padding:10px 16px;font-size:13px;color:#7a6a58;width:38%;vertical-align:top;">Participant</td>
+              <td style="padding:10px 16px;font-size:13px;font-weight:600;color:#1F1612;">${p.participantName}</td>
+            </tr>
+            ${p.isMinor && p.guardianName ? `
+            <tr style="border-bottom:1px solid #e8e0d6;">
+              <td style="padding:10px 16px;font-size:13px;color:#7a6a58;vertical-align:top;">Parent / Guardian</td>
+              <td style="padding:10px 16px;font-size:13px;color:#1F1612;">${p.guardianName}</td>
+            </tr>` : ""}
+            <tr style="border-bottom:1px solid #e8e0d6;">
+              <td style="padding:10px 16px;font-size:13px;color:#7a6a58;vertical-align:top;">Programme</td>
+              <td style="padding:10px 16px;font-size:13px;color:#1F1612;">${p.programName}${p.programYear ? ` · ${p.programYear}` : ""}</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e8e0d6;">
+              <td style="padding:10px 16px;font-size:13px;color:#7a6a58;vertical-align:top;">Signed by</td>
+              <td style="padding:10px 16px;font-size:13px;color:#1F1612;">${p.signatureName}</td>
+            </tr>
+            <tr>
+              <td style="padding:10px 16px;font-size:13px;color:#7a6a58;vertical-align:top;">Submitted</td>
+              <td style="padding:10px 16px;font-size:13px;color:#1F1612;">${time}</td>
+            </tr>
+          </table>
+
+          <!-- Consent items acknowledged -->
+          <p style="margin:0 0 14px;font-size:12px;letter-spacing:3px;text-transform:uppercase;color:#7a6a58;font-family:Helvetica,sans-serif;">
+            Clauses Acknowledged (${p.consentItems.length})
+          </p>
+          <table cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;margin:0 0 32px;">
+            ${checkedRows}
+          </table>
+
+          <!-- Divider -->
+          <table cellpadding="0" cellspacing="0" style="width:100%;margin:0 0 28px;">
+            <tr>
+              <td style="border-top:1px solid #e8e0d6;"></td>
+              <td style="width:32px;text-align:center;padding:0 12px;font-size:18px;color:#B8893A;">✦</td>
+              <td style="border-top:1px solid #e8e0d6;"></td>
+            </tr>
+          </table>
+
+          <!-- Next steps -->
+          <p style="margin:0 0 12px;font-size:12px;letter-spacing:3px;text-transform:uppercase;color:#7a6a58;font-family:Helvetica,sans-serif;">What Happens Next</p>
+          <p style="margin:0 0 12px;font-size:14px;line-height:1.8;color:#3a2e27;">
+            Our team will review your submission and be in touch with further details about rehearsal schedules,
+            costume requirements, and any other information relevant to your participation.
+          </p>
+          <p style="margin:0 0 28px;font-size:14px;line-height:1.8;color:#3a2e27;">
+            If you have any questions in the meantime, please contact us at
+            <a href="mailto:${p.schoolContactEmail}" style="color:#5C1416;">${p.schoolContactEmail}</a>.
+          </p>
+
+          <!-- Closing -->
+          <p style="margin:0;font-size:14px;line-height:1.8;color:#1F1612;">
+            With warm regards,<br/>
+            <strong>Kala Kendra Sweden</strong><br/>
+            <span style="font-size:13px;color:#7a6a58;">Gothenburg, Sweden</span>
+          </p>
+
+        </td></tr>
+
+        <!-- Gold rule -->
+        <tr><td style="background:#B8893A;height:3px;"></td></tr>
+
+        <!-- Footer -->
+        <tr><td style="background:#3D0A0C;padding:20px 48px;text-align:center;">
+          <p style="margin:0;font-size:11px;color:#F4EBD9;opacity:0.6;line-height:1.8;letter-spacing:1px;">
+            Kala Kendra Sweden · Gothenburg<br/>
+            Please retain this email as a record of your consent form submission.
+          </p>
+        </td></tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body></html>`;
+}
+
+export async function sendConsentFormConfirmation(params: ConsentFormConfirmationParams): Promise<void> {
+  const client = getClient();
+  if (!client) {
+    logger.warn("RESEND_API_KEY not set — skipping consent form confirmation email");
+    return;
+  }
+  const recipientName = params.isMinor && params.guardianName ? params.guardianName : params.participantName;
+  try {
+    const r = await client.emails.send({
+      from: FROM,
+      to: params.to,
+      subject: `Consent form received — ${params.programName} · Kala Kendra Sweden`,
+      html: consentFormConfirmationHtml(params),
+    });
+    logger.info(
+      { to: params.to, participantName: params.participantName, recipientName, id: r.data?.id },
+      "Consent form confirmation email sent to participant",
+    );
+  } catch (err) {
+    logger.error({ err, participantName: params.participantName }, "Failed to send consent form confirmation email");
+  }
+}
+
 export async function sendConsentFormNotification(params: ConsentFormNotificationParams): Promise<void> {
   const client = getClient();
   if (!client) {
