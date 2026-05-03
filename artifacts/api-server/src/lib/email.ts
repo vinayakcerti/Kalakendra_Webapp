@@ -1,6 +1,76 @@
 import { Resend } from "resend";
 import { logger } from "./logger";
 
+export interface MagicLinkParams {
+  to: string;
+  studentName: string;
+  link: string;
+}
+
+export async function sendMagicLink(params: MagicLinkParams): Promise<void> {
+  const client = getClient();
+  if (!client) {
+    logger.warn("RESEND_API_KEY not set — skipping magic link email");
+    return;
+  }
+  const { to, studentName, link } = params;
+  const html = _magicLinkHtml(studentName, link);
+  try {
+    const r = await client.emails.send({
+      from: FROM,
+      to,
+      subject: "Your Kala Kendra student portal sign-in link",
+      html,
+    });
+    logger.info({ to, id: r.data?.id }, "Magic link email sent");
+  } catch (err) {
+    logger.error({ err, to }, "Failed to send magic link email");
+  }
+}
+
+function _magicLinkHtml(studentName: string, link: string): string {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Kala Kendra Sweden — Sign in</title></head>
+<body style="margin:0;padding:0;background:#F4EBD9;font-family:'Georgia',serif;color:#1F1612;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F4EBD9;padding:40px 0;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+        <tr><td style="background:#3D0A0C;padding:32px 40px;text-align:center;">
+          <p style="margin:0;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:#B8893A;font-family:'Georgia',serif;">Student Portal</p>
+          <h1 style="margin:10px 0 0;font-size:28px;font-weight:400;color:#F4EBD9;font-family:'Georgia',serif;letter-spacing:1px;">Kala Kendra Sweden</h1>
+        </td></tr>
+        <tr><td style="background:#B8893A;height:2px;"></td></tr>
+        <tr><td style="background:#ffffff;padding:40px 48px;">
+          <p style="margin:0 0 20px;font-size:15px;line-height:1.7;color:#1F1612;">Dear ${studentName},</p>
+          <p style="margin:0 0 24px;font-size:15px;line-height:1.7;color:#1F1612;">
+            Click the button below to sign in to your student portal. This link is valid for <strong>15 minutes</strong> and can only be used once.
+          </p>
+          <table cellpadding="0" cellspacing="0" style="margin:32px 0;">
+            <tr><td style="background:#3D0A0C;border-radius:4px;">
+              <a href="${link}" style="display:block;padding:14px 32px;font-size:14px;color:#F4EBD9;text-decoration:none;font-family:Arial,sans-serif;letter-spacing:1px;text-transform:uppercase;">
+                Sign in to portal &rarr;
+              </a>
+            </td></tr>
+          </table>
+          <p style="margin:0 0 12px;font-size:13px;line-height:1.6;color:#7a6a58;">
+            If the button doesn't work, copy and paste this link into your browser:
+          </p>
+          <p style="margin:0;font-size:12px;color:#7a6a58;word-break:break-all;">${link}</p>
+          <p style="margin:28px 0 0;font-size:13px;color:#7a6a58;">If you didn't request this, you can safely ignore this email.</p>
+        </td></tr>
+        <tr><td style="background:#B8893A;height:2px;"></td></tr>
+        <tr><td style="background:#F4EBD9;padding:20px 48px;text-align:center;">
+          <p style="margin:0;font-size:11px;color:#7a6a58;">© ${new Date().getFullYear()} Kala Kendra Sweden · Gothenburg</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+}
+
 const FROM = process.env["EMAIL_FROM"] ?? "Kala Kendra Sweden <onboarding@resend.dev>";
 
 function getClient(): Resend | null {

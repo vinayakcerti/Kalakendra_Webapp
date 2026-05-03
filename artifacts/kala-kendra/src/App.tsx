@@ -6,6 +6,7 @@ import NotFound from "@/pages/not-found";
 
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { AdminLayout } from "@/components/layout/AdminLayout";
+import { PortalLayout } from "@/components/layout/PortalLayout";
 
 import Home from "@/pages/public/Home";
 import About from "@/pages/public/About";
@@ -28,6 +29,12 @@ import Fees from "@/pages/admin/Fees";
 import Attendance from "@/pages/admin/Attendance";
 import Enquiries from "@/pages/admin/Enquiries";
 import Settings from "@/pages/admin/Settings";
+
+import PortalLogin from "@/pages/portal/Login";
+import PortalVerify from "@/pages/portal/Verify";
+import PortalDashboard from "@/pages/portal/Dashboard";
+import PortalFees from "@/pages/portal/Fees";
+import PortalAttendance from "@/pages/portal/Attendance";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -81,6 +88,24 @@ function AdminRoutes() {
   );
 }
 
+function PortalRoutes() {
+  return (
+    <PortalLayout>
+      <Switch>
+        <Route path="/portal">
+          <Redirect to="/portal/dashboard" />
+        </Route>
+        <Route path="/portal/login" component={PortalLogin} />
+        <Route path="/portal/verify" component={PortalVerify} />
+        <Route path="/portal/dashboard" component={PortalDashboard} />
+        <Route path="/portal/fees" component={PortalFees} />
+        <Route path="/portal/attendance" component={PortalAttendance} />
+        <Route component={NotFound} />
+      </Switch>
+    </PortalLayout>
+  );
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -89,6 +114,8 @@ function App() {
           <Switch>
             <Route path="/admin/*" component={AdminRoutes} />
             <Route path="/admin" component={AdminRoutes} />
+            <Route path="/portal/*" component={PortalRoutes} />
+            <Route path="/portal" component={PortalRoutes} />
             <Route path="/*" component={PublicRoutes} />
           </Switch>
         </WouterRouter>

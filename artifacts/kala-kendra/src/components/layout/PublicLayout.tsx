@@ -10,6 +10,7 @@ const NAV_LINKS = [
   { href: "/annual-event", label: "Annual Event" },
   { href: "/apply", label: "Apply" },
   { href: "/contact", label: "Contact" },
+  { href: "/portal/login", label: "Student Portal" },
   { href: "/admin", label: "Admin" },
 ];
 
