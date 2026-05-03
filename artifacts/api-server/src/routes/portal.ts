@@ -144,6 +144,71 @@ router.get("/portal/me", requirePortalAuth, async (req, res) => {
   res.json(student);
 });
 
+// ─── PATCH /portal/me — student updates their own details ────────────────
+
+router.patch("/portal/me", requirePortalAuth, async (req, res) => {
+  const body = req.body as {
+    fullName?: string;
+    dob?: string | null;
+    primaryContactName?: string | null;
+    primaryContactEmail?: string | null;
+    primaryContactPhone?: string | null;
+  };
+
+  // Build update object — only include fields that were actually sent
+  const updates: Record<string, unknown> = { updatedAt: new Date() };
+  if (typeof body.fullName === "string" && body.fullName.trim()) {
+    updates.fullName = body.fullName.trim();
+  }
+  if ("dob" in body) {
+    updates.dob = body.dob ?? null;
+  }
+  if ("primaryContactName" in body) {
+    updates.primaryContactName = typeof body.primaryContactName === "string" && body.primaryContactName.trim()
+      ? body.primaryContactName.trim()
+      : null;
+  }
+  if ("primaryContactEmail" in body) {
+    const email = typeof body.primaryContactEmail === "string" ? body.primaryContactEmail.trim() : null;
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      res.status(400).json({ error: "Invalid email address" });
+      return;
+    }
+    updates.primaryContactEmail = email || null;
+  }
+  if ("primaryContactPhone" in body) {
+    updates.primaryContactPhone = typeof body.primaryContactPhone === "string" && body.primaryContactPhone.trim()
+      ? body.primaryContactPhone.trim()
+      : null;
+  }
+
+  if (Object.keys(updates).length <= 1) {
+    res.status(400).json({ error: "No valid fields to update" });
+    return;
+  }
+
+  const [updated] = await db
+    .update(studentsTable)
+    .set(updates as Parameters<typeof db.update>[0] extends infer T ? T : never)
+    .where(eq(studentsTable.id, req.session.studentId!))
+    .returning({
+      id: studentsTable.id,
+      fullName: studentsTable.fullName,
+      dob: studentsTable.dob,
+      batchId: studentsTable.batchId,
+      primaryContactName: studentsTable.primaryContactName,
+      primaryContactEmail: studentsTable.primaryContactEmail,
+      primaryContactPhone: studentsTable.primaryContactPhone,
+      status: studentsTable.status,
+      enrolledAt: studentsTable.enrolledAt,
+    });
+
+  if (!updated) { res.status(404).json({ error: "Student not found" }); return; }
+
+  req.log.info({ studentId: req.session.studentId }, "Student updated their own profile");
+  res.json(updated);
+});
+
 // ─── GET /portal/fees ─────────────────────────────────────────────────────
 
 router.get("/portal/fees", requirePortalAuth, async (req, res) => {

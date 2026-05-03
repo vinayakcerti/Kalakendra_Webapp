@@ -1,6 +1,6 @@
 import { ReactNode, createContext, useContext, useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, CreditCard, CalendarCheck, LogOut, ChevronRight, AlertTriangle, Clock, X as XIcon } from "lucide-react";
+import { LayoutDashboard, CreditCard, CalendarCheck, LogOut, ChevronRight, AlertTriangle, Clock, X as XIcon, UserCog } from "lucide-react";
 import { differenceInDays, isAfter, parseISO } from "date-fns";
 
 interface PortalStudent {
@@ -91,6 +91,7 @@ const NAV = [
   { href: "/portal/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/portal/fees",      label: "Fees",      icon: CreditCard },
   { href: "/portal/attendance",label: "Attendance", icon: CalendarCheck },
+  { href: "/portal/profile",   label: "My Details", icon: UserCog },
 ];
 
 function FeeAlertBanner({ fees, onDismiss }: { fees: PortalFee[]; onDismiss: () => void }) {

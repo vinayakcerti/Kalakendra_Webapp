@@ -40,6 +40,7 @@ import PortalVerify from "@/pages/portal/Verify";
 import PortalDashboard from "@/pages/portal/Dashboard";
 import PortalFees from "@/pages/portal/Fees";
 import PortalAttendance from "@/pages/portal/Attendance";
+import PortalProfile from "@/pages/portal/Profile";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -110,6 +111,7 @@ function PortalRoutes() {
         <Route path="/portal/dashboard" component={PortalDashboard} />
         <Route path="/portal/fees" component={PortalFees} />
         <Route path="/portal/attendance" component={PortalAttendance} />
+        <Route path="/portal/profile" component={PortalProfile} />
         <Route component={NotFound} />
       </Switch>
     </PortalLayout>
