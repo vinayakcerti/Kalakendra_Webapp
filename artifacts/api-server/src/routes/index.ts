@@ -9,6 +9,7 @@ import enquiriesRouter from "./enquiries";
 import statsRouter from "./stats";
 import settingsRouter from "./settings";
 import portalRouter from "./portal";
+import announcementsRouter from "./announcements";
 
 const router: IRouter = Router();
 
@@ -22,5 +23,6 @@ router.use(enquiriesRouter);
 router.use(statsRouter);
 router.use(settingsRouter);
 router.use(portalRouter);
+router.use(announcementsRouter);
 
 export default router;

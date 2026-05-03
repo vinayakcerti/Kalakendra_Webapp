@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
-import { CalendarCheck, CreditCard, BookOpen, ArrowRight, CheckCircle, XCircle, Clock } from "lucide-react";
+import { CalendarCheck, CreditCard, BookOpen, ArrowRight, CheckCircle, XCircle, Clock, Info, AlertTriangle, CalendarDays, X as XIcon, Megaphone } from "lucide-react";
 import { usePortal } from "@/components/layout/PortalLayout";
+import { format } from "date-fns";
 
 interface Fee {
   id: string;
@@ -20,6 +21,16 @@ interface AttendanceRecord {
   batchName: string;
 }
 
+interface Announcement {
+  id: string;
+  title: string;
+  body: string;
+  type: string;
+  pinned: boolean;
+  expiresAt: string | null;
+  createdAt: string;
+}
+
 function formatSek(ore: number) {
   return (ore / 100).toLocaleString("sv-SE", { style: "currency", currency: "SEK", maximumFractionDigits: 0 });
 }
@@ -34,19 +45,38 @@ const STATUS_STYLE: Record<string, string> = {
   overdue: "bg-red-50 text-red-700 border-red-200",
 };
 
+const ANNOUNCEMENT_CFG: Record<string, {
+  Icon: typeof Info;
+  bar: string;
+  bg: string;
+  text: string;
+  border: string;
+}> = {
+  info:    { Icon: Info,          bar: "bg-blue-400",  bg: "bg-blue-50",   text: "text-blue-800",   border: "border-blue-200" },
+  event:   { Icon: CalendarDays,  bar: "bg-secondary", bg: "bg-amber-50",  text: "text-amber-800",  border: "border-amber-200" },
+  closure: { Icon: XIcon,         bar: "bg-slate-400", bg: "bg-slate-50",  text: "text-slate-700",  border: "border-slate-200" },
+  urgent:  { Icon: AlertTriangle, bar: "bg-red-500",   bg: "bg-red-50",    text: "text-red-800",    border: "border-red-200" },
+};
+
 export default function PortalDashboard() {
   const { student } = usePortal();
   const [fees, setFees] = useState<Fee[]>([]);
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
+  const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+
+  const BASE = import.meta.env.BASE_URL;
 
   useEffect(() => {
     Promise.all([
-      fetch(`${import.meta.env.BASE_URL}api/portal/fees`, { credentials: "include" }).then(r => r.json()),
-      fetch(`${import.meta.env.BASE_URL}api/portal/attendance`, { credentials: "include" }).then(r => r.json()),
-    ]).then(([f, a]) => {
+      fetch(`${BASE}api/portal/fees`, { credentials: "include" }).then(r => r.json()),
+      fetch(`${BASE}api/portal/attendance`, { credentials: "include" }).then(r => r.json()),
+      fetch(`${BASE}api/announcements?active=true`).then(r => r.json()),
+    ]).then(([f, a, ann]) => {
       setFees(f);
       setAttendance(a);
+      setAnnouncements(ann);
       setLoading(false);
     }).catch(() => setLoading(false));
   }, []);
@@ -64,6 +94,8 @@ export default function PortalDashboard() {
     day: "numeric", month: "long", year: "numeric",
   });
 
+  const visibleAnnouncements = announcements.filter(a => !dismissed.has(a.id));
+
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       {/* Welcome */}
@@ -73,6 +105,56 @@ export default function PortalDashboard() {
         </h1>
         <p className="text-muted-foreground text-sm">Enrolled {enrolledDate}</p>
       </div>
+
+      {/* Announcements */}
+      {!loading && visibleAnnouncements.length > 0 && (
+        <div className="space-y-3">
+          {visibleAnnouncements.map(ann => {
+            const cfg = ANNOUNCEMENT_CFG[ann.type] ?? ANNOUNCEMENT_CFG["info"];
+            const Icon = cfg.Icon;
+            return (
+              <div
+                key={ann.id}
+                className={`rounded-xl border ${cfg.border} ${cfg.bg} overflow-hidden`}
+              >
+                <div className={`h-1 ${cfg.bar}`} />
+                <div className="px-5 py-4 flex items-start gap-4">
+                  <div className="shrink-0 mt-0.5">
+                    <Icon size={16} className={cfg.text} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className={`font-semibold text-sm ${cfg.text}`}>{ann.title}</p>
+                    <p className={`text-sm mt-1 leading-relaxed whitespace-pre-line ${cfg.text} opacity-90`}>
+                      {ann.body}
+                    </p>
+                    {ann.expiresAt && (
+                      <p className={`text-xs mt-2 opacity-60 ${cfg.text}`}>
+                        Until {format(new Date(ann.expiresAt), "d MMM yyyy")}
+                      </p>
+                    )}
+                  </div>
+                  {!ann.pinned && (
+                    <button
+                      onClick={() => setDismissed(prev => new Set([...prev, ann.id]))}
+                      className={`shrink-0 mt-0.5 opacity-50 hover:opacity-100 transition-opacity ${cfg.text}`}
+                      aria-label="Dismiss"
+                    >
+                      <XIcon size={14} />
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Loading skeleton for announcements */}
+      {loading && (
+        <div className="space-y-3">
+          <div className="h-20 bg-muted/30 rounded-xl animate-pulse" />
+        </div>
+      )}
 
       {/* Batch card */}
       {student.batchName && (

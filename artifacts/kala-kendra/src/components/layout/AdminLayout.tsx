@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
 import { SidebarProvider, Sidebar, SidebarHeader, SidebarContent, SidebarGroup, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarTrigger, SidebarFooter } from "@/components/ui/sidebar";
-import { LayoutDashboard, Users, BookOpen, Settings, InboxIcon, MessageSquare, CreditCard, CalendarCheck } from "lucide-react";
+import { LayoutDashboard, Users, BookOpen, Settings, InboxIcon, MessageSquare, CreditCard, CalendarCheck, Megaphone } from "lucide-react";
 import { useListEnquiries, getListEnquiriesQueryKey } from "@workspace/api-client-react";
 
 export function AdminLayout({ children }: { children: ReactNode }) {
@@ -67,6 +67,14 @@ export function AdminLayout({ children }: { children: ReactNode }) {
                     <Link href="/admin/fees">
                       <CreditCard />
                       <span>Fees</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild isActive={location.startsWith("/admin/announcements")}>
+                    <Link href="/admin/announcements">
+                      <Megaphone />
+                      <span>Announcements</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
