@@ -1,19 +1,55 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 
-const timeline = [
-  { month: "Jan – Mar 2025", activity: "Foundation batch classes begin; students assessed for showcase readiness" },
-  { month: "Apr – May", activity: "Showcase theme announced; repertoire selection and rehearsals begin" },
-  { month: "June – July", activity: "Rehearsals intensify; costume design and fittings" },
-  { month: "August", activity: "Tech rehearsal and dress rehearsal at the venue" },
-  { month: "September", activity: "Inaugural Annual Showcase — third Saturday of September" },
-];
-
-const arangetramFacts = [
-  { label: "Duration of Study", value: "7 – 10 years" },
-  { label: "Decision", value: "At the Guru's sole discretion" },
-  { label: "Format", value: "Full solo programme, 3+ hours" },
-  { label: "Significance", value: "First independent public performance" },
+const galleryImages = [
+  {
+    src: "/images/taal-tarang-bharatanatyam-4.jpg",
+    alt: "Bharatanatyam ensemble — four dancers in blue and gold",
+    caption: "Bharatanatyam ensemble",
+    span: "col-span-2 row-span-2",
+  },
+  {
+    src: "/images/taal-tarang-mohiniyattam.jpg",
+    alt: "Mohiniyattam performance — white classical costume",
+    caption: "Mohiniyattam",
+    span: "",
+  },
+  {
+    src: "/images/taal-tarang-kids-blue.jpg",
+    alt: "Young dancers in blue — Kids Batch",
+    caption: "Kids Batch performance",
+    span: "",
+  },
+  {
+    src: "/images/taal-tarang-bharatanatyam-solo.jpg",
+    alt: "Bharatanatyam solo — green and red costume",
+    caption: "Bharatanatyam solo",
+    span: "",
+  },
+  {
+    src: "/images/taal-tarang-kathak2.jpg",
+    alt: "Two dancers in white — Kathak duet",
+    caption: "Contemporary classical duet",
+    span: "",
+  },
+  {
+    src: "/images/taal-tarang-kathak1.jpg",
+    alt: "Dancers in white classical costume",
+    caption: "Classical duet",
+    span: "",
+  },
+  {
+    src: "/images/taal-tarang-kids-skit.jpg",
+    alt: "Children's skit — young performers",
+    caption: "Kids Batch skit",
+    span: "",
+  },
+  {
+    src: "/images/taal-tarang-award.jpg",
+    alt: "Award ceremony on stage — Taal Tarang 2025",
+    caption: "Award ceremony",
+    span: "",
+  },
 ];
 
 export default function AnnualEvent() {
@@ -22,148 +58,211 @@ export default function AnnualEvent() {
 
       {/* Header */}
       <section className="py-28 px-6 max-w-4xl mx-auto text-center">
-        <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-6 font-semibold">Every Autumn</p>
-        <h2 className="text-5xl md:text-6xl font-serif text-primary mb-8 leading-tight">
-          The Annual Showcase
+        <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-6 font-semibold">Annual Showcase</p>
+        <h2 className="text-5xl md:text-7xl font-serif text-primary mb-4 leading-tight">
+          Taal Tarang
         </h2>
+        <p className="text-secondary/70 tracking-[0.5em] uppercase text-sm mb-8 font-semibold">ताल तरंग</p>
         <div className="gold-divider max-w-sm mx-auto" />
         <p className="text-xl text-muted-foreground mt-8 leading-relaxed max-w-2xl mx-auto">
-          Each year, Kala Kendra Sweden presents a full evening of classical performance, bringing students to the public stage in Gothenburg's finest concert venues.
+          Kala Kendra Sweden's annual festival of rhythm and dance — where classical arts meet the Gothenburg stage.
         </p>
       </section>
 
-      {/* About the event */}
+      {/* TAAL TARANG 2025 — Completed */}
       <section className="py-16 px-6 md:px-12 bg-card border-y border-secondary/20">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+            <div>
+              <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 px-3 py-1.5 mb-4">
+                <span className="w-2 h-2 bg-primary/60 rounded-full" />
+                <span className="text-primary text-[10px] uppercase tracking-widest font-semibold">Completed · Inaugural Edition</span>
+              </div>
+              <h3 className="text-5xl font-serif text-primary mb-2">Taal Tarang 2025</h3>
+              <p className="text-muted-foreground text-lg">Saturday, 1 November 2025 · Gothenburg, Sweden</p>
+            </div>
+            <div className="flex gap-6 text-center shrink-0">
+              {[
+                { value: "1st", label: "Edition" },
+                { value: "Nov 1", label: "2025" },
+                { value: "Live", label: "Audience" },
+              ].map((s) => (
+                <div key={s.label}>
+                  <p className="font-serif text-3xl text-primary">{s.value}</p>
+                  <p className="text-secondary text-[10px] uppercase tracking-widest mt-1 font-semibold">{s.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <p className="text-muted-foreground leading-relaxed max-w-3xl mb-4 text-lg">
+            Kala Kendra Sweden's inaugural annual showcase — Taal Tarang 2025 — was a landmark evening of classical Indian arts performed before a live Gothenburg audience. Students from across all disciplines took to the stage for the first time, presenting Bharatanatyam, Mohiniyattam, and ensemble pieces with the rigour and devotion of the Guru-Shishya tradition.
+          </p>
+          <p className="text-muted-foreground leading-relaxed max-w-3xl mb-12">
+            From the youngest performers of the Kids Batch to senior classical soloists, the evening demonstrated the depth and breadth of what has been built in just one year. The programme included a special award ceremony honouring contributions to the arts community.
+          </p>
+
+          {/* Photo gallery — masonry-style grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
+            {/* Large feature image */}
+            <div className="col-span-2 row-span-2 overflow-hidden group">
+              <img
+                src="/images/taal-tarang-bharatanatyam-4.jpg"
+                alt="Bharatanatyam ensemble — four dancers in blue and gold"
+                className="w-full h-full object-cover aspect-square md:aspect-auto md:h-[480px] group-hover:scale-105 transition-transform duration-700"
+              />
+            </div>
+            {/* Top right 1 */}
+            <div className="overflow-hidden group">
+              <img
+                src="/images/taal-tarang-mohiniyattam.jpg"
+                alt="Mohiniyattam"
+                className="w-full h-[232px] object-cover object-top group-hover:scale-105 transition-transform duration-700"
+              />
+            </div>
+            {/* Top right 2 */}
+            <div className="overflow-hidden group">
+              <img
+                src="/images/taal-tarang-kids-blue.jpg"
+                alt="Kids Batch — blue sparkle costumes"
+                className="w-full h-[232px] object-cover object-top group-hover:scale-105 transition-transform duration-700"
+              />
+            </div>
+            {/* Bottom right 1 */}
+            <div className="overflow-hidden group">
+              <img
+                src="/images/taal-tarang-bharatanatyam-solo.jpg"
+                alt="Bharatanatyam solo"
+                className="w-full h-[232px] object-cover object-top group-hover:scale-105 transition-transform duration-700"
+              />
+            </div>
+            {/* Bottom right 2 */}
+            <div className="overflow-hidden group">
+              <img
+                src="/images/taal-tarang-kathak2.jpg"
+                alt="Classical duet in white"
+                className="w-full h-[232px] object-cover object-top group-hover:scale-105 transition-transform duration-700"
+              />
+            </div>
+            {/* Row 3 — full width 4 images */}
+            <div className="overflow-hidden group">
+              <img
+                src="/images/taal-tarang-kathak1.jpg"
+                alt="Dancers in white"
+                className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-700"
+              />
+            </div>
+            <div className="overflow-hidden group">
+              <img
+                src="/images/taal-tarang-kids-skit.jpg"
+                alt="Kids skit"
+                className="w-full h-48 object-cover object-top group-hover:scale-105 transition-transform duration-700"
+              />
+            </div>
+            <div className="overflow-hidden group">
+              <img
+                src="/images/taal-tarang-group1.jpg"
+                alt="Group performance"
+                className="w-full h-48 object-cover object-top group-hover:scale-105 transition-transform duration-700"
+              />
+            </div>
+            <div className="overflow-hidden group">
+              <img
+                src="/images/taal-tarang-award.jpg"
+                alt="Award ceremony"
+                className="w-full h-48 object-cover object-center group-hover:scale-105 transition-transform duration-700"
+              />
+            </div>
+          </div>
+
+          <p className="text-center text-xs text-muted-foreground mt-4 italic">
+            Photographs from Taal Tarang 2025 · Gothenburg, Sweden · 1 November 2025
+          </p>
+        </div>
+      </section>
+
+      {/* TAAL TARANG 2026 — Coming Soon */}
+      <section className="py-24 px-6 md:px-12 bg-primary text-primary-foreground relative overflow-hidden">
+        {/* Decorative background text */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none opacity-[0.04]">
+          <span className="font-serif text-[20vw] leading-none">२०२६</span>
+        </div>
+
+        <div className="max-w-5xl mx-auto relative z-10">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-10">
+            <div className="flex-1">
+              <div className="inline-flex items-center gap-2 bg-primary-foreground/10 border border-primary-foreground/20 px-3 py-1.5 mb-6">
+                <span className="w-2 h-2 bg-secondary rounded-full animate-pulse" />
+                <span className="text-secondary text-[10px] uppercase tracking-widest font-semibold">Officially Declared · Coming Soon</span>
+              </div>
+              <h3 className="text-5xl md:text-6xl font-serif mb-3 leading-tight">Taal Tarang 2026</h3>
+              <p className="text-primary-foreground/70 text-sm uppercase tracking-widest mb-6 font-medium">
+                ताल तरंग · Second Edition
+              </p>
+              <div className="h-[1px] w-24 bg-secondary/50 mb-6" />
+              <p className="text-primary-foreground/80 text-lg leading-relaxed max-w-xl mb-8">
+                The second edition of Taal Tarang has been officially announced. Building on the success of our inaugural showcase, Taal Tarang 2026 will be an even grander celebration of classical Indian arts on the Gothenburg stage.
+              </p>
+              <p className="text-primary-foreground/60 text-sm italic mb-8">
+                "What began as a first offering has become a tradition. We return — with greater depth, greater devotion."
+              </p>
+              <Button asChild className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-none px-10 py-5 text-base">
+                <Link href="/contact">Register Your Interest</Link>
+              </Button>
+            </div>
+
+            {/* Date card */}
+            <div className="shrink-0 border border-secondary/40 bg-primary-foreground/5 p-10 text-center min-w-[220px]">
+              <p className="text-secondary text-[10px] uppercase tracking-widest font-semibold mb-5">Save the Date</p>
+              <div className="border-b border-secondary/30 pb-5 mb-5">
+                <p className="font-serif text-6xl text-primary-foreground leading-none mb-1">7</p>
+                <p className="text-primary-foreground/70 text-sm uppercase tracking-widest">November</p>
+              </div>
+              <p className="font-serif text-4xl text-secondary mb-1">2026</p>
+              <p className="text-primary-foreground/50 text-xs mt-3 uppercase tracking-widest">Gothenburg, Sweden</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* About the event */}
+      <section className="py-20 px-6 md:px-12 border-b border-secondary/20">
         <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-16 items-start">
           <div>
             <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-6 font-semibold">What It Is</p>
             <h3 className="text-3xl font-serif text-primary mb-6">A Sacred Offering to the Tradition</h3>
             <p className="drop-cap text-muted-foreground leading-relaxed mb-6">
-              The Annual Showcase is not a school recital. It is a formal classical concert — held to the same standards of presentation, technical quality, and thematic depth as any professional performance in India. For students, it is the moment when years of patient practice become visible.
+              Taal Tarang is not a school recital. It is a formal classical concert — held to the same standards of presentation, technical quality, and thematic depth as any professional performance in India. For students, it is the moment when years of patient practice become visible to the world.
             </p>
             <p className="text-muted-foreground leading-relaxed mb-6">
-              Each year's programme is built around a theme drawn from the Puranas, the epics, or the philosophy of the arts themselves. Every item — every dance piece, every composition — is chosen to illuminate that theme. The result is not a collection of performances but a single unified offering.
-            </p>
-            <p className="text-muted-foreground leading-relaxed">
-              The event also provides the occasion for Arangetrams — the formal debut of students who have completed the full foundational curriculum. An Arangetram at Kala Kendra is held only when the Guru judges the student fully ready, and it is a cause for celebration by the entire community.
+              Each edition's programme is built around a theme drawn from the Puranas, the epics, or the philosophy of the arts themselves. Every dance piece, every composition is chosen to illuminate that theme — the result is not a collection of performances but a single unified offering.
             </p>
           </div>
-
-          <div className="space-y-6">
-            {/* 2025 Showcase card */}
-            <div className="bg-background border border-secondary/20 p-8">
-              <div className="flex items-start justify-between mb-4">
-                <p className="text-secondary text-xs tracking-widest uppercase font-semibold">Inaugural Showcase · 2025</p>
-                <span className="text-[10px] bg-primary/10 border border-primary/20 text-primary px-2 py-1 uppercase tracking-widest font-semibold">Upcoming</span>
-              </div>
-              <h4 className="text-3xl font-serif text-primary mb-2">Swara Tarangini</h4>
-              <p className="text-muted-foreground text-sm italic mb-6">"Waves of Melody" — our first public offering to Gothenburg</p>
-              <div className="space-y-3 text-sm text-muted-foreground">
-                <div className="flex justify-between border-b border-secondary/10 pb-2">
-                  <span className="font-medium text-primary">Date</span>
-                  <span>Saturday, 20 September 2025</span>
-                </div>
-                <div className="flex justify-between border-b border-secondary/10 pb-2">
-                  <span className="font-medium text-primary">Time</span>
-                  <span>18:30 — Doors open at 18:00</span>
-                </div>
-                <div className="flex justify-between border-b border-secondary/10 pb-2">
-                  <span className="font-medium text-primary">Venue</span>
-                  <span>Gothenburg — TBA</span>
-                </div>
-                <div className="flex justify-between border-b border-secondary/10 pb-2">
-                  <span className="font-medium text-primary">Admission</span>
-                  <span>Free — all welcome</span>
-                </div>
-                <div className="flex justify-between pb-2">
-                  <span className="font-medium text-primary">Programme</span>
-                  <span>Bharatanatyam, Mohiniyattam, Carnatic</span>
-                </div>
-              </div>
-              <div className="mt-8">
-                <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-none w-full">
-                  <Link href="/contact">Register Interest</Link>
-                </Button>
-              </div>
-            </div>
-
-            <div className="bg-secondary/5 border border-secondary/20 p-6">
+          <div className="space-y-5">
+            <div className="bg-card border border-secondary/20 p-6">
               <p className="text-primary font-serif text-lg mb-2">What is an Arangetram?</p>
               <p className="text-muted-foreground text-sm leading-relaxed">
                 The Arangetram is a student's first solo public performance — a milestone that typically occurs after 7–10 years of dedicated study. It is the formal declaration that the student is ready to carry the tradition forward independently.
               </p>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Inaugural Year Banner */}
-      <section className="py-20 px-6 md:px-12 bg-primary text-primary-foreground">
-        <div className="max-w-4xl mx-auto text-center">
-          <p className="tracking-[0.3em] uppercase text-xs mb-6 text-primary-foreground/60 font-semibold">December 2024 — Our First Season</p>
-          <h3 className="text-4xl md:text-5xl font-serif mb-6 leading-tight">
-            Writing the First Chapter
-          </h3>
-          <div className="h-[1px] w-32 bg-primary-foreground/20 mx-auto mb-8" />
-          <p className="text-primary-foreground/80 text-lg leading-relaxed max-w-2xl mx-auto mb-6">
-            Kala Kendra Sweden opened its doors in December 2024 — bringing an unbroken lineage of classical arts from Trivandrum, Kerala to Gothenburg, Sweden. The 2025 Annual Showcase will be our first, and we intend it to set a standard that endures for generations.
-          </p>
-          <p className="text-primary-foreground/60 text-sm italic">
-            Founded by Mrs. Noopura Parvathi A · Under the mentorship of Padmashree Kaithapram Damodaran Namboodiri
-          </p>
-        </div>
-      </section>
-
-      {/* Arangetram facts */}
-      <section className="py-24 px-6 md:px-12 bg-card border-b border-secondary/20">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-6 font-semibold">Milestone</p>
-            <h3 className="text-3xl font-serif text-primary">The Arangetram</h3>
-            <p className="text-muted-foreground mt-4 max-w-xl mx-auto">The most significant event in a classical artist's journey — held only when the Guru deems the student worthy.</p>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-0 border border-secondary/20">
-            {arangetramFacts.map((fact, i) => (
-              <div key={fact.label} className={`p-8 text-center ${i < 3 ? "border-r-0 sm:border-r border-secondary/20" : ""} ${i >= 2 ? "border-t border-secondary/20 sm:border-t-0 lg:border-t-0" : ""}`}>
-                <p className="text-secondary text-[10px] uppercase tracking-widest font-semibold mb-3">{fact.label}</p>
-                <p className="font-serif text-xl text-primary leading-snug">{fact.value}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Timeline */}
-      <section className="py-24 px-6 max-w-3xl mx-auto">
-        <div className="text-center mb-16">
-          <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-6 font-semibold">2025 Calendar</p>
-          <h3 className="text-4xl font-serif text-primary">The Year in Preparation</h3>
-        </div>
-        <div className="space-y-0">
-          {timeline.map((item, idx) => (
-            <div key={item.month} className="grid grid-cols-[180px_1fr] gap-8 items-start relative">
-              <div className="text-right pr-8 pt-1">
-                <p className="text-sm font-medium text-primary">{item.month}</p>
-              </div>
-              <div className="relative pb-10 pl-4 border-l border-secondary/30">
-                {idx === timeline.length - 1 && (
-                  <div className="absolute left-[-5px] top-2 w-2 h-2 bg-primary rotate-45" />
-                )}
-                {idx < timeline.length - 1 && (
-                  <div className="absolute left-[-5px] top-2 w-2 h-2 border border-secondary/60 rotate-45 bg-background" />
-                )}
-                <p className="text-muted-foreground">{item.activity}</p>
+            <div className="bg-secondary/5 border border-secondary/20 p-6">
+              <p className="text-secondary text-[10px] uppercase tracking-widest font-semibold mb-3">Founded by</p>
+              <p className="font-serif text-primary text-xl mb-1">Mrs. Noopura Parvathi A</p>
+              <p className="text-muted-foreground text-sm">Kala Kendra Sweden · Gothenburg</p>
+              <div className="mt-3 pt-3 border-t border-secondary/20">
+                <p className="text-secondary text-[10px] uppercase tracking-widest font-semibold mb-1">Under the mentorship of</p>
+                <p className="text-primary text-sm font-medium">Padmashree Kaithapram Damodaran Namboodiri</p>
               </div>
             </div>
-          ))}
+          </div>
         </div>
       </section>
 
       {/* CTA */}
-      <section className="py-20 px-6 text-center border-t border-secondary/20">
-        <h3 className="text-3xl font-serif text-primary mb-4">Attend or Perform</h3>
+      <section className="py-20 px-6 text-center">
+        <h3 className="text-3xl font-serif text-primary mb-4">Be Part of Taal Tarang 2026</h3>
         <p className="text-muted-foreground max-w-lg mx-auto mb-8">
-          The Annual Showcase is free and open to all. Students wishing to participate should speak with their Guru. Those wishing to begin their journey should apply now.
+          Taal Tarang is free and open to all. Students wishing to perform should speak with their Guru. Those wishing to begin their journey should apply now.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-none px-10 py-6 text-lg">
