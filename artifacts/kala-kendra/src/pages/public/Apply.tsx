@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Link } from "wouter";
+import { Link, useSearch } from "wouter";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +20,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useCreateAdmission, useListBatches, getListBatchesQueryKey, useGetSettings, getGetSettingsQueryKey } from "@workspace/api-client-react";
+import { Info, X } from "lucide-react";
 
 const formSchema = z.object({
   applicantType: z.enum(["adult", "child"]),
@@ -67,6 +68,9 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
 export default function Apply() {
   const { toast } = useToast();
   const [submitted, setSubmitted] = useState(false);
+  const [preselectedBatch, setPreselectedBatch] = useState<string | null>(null);
+  const [bannerDismissed, setBannerDismissed] = useState(false);
+  const search = useSearch();
   const { data: batches } = useListBatches({ query: { queryKey: getListBatchesQueryKey() } });
   const { data: settings } = useGetSettings({ query: { queryKey: getGetSettingsQueryKey() } });
 
@@ -99,6 +103,21 @@ export default function Apply() {
       suggestions: "",
     },
   });
+
+  // Auto-select batch from ?batch= query param once batches are loaded
+  useEffect(() => {
+    if (!batches || !search) return;
+    const params = new URLSearchParams(search);
+    const batchName = params.get("batch");
+    if (!batchName) return;
+    const matched = batches.find(
+      (b) => b.name.toLowerCase() === batchName.toLowerCase() && b.active
+    );
+    if (matched) {
+      form.setValue("batch", matched.code, { shouldValidate: true });
+      setPreselectedBatch(matched.name);
+    }
+  }, [batches, search]);
 
   const applicantType = form.watch("applicantType");
   const createAdmission = useCreateAdmission();
@@ -163,6 +182,25 @@ export default function Apply() {
         <p className="text-center text-muted-foreground mb-12">
           Please fill out the form below carefully. Learning a classical art form is a long-term commitment, and we seek students who are deeply motivated.
         </p>
+
+        {/* Pre-selected batch banner */}
+        {preselectedBatch && !bannerDismissed && (
+          <div className="flex items-start gap-3 bg-secondary/10 border border-secondary/30 px-5 py-4 mb-8">
+            <Info className="h-4 w-4 text-secondary shrink-0 mt-0.5" />
+            <div className="flex-1 text-sm text-muted-foreground">
+              <span className="font-medium text-primary">{preselectedBatch}</span> has been pre-selected for you.
+              You can change the batch selection in the Programme section below.
+            </div>
+            <button
+              type="button"
+              onClick={() => setBannerDismissed(true)}
+              className="text-muted-foreground hover:text-primary transition-colors shrink-0"
+              aria-label="Dismiss"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        )}
 
         <div className="bg-card border border-secondary/20 p-8 md:p-12 relative">
           <div className="absolute top-0 left-0 w-4 h-4 border-t border-l border-secondary" />
