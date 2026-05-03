@@ -1,5 +1,4 @@
 uploads = []
-outputs = []
 
 [[generated]]
 id = "ivMRmHFhrh_mEfk0dvPzf"
@@ -18,3 +17,9 @@ id = "izYsaMNAS7BtO7rpMRC2c"
 uri = "file://artifacts/kala-kendra/src/assets/images/kerala-arts.png"
 type = "image"
 title = "Kerala arts Kathakali"
+
+[[outputs]]
+id = "_DuEPsurNawb6czFelWUX"
+uri = "file://artifacts/kala-kendra/public/kala-kendra-website.tar.gz"
+type = "unspecified"
+title = "Kala Kendra Sweden — Full Website Code"
