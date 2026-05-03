@@ -179,7 +179,9 @@ export function PortalLayout({ children }: { children: ReactNode }) {
   const portalState = usePortalStudent();
   const { student, loading } = portalState;
 
-  const isAuthPage = location === "/portal/login" || location.startsWith("/portal/verify");
+  const isAuthPage = location === "/portal/login"
+    || location.startsWith("/portal/verify")
+    || location.startsWith("/portal/register");
   const authenticated = !!student && !isAuthPage;
 
   const { fees, feesLoading, refetchFees } = usePortalFees(authenticated);

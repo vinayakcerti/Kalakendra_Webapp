@@ -9,7 +9,7 @@ import {
   attendanceTable,
 } from "@workspace/db";
 import { logger } from "../lib/logger";
-import { sendMagicLink, sendPaymentNotification } from "../lib/email";
+import { sendMagicLink, sendPaymentNotification, sendEmailVerification } from "../lib/email";
 import { settingsTable } from "@workspace/db";
 
 declare module "express-session" {
@@ -142,6 +142,106 @@ router.get("/portal/me", requirePortalAuth, async (req, res) => {
 
   if (!student) { res.status(404).json({ error: "Student not found" }); return; }
   res.json(student);
+});
+
+// ─── POST /portal/register — self-registration by name lookup ────────────
+
+router.post("/portal/register", async (req, res) => {
+  const { fullName, email } = req.body as { fullName?: string; email?: string };
+  if (!fullName?.trim() || !email?.trim()) {
+    res.status(400).json({ error: "fullName and email are required" });
+    return;
+  }
+
+  const normalisedEmail = email.trim().toLowerCase();
+  const normalisedName  = fullName.trim().toLowerCase();
+
+  // Find active student whose name matches (case-insensitive)
+  const [student] = await db
+    .select({
+      id: studentsTable.id,
+      fullName: studentsTable.fullName,
+      existingEmail: studentsTable.primaryContactEmail,
+      status: studentsTable.status,
+    })
+    .from(studentsTable)
+    .where(
+      and(
+        eq(sql`lower(trim(${studentsTable.fullName}))`, normalisedName),
+        eq(studentsTable.status, "active")
+      )
+    )
+    .limit(1);
+
+  if (!student) {
+    // Don't reveal whether name was found — return a discriminated result instead
+    res.json({ result: "no-match" });
+    return;
+  }
+
+  // If already linked to an email, tell them to use the login page
+  if (student.existingEmail) {
+    res.json({ result: "already-linked" });
+    return;
+  }
+
+  // Create a verification token stored in portal_registration_requests
+  const token = crypto.randomBytes(48).toString("hex");
+  const expiresAt = new Date(Date.now() + 30 * 60 * 1000); // 30 min
+
+  await db.execute(sql`
+    INSERT INTO portal_registration_requests (student_id, proposed_email, token, expires_at)
+    VALUES (${student.id}, ${normalisedEmail}, ${token}, ${expiresAt.toISOString()})
+  `);
+
+  const baseUrl = (process.env["REPLIT_DOMAINS"] ?? "").split(",")[0]?.trim();
+  const base = baseUrl ? `https://${baseUrl}` : "http://localhost:80";
+  const link = `${base}/portal/register/verify?token=${token}`;
+
+  await sendEmailVerification({ to: normalisedEmail, studentName: student.fullName, link });
+  req.log.info({ studentId: student.id, email: normalisedEmail }, "Email verification sent for self-registration");
+
+  res.json({ result: "sent" });
+});
+
+// ─── GET /portal/register/verify?token= — confirm email & log in ─────────
+
+router.get("/portal/register/verify", async (req, res) => {
+  const { token } = req.query as { token?: string };
+  if (!token) { res.status(400).json({ error: "token required" }); return; }
+
+  const [row] = await db.execute<{
+    id: string; student_id: string; proposed_email: string;
+    used_at: string | null; expires_at: string;
+  }>(sql`
+    SELECT id, student_id, proposed_email, used_at, expires_at
+    FROM portal_registration_requests
+    WHERE token = ${token}
+    LIMIT 1
+  `);
+
+  if (!row) { res.status(401).json({ error: "Invalid token" }); return; }
+  if (row.used_at) { res.status(401).json({ error: "Token already used" }); return; }
+  if (new Date(row.expires_at) < new Date()) { res.status(401).json({ error: "Token expired" }); return; }
+
+  // Mark token used
+  await db.execute(sql`
+    UPDATE portal_registration_requests SET used_at = NOW() WHERE id = ${row.id}
+  `);
+
+  // Save email to student record
+  await db
+    .update(studentsTable)
+    .set({ primaryContactEmail: row.proposed_email, updatedAt: new Date() })
+    .where(eq(studentsTable.id, row.student_id));
+
+  // Create session
+  req.session.studentId = row.student_id;
+  req.session.save((err) => {
+    if (err) { res.status(500).json({ error: "Session error" }); return; }
+    req.log.info({ studentId: row.student_id, email: row.proposed_email }, "Student self-registered via email verification");
+    res.json({ ok: true, studentId: row.student_id });
+  });
 });
 
 // ─── PATCH /portal/me — student updates their own details ────────────────

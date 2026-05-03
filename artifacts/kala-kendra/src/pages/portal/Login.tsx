@@ -92,9 +92,15 @@ export default function PortalLogin() {
         </Button>
       </form>
 
-      <p className="text-center text-xs text-muted-foreground mt-8">
-        Only registered students of Kala Kendra Sweden can access this portal.
-      </p>
+      <div className="mt-8 pt-6 border-t border-secondary/20 text-center space-y-2">
+        <p className="text-xs text-muted-foreground">Only registered students of Kala Kendra Sweden can access this portal.</p>
+        <p className="text-xs text-muted-foreground">
+          First time?{" "}
+          <a href="/portal/register" className="underline hover:text-primary transition-colors font-medium">
+            Set up your portal access here
+          </a>
+        </p>
+      </div>
     </div>
   );
 }

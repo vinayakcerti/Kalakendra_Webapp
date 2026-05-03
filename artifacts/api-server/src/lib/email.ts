@@ -162,6 +162,71 @@ export interface PortalInviteParams {
   link: string;
 }
 
+export interface EmailVerificationParams {
+  to: string;
+  studentName: string;
+  link: string;
+}
+
+export async function sendEmailVerification(params: EmailVerificationParams): Promise<void> {
+  const client = getClient();
+  if (!client) {
+    logger.warn("RESEND_API_KEY not set — skipping email verification");
+    return;
+  }
+  const { to, studentName, link } = params;
+  const html = `<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/></head>
+<body style="margin:0;padding:0;background:#F4EBD9;font-family:'Georgia',serif;color:#1F1612;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F4EBD9;padding:40px 0;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+        <tr><td style="background:#3D0A0C;padding:36px 40px;text-align:center;">
+          <p style="margin:0;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:#B8893A;">Kala Kendra Sweden</p>
+          <h1 style="margin:10px 0 4px;font-size:26px;font-weight:400;color:#F4EBD9;letter-spacing:1px;">Verify Your Email</h1>
+          <p style="margin:0;font-size:13px;color:#F4EBD9;opacity:0.65;">Student Portal Registration</p>
+        </td></tr>
+        <tr><td style="background:#B8893A;height:3px;"></td></tr>
+        <tr><td style="background:#ffffff;padding:44px 48px;">
+          <p style="margin:0 0 18px;font-size:16px;line-height:1.7;color:#1F1612;">Namaskaram, ${studentName},</p>
+          <p style="margin:0 0 24px;font-size:15px;line-height:1.8;color:#3a2e27;">
+            We received a request to link this email address to your student record at Kala Kendra Sweden.
+            Click the button below to confirm and gain access to the student portal.
+          </p>
+          <p style="margin:0 0 28px;font-size:14px;color:#7a6a58;line-height:1.6;">
+            This link is valid for <strong>30 minutes</strong>. If you did not make this request, please ignore this email — your record will not be changed.
+          </p>
+          <table cellpadding="0" cellspacing="0" style="margin:0 0 36px;">
+            <tr><td style="background:#3D0A0C;">
+              <a href="${link}" style="display:block;padding:16px 36px;font-size:13px;color:#F4EBD9;text-decoration:none;font-family:Arial,sans-serif;letter-spacing:2px;text-transform:uppercase;">
+                Verify &amp; Sign In &rarr;
+              </a>
+            </td></tr>
+          </table>
+          <p style="margin:0 0 10px;font-size:13px;color:#7a6a58;">If the button doesn't work, paste this link into your browser:</p>
+          <p style="margin:0;font-size:12px;color:#7a6a58;word-break:break-all;">${link}</p>
+        </td></tr>
+        <tr><td style="background:#B8893A;height:3px;"></td></tr>
+        <tr><td style="background:#3D0A0C;padding:20px 48px;text-align:center;">
+          <p style="margin:0;font-size:11px;color:#F4EBD9;opacity:0.6;letter-spacing:1px;">Kala Kendra Sweden · Gothenburg</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>`;
+  try {
+    const r = await client.emails.send({
+      from: FROM,
+      to,
+      subject: "Verify your email — Kala Kendra Sweden Student Portal",
+      html,
+    });
+    logger.info({ to, id: r.data?.id }, "Email verification sent");
+  } catch (err) {
+    logger.error({ err, to }, "Failed to send email verification");
+  }
+}
+
 export async function sendPortalInvite(params: PortalInviteParams): Promise<void> {
   const client = getClient();
   if (!client) {
