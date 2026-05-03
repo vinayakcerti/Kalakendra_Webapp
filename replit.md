@@ -85,3 +85,8 @@ Create tables directly with SQL (psql "$DATABASE_URL") or run `pnpm --filter @wo
 4. Import hooks from `@workspace/api-client-react`, Zod schemas from `@workspace/api-zod`
 
 See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details.
+
+## Payment Methods
+
+- **Swish**: 0764 505 117 (Kala Kendra Sweden) — shown in student portal Fees page and public Classes page
+- **Stripe (card payments)**: Not yet connected. The Stripe integration was proposed but dismissed. To set it up in the future, connect it via the Integrations tab (Stripe connector ID: `connector:ccfg_stripe_01K611P4YQR0SZM11XFRQJC44Y`), then wire up `stripeClient.ts`, `webhookHandlers.ts`, and update the API server's `index.ts` per the stripe skill instructions.
