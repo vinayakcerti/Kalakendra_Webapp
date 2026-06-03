@@ -1,8 +1,31 @@
 import { Router, type IRouter, type RequestHandler } from "express";
 import { eq } from "drizzle-orm";
-import bcrypt from "bcryptjs";
+import { scrypt, randomBytes, timingSafeEqual } from "crypto";
+import { promisify } from "util";
 import { db, adminsTable } from "@workspace/db";
 import { logger } from "../lib/logger";
+
+const scryptAsync = promisify(scrypt);
+
+async function hashPassword(password: string): Promise<string> {
+  const salt = randomBytes(16).toString("hex");
+  const buf = (await scryptAsync(password, salt, 64)) as Buffer;
+  return `${buf.toString("hex")}.${salt}`;
+}
+
+async function verifyPassword(password: string, stored: string): Promise<boolean> {
+  // Support both scrypt (new) and bcrypt (old $2a$/$2b$ hashes)
+  if (stored.startsWith("$2")) {
+    // bcrypt hash — dynamically import bcryptjs only when needed
+    const bcrypt = await import("bcryptjs");
+    return bcrypt.default.compare(password, stored);
+  }
+  const [hashed, salt] = stored.split(".");
+  if (!hashed || !salt) return false;
+  const buf = (await scryptAsync(password, salt, 64)) as Buffer;
+  const hashedBuf = Buffer.from(hashed, "hex");
+  return timingSafeEqual(buf, hashedBuf);
+}
 
 // ─── Extend session type ───────────────────────────────────────────────────
 
@@ -58,7 +81,7 @@ router.post("/admin/setup", async (req, res) => {
       return;
     }
 
-    const passwordHash = await bcrypt.hash(password, 12);
+    const passwordHash = await hashPassword(password);
 
     const [admin] = await db
       .insert(adminsTable)
@@ -107,7 +130,7 @@ router.post("/admin/login", async (req, res) => {
       return;
     }
 
-    const valid = await bcrypt.compare(password, admin.passwordHash);
+    const valid = await verifyPassword(password, admin.passwordHash);
     if (!valid) {
       res.status(401).json({ error: "Invalid credentials" });
       return;
