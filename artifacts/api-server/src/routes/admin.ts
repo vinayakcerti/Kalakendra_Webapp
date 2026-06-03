@@ -14,12 +14,6 @@ async function hashPassword(password: string): Promise<string> {
 }
 
 async function verifyPassword(password: string, stored: string): Promise<boolean> {
-  // Support both scrypt (new) and bcrypt (old $2a$/$2b$ hashes)
-  if (stored.startsWith("$2")) {
-    // bcrypt hash — dynamically import bcryptjs only when needed
-    const bcrypt = await import("bcryptjs");
-    return bcrypt.default.compare(password, stored);
-  }
   const [hashed, salt] = stored.split(".");
   if (!hashed || !salt) return false;
   const buf = (await scryptAsync(password, salt, 64)) as Buffer;
