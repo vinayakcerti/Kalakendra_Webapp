@@ -1,5 +1,5 @@
 import { Router, type IRouter, type RequestHandler } from "express";
-import { eq, count } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { db, adminsTable } from "@workspace/db";
 import { logger } from "../lib/logger";
@@ -32,11 +32,12 @@ const router: IRouter = Router();
  */
 router.post("/admin/setup", async (req, res) => {
   try {
-    const [{ value: adminCount }] = await db
-      .select({ value: count() })
-      .from(adminsTable);
+    const existing = await db
+      .select({ id: adminsTable.id })
+      .from(adminsTable)
+      .limit(1);
 
-    if (Number(adminCount) > 0) {
+    if (existing.length > 0) {
       res.status(403).json({ error: "Setup already completed" });
       return;
     }
