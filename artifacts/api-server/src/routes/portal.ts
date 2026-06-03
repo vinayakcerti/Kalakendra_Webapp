@@ -71,8 +71,7 @@ router.post("/portal/auth/request", async (req, res) => {
         VALUES (${student.id}, ${token}, ${expiresAt.toISOString()})`
   );
 
-  const baseUrl = (process.env["REPLIT_DOMAINS"] ?? "").split(",")[0]?.trim();
-  const base = baseUrl ? `https://${baseUrl}` : "http://localhost:80";
+  const base = process.env["APP_URL"]?.trim() ?? "http://localhost:80";
   const link = `${base}/portal/verify?token=${token}`;
 
   await sendMagicLink({ to: normalised, studentName: student.fullName, link });
@@ -194,8 +193,7 @@ router.post("/portal/register", async (req, res) => {
     VALUES (${student.id}, ${normalisedEmail}, ${token}, ${expiresAt.toISOString()})
   `);
 
-  const baseUrl = (process.env["REPLIT_DOMAINS"] ?? "").split(",")[0]?.trim();
-  const base = baseUrl ? `https://${baseUrl}` : "http://localhost:80";
+  const base = process.env["APP_URL"]?.trim() ?? "http://localhost:80";
   const link = `${base}/portal/register/verify?token=${token}`;
 
   await sendEmailVerification({ to: normalisedEmail, studentName: student.fullName, link });

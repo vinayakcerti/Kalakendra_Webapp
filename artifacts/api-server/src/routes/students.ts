@@ -128,8 +128,7 @@ router.post("/students/:id/send-invite", async (req, res) => {
         VALUES (${student.id}, ${token}, ${expiresAt.toISOString()})`
   );
 
-  const baseUrl = (process.env["REPLIT_DOMAINS"] ?? "").split(",")[0]?.trim();
-  const base = baseUrl ? `https://${baseUrl}` : "http://localhost:80";
+  const base = process.env["APP_URL"]?.trim() ?? "http://localhost:80";
   const link = `${base}/portal/verify?token=${token}`;
 
   await sendPortalInvite({ to: student.email, studentName: student.fullName, link });
@@ -160,8 +159,7 @@ router.post("/students/send-invites-bulk", async (req, res) => {
     return;
   }
 
-  const baseUrl = (process.env["REPLIT_DOMAINS"] ?? "").split(",")[0]?.trim();
-  const base = baseUrl ? `https://${baseUrl}` : "http://localhost:80";
+  const base = process.env["APP_URL"]?.trim() ?? "http://localhost:80";
 
   let sent = 0;
   let failed = 0;

@@ -23,8 +23,8 @@ async function logRun(
 }
 
 function getPortalUrl(): string {
-  const domain = (process.env["REPLIT_DOMAINS"] ?? "").split(",")[0]?.trim();
-  return domain ? `https://${domain}/portal/login` : "";
+  const appUrl = process.env["APP_URL"]?.trim();
+  return appUrl ? `${appUrl}/portal/login` : "";
 }
 
 /**
