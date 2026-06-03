@@ -1,11 +1,22 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
 import { SidebarProvider, Sidebar, SidebarHeader, SidebarContent, SidebarGroup, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarTrigger, SidebarFooter } from "@/components/ui/sidebar";
-import { LayoutDashboard, Users, BookOpen, Settings, InboxIcon, MessageSquare, CreditCard, CalendarCheck, Megaphone, CalendarDays, ClipboardList, FileCheck } from "lucide-react";
+import { LayoutDashboard, Users, BookOpen, Settings, InboxIcon, MessageSquare, CreditCard, CalendarCheck, Megaphone, CalendarDays, ClipboardList, FileCheck, LogOut } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useListEnquiries, getListEnquiriesQueryKey } from "@workspace/api-client-react";
 
 export function AdminLayout({ children }: { children: ReactNode }) {
-  const [location] = useLocation();
+  const [location, navigate] = useLocation();
+  const queryClient = useQueryClient();
+
+  const handleLogout = async () => {
+    await fetch(`${import.meta.env.BASE_URL}api/admin/logout`, {
+      method: "POST",
+      credentials: "include",
+    });
+    queryClient.removeQueries({ queryKey: ["admin-me"] });
+    navigate("/admin/login");
+  };
   const { data: unread = [] } = useListEnquiries({ read: false }, {
     query: { queryKey: getListEnquiriesQueryKey({ read: false }) },
   });
@@ -133,6 +144,12 @@ export function AdminLayout({ children }: { children: ReactNode }) {
                   <Link href="/">
                     <span>&larr; Back to Site</span>
                   </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton onClick={handleLogout}>
+                  <LogOut />
+                  <span>Log out</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>

@@ -19,6 +19,8 @@ import Privacy from "@/pages/public/Privacy";
 import Classes from "@/pages/public/Classes";
 import ConsentForm from "@/pages/public/ConsentForm";
 
+import AdminLogin from "@/pages/admin/Login";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
 import Dashboard from "@/pages/admin/Dashboard";
 import Admissions from "@/pages/admin/Admissions";
 import AdmissionDetail from "@/pages/admin/AdmissionDetail";
@@ -74,10 +76,36 @@ function PublicRoutes() {
 }
 
 function AdminRoutes() {
+  const { isAuthenticated, isLoading } = useAdminAuth();
+
+  // Show nothing while checking session (avoids flash of login page)
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  // Login page — outside the AdminLayout so it has its own full-screen look
+  if (!isAuthenticated) {
+    return (
+      <Switch>
+        <Route path="/admin/login" component={AdminLogin} />
+        <Route>
+          <Redirect to="/admin/login" />
+        </Route>
+      </Switch>
+    );
+  }
+
   return (
     <AdminLayout>
       <Switch>
         <Route path="/admin">
+          <Redirect to="/admin/dashboard" />
+        </Route>
+        <Route path="/admin/login">
           <Redirect to="/admin/dashboard" />
         </Route>
         <Route path="/admin/dashboard" component={Dashboard} />
