@@ -7,6 +7,9 @@ import { logger } from "./lib/logger";
 
 const app: Express = express();
 
+// Trust the reverse proxy (Render/Cloudflare) so secure cookies work over HTTPS
+app.set("trust proxy", 1);
+
 const sessionSecret = process.env["SESSION_SECRET"];
 if (!sessionSecret) {
   logger.warn("SESSION_SECRET not set — using insecure fallback for sessions");
