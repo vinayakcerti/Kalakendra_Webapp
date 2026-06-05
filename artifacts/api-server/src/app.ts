@@ -45,7 +45,23 @@ app.use(
     },
   }),
 );
-app.use(cors());
+// Allow requests from the frontend (Vercel) and local dev
+const allowedOrigins = [
+  process.env["APP_URL"],          // e.g. https://kalakendra-sweden.vercel.app
+  "http://localhost:5173",
+  "http://localhost:80",
+  "http://localhost:3000",
+].filter(Boolean) as string[];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (curl, Render health checks)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.some(o => origin.startsWith(o))) return callback(null, true);
+    callback(new Error(`CORS: origin ${origin} not allowed`));
+  },
+  credentials: true,
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

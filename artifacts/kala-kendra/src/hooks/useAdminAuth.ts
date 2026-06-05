@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+﻿import { useQuery } from "@tanstack/react-query";
 
 interface AdminUser {
   id: string;
@@ -8,7 +8,7 @@ interface AdminUser {
 }
 
 async function fetchAdminMe(): Promise<AdminUser | null> {
-  const res = await fetch(`${import.meta.env.BASE_URL}api/admin/me`, {
+  const res = await fetch(`${(import.meta.env["VITE_API_URL"] ?? "")}/api/admin/me`, {
     credentials: "include",
   });
   if (res.status === 401) return null;

@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Lock, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,7 +18,7 @@ export default function AdminLogin() {
     setError("");
 
     try {
-      const res = await fetch(`${import.meta.env.BASE_URL}api/admin/login`, {
+      const res = await fetch(`${(import.meta.env["VITE_API_URL"] ?? "")}/api/admin/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

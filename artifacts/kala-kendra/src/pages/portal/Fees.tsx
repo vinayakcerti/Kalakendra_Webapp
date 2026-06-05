@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { CreditCard, CheckCircle2, Send, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -54,7 +54,7 @@ function PaymentForm({
     setError("");
     try {
       const res = await fetch(
-        `${import.meta.env.BASE_URL}api/portal/fees/${fee.id}/payment-request`,
+        `${(import.meta.env["VITE_API_URL"] ?? "")}/api/portal/fees/${fee.id}/payment-request`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -169,7 +169,7 @@ export default function PortalFees() {
   const [activeForm, setActiveForm] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(`${import.meta.env.BASE_URL}api/portal/fees`, { credentials: "include" })
+    fetch(`${(import.meta.env["VITE_API_URL"] ?? "")}/api/portal/fees`, { credentials: "include" })
       .then(r => r.json())
       .then(data => { setFees(data); setLoading(false); })
       .catch(() => setLoading(false));

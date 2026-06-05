@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+﻿import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
 import { SidebarProvider, Sidebar, SidebarHeader, SidebarContent, SidebarGroup, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarTrigger, SidebarFooter } from "@/components/ui/sidebar";
 import { LayoutDashboard, Users, BookOpen, Settings, InboxIcon, MessageSquare, CreditCard, CalendarCheck, Megaphone, CalendarDays, ClipboardList, FileCheck, LogOut } from "lucide-react";
@@ -10,7 +10,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
 
   const handleLogout = async () => {
-    await fetch(`${import.meta.env.BASE_URL}api/admin/logout`, {
+    await fetch(`${(import.meta.env["VITE_API_URL"] ?? "")}/api/admin/logout`, {
       method: "POST",
       credentials: "include",
     });

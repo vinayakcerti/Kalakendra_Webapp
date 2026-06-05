@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,7 @@ export default function PortalRegisterVerify() {
       return;
     }
 
-    fetch(`${import.meta.env.BASE_URL}api/portal/register/verify?token=${encodeURIComponent(token)}`, {
+    fetch(`${(import.meta.env["VITE_API_URL"] ?? "")}/api/portal/register/verify?token=${encodeURIComponent(token)}`, {
       credentials: "include",
     })
       .then(async r => {

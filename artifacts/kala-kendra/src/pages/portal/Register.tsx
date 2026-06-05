@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Link } from "wouter";
 import { UserPlus, ArrowRight, CheckCircle, AlertCircle, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,7 @@ export default function PortalRegister() {
     setError("");
 
     try {
-      const res = await fetch(`${import.meta.env.BASE_URL}api/portal/register`, {
+      const res = await fetch(`${(import.meta.env["VITE_API_URL"] ?? "")}/api/portal/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
