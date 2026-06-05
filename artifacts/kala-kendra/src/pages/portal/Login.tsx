@@ -16,7 +16,7 @@ export default function PortalLogin() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`${(import.meta.env.VITE_API_URL ?? "")}/api/portal/auth/request`, {
+      const res = await fetch(`${(import.meta.env.VITE_API_URL ?? "https://kalakendra-api.onrender.com")}/api/portal/auth/request`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

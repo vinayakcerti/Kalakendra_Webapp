@@ -119,7 +119,7 @@ export default function Students() {
     }
     setSendingInvite(studentId);
     try {
-      const res = await fetch(`${(import.meta.env.VITE_API_URL ?? "")}/api/students/${studentId}/send-invite`, {
+      const res = await fetch(`${(import.meta.env.VITE_API_URL ?? "https://kalakendra-api.onrender.com")}/api/students/${studentId}/send-invite`, {
         method: "POST",
         credentials: "include",
       });
@@ -141,7 +141,7 @@ export default function Students() {
     if (!confirm(`Send portal invites to all ${withEmail.length} active students with email addresses?`)) return;
     setBulkSending(true);
     try {
-      const res = await fetch(`${(import.meta.env.VITE_API_URL ?? "")}/api/students/send-invites-bulk`, {
+      const res = await fetch(`${(import.meta.env.VITE_API_URL ?? "https://kalakendra-api.onrender.com")}/api/students/send-invites-bulk`, {
         method: "POST",
         credentials: "include",
       });

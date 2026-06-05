@@ -8,7 +8,7 @@ interface AdminUser {
 }
 
 async function fetchAdminMe(): Promise<AdminUser | null> {
-  const res = await fetch(`${(import.meta.env.VITE_API_URL ?? "")}/api/admin/me`, {
+  const res = await fetch(`${(import.meta.env.VITE_API_URL ?? "https://kalakendra-api.onrender.com")}/api/admin/me`, {
     credentials: "include",
   });
   if (res.status === 401) return null;
