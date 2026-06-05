@@ -6,7 +6,7 @@
  *
  * Usage: apiUrl("/api/admin/login")
  */
-const _base = (import.meta.env["VITE_API_URL"] as string | undefined)?.replace(/\/+$/, "") ?? "";
+const _base = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/+$/, "") ?? "";
 
 export function apiUrl(path: string): string {
   return `${_base}${path}`;

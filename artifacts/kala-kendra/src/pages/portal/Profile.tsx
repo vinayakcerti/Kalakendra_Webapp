@@ -33,7 +33,7 @@ export default function PortalProfile() {
   const [fullProfile, setFullProfile] = useState<ProfileForm & { enrolledAt?: string; batchName?: string } | null>(null);
 
   useEffect(() => {
-    fetch(`${(import.meta.env["VITE_API_URL"] ?? "")}/api/portal/me`, { credentials: "include" })
+    fetch(`${(import.meta.env.VITE_API_URL ?? "")}/api/portal/me`, { credentials: "include" })
       .then(r => r.ok ? r.json() : null)
       .then(data => {
         if (!data) return;
@@ -64,7 +64,7 @@ export default function PortalProfile() {
 
     setSaving(true);
     try {
-      const res = await fetch(`${(import.meta.env["VITE_API_URL"] ?? "")}/api/portal/me`, {
+      const res = await fetch(`${(import.meta.env.VITE_API_URL ?? "")}/api/portal/me`, {
         method: "PATCH",
         credentials: "include",
         headers: { "Content-Type": "application/json" },

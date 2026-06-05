@@ -52,7 +52,7 @@ function usePortalStudent() {
 
   const fetch_ = () => {
     setLoading(true);
-    fetch(`${(import.meta.env["VITE_API_URL"] ?? "")}/api/portal/me`, { credentials: "include" })
+    fetch(`${(import.meta.env.VITE_API_URL ?? "")}/api/portal/me`, { credentials: "include" })
       .then(r => r.ok ? r.json() : null)
       .then(data => { setStudent(data); setLoading(false); })
       .catch(() => { setStudent(null); setLoading(false); });
@@ -69,7 +69,7 @@ function usePortalFees(authenticated: boolean) {
   const fetch_ = () => {
     if (!authenticated) return;
     setFeesLoading(true);
-    fetch(`${(import.meta.env["VITE_API_URL"] ?? "")}/api/portal/fees`, { credentials: "include" })
+    fetch(`${(import.meta.env.VITE_API_URL ?? "")}/api/portal/fees`, { credentials: "include" })
       .then(r => r.ok ? r.json() : [])
       .then((data: PortalFee[]) => { setFees(data); setFeesLoading(false); })
       .catch(() => { setFees([]); setFeesLoading(false); });
@@ -193,7 +193,7 @@ export function PortalLayout({ children }: { children: ReactNode }) {
   }, [feesLoading]);
 
   const handleLogout = async () => {
-    await fetch(`${(import.meta.env["VITE_API_URL"] ?? "")}/api/portal/auth/logout`, {
+    await fetch(`${(import.meta.env.VITE_API_URL ?? "")}/api/portal/auth/logout`, {
       method: "POST",
       credentials: "include",
     });

@@ -18,7 +18,7 @@ export default function PortalRegisterVerify() {
       return;
     }
 
-    fetch(`${(import.meta.env["VITE_API_URL"] ?? "")}/api/portal/register/verify?token=${encodeURIComponent(token)}`, {
+    fetch(`${(import.meta.env.VITE_API_URL ?? "")}/api/portal/register/verify?token=${encodeURIComponent(token)}`, {
       credentials: "include",
     })
       .then(async r => {

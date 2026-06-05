@@ -21,7 +21,7 @@ export default function PortalRegister() {
     setError("");
 
     try {
-      const res = await fetch(`${(import.meta.env["VITE_API_URL"] ?? "")}/api/portal/register`, {
+      const res = await fetch(`${(import.meta.env.VITE_API_URL ?? "")}/api/portal/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

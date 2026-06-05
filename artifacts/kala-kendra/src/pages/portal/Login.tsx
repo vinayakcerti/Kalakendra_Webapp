@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Mail, ArrowRight, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,7 +16,7 @@ export default function PortalLogin() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`${(import.meta.env["VITE_API_URL"] ?? "")}/api/portal/auth/request`, {
+      const res = await fetch(`${(import.meta.env.VITE_API_URL ?? "")}/api/portal/auth/request`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

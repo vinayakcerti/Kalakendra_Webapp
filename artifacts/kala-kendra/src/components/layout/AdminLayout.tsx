@@ -10,7 +10,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
 
   const handleLogout = async () => {
-    await fetch(`${(import.meta.env["VITE_API_URL"] ?? "")}/api/admin/logout`, {
+    await fetch(`${(import.meta.env.VITE_API_URL ?? "")}/api/admin/logout`, {
       method: "POST",
       credentials: "include",
     });

@@ -28,7 +28,7 @@ export default function PortalAttendance() {
   const [filter, setFilter] = useState("all");
 
   useEffect(() => {
-    fetch(`${(import.meta.env["VITE_API_URL"] ?? "")}/api/portal/attendance`, { credentials: "include" })
+    fetch(`${(import.meta.env.VITE_API_URL ?? "")}/api/portal/attendance`, { credentials: "include" })
       .then(r => r.json())
       .then(data => { setRecords(data); setLoading(false); })
       .catch(() => setLoading(false));

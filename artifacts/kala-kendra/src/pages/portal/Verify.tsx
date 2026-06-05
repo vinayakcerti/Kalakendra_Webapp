@@ -17,7 +17,7 @@ export default function PortalVerify() {
       return;
     }
 
-    fetch(`${(import.meta.env["VITE_API_URL"] ?? "")}/api/portal/auth/verify?token=${encodeURIComponent(token)}`, {
+    fetch(`${(import.meta.env.VITE_API_URL ?? "")}/api/portal/auth/verify?token=${encodeURIComponent(token)}`, {
       credentials: "include",
     })
       .then(async r => {
