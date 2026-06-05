@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useLocation } from "wouter";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("");
@@ -11,6 +12,7 @@ export default function AdminLogin() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [, navigate] = useLocation();
+  const queryClient = useQueryClient();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,6 +37,8 @@ export default function AdminLogin() {
         return;
       }
 
+      // Clear stale auth cache so AdminRoutes re-checks the session
+      await queryClient.invalidateQueries({ queryKey: ["admin-me"] });
       navigate("/admin/dashboard");
     } catch {
       setError("Network error. Please check your connection.");
