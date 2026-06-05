@@ -19,8 +19,8 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: process.env["NODE_ENV"] === "production",
-      sameSite: "lax",
+      secure: true,           // required for SameSite=None
+      sameSite: "none",       // required for cross-domain (Vercel → Render)
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     },
   })
