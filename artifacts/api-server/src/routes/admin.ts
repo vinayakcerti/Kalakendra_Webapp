@@ -148,10 +148,8 @@ router.post("/admin/login", async (req, res) => {
       },
     });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    const cause = (err as any)?.cause?.message ?? (err as any)?.cause ?? "none";
     logger.error({ err }, "Admin login error");
-    res.status(500).json({ error: "Internal server error", detail: msg, cause: String(cause) });
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
