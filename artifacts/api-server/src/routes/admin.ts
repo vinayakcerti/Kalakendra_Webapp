@@ -194,4 +194,126 @@ router.get("/admin/me", requireAdmin, async (req, res) => {
   }
 });
 
+/**
+ * GET /api/admin/admins
+ * List all admin accounts (requires admin session).
+ */
+router.get("/admin/admins", requireAdmin, async (_req, res) => {
+  try {
+    const admins = await db
+      .select({
+        id: adminsTable.id,
+        email: adminsTable.email,
+        fullName: adminsTable.fullName,
+        role: adminsTable.role,
+        active: adminsTable.active,
+        lastLoginAt: adminsTable.lastLoginAt,
+        createdAt: adminsTable.createdAt,
+      })
+      .from(adminsTable)
+      .orderBy(adminsTable.createdAt);
+
+    res.json({ admins });
+  } catch (err) {
+    logger.error({ err }, "List admins error");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+/**
+ * POST /api/admin/admins
+ * Create a new admin account (requires admin session).
+ */
+router.post("/admin/admins", requireAdmin, async (req, res) => {
+  const { email, fullName, password, role } = req.body as {
+    email?: string;
+    fullName?: string;
+    password?: string;
+    role?: string;
+  };
+
+  if (!email || !fullName || !password) {
+    res.status(400).json({ error: "email, fullName and password are required" });
+    return;
+  }
+  if (password.length < 8) {
+    res.status(400).json({ error: "Password must be at least 8 characters" });
+    return;
+  }
+
+  const allowedRoles = ["admin", "teacher"];
+  const assignedRole = allowedRoles.includes(role ?? "") ? role! : "teacher";
+
+  try {
+    const passwordHash = await hashPassword(password);
+    const [admin] = await db
+      .insert(adminsTable)
+      .values({
+        email: email.trim().toLowerCase(),
+        fullName: fullName.trim(),
+        passwordHash,
+        role: assignedRole,
+      })
+      .returning({
+        id: adminsTable.id,
+        email: adminsTable.email,
+        fullName: adminsTable.fullName,
+        role: adminsTable.role,
+        active: adminsTable.active,
+        createdAt: adminsTable.createdAt,
+      });
+
+    logger.info({ adminId: admin.id }, "New admin created");
+    res.status(201).json({ admin });
+  } catch (err: unknown) {
+    const pg = err as { code?: string };
+    if (pg.code === "23505") {
+      res.status(409).json({ error: "An account with that email already exists" });
+      return;
+    }
+    logger.error({ err }, "Create admin error");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+/**
+ * PATCH /api/admin/admins/:id
+ * Toggle active status of an admin account (requires admin session).
+ * Body: { active: boolean }
+ */
+router.patch("/admin/admins/:id", requireAdmin, async (req, res) => {
+  const { id } = req.params;
+  const { active } = req.body as { active?: boolean };
+
+  if (typeof active !== "boolean") {
+    res.status(400).json({ error: "'active' (boolean) is required" });
+    return;
+  }
+
+  // Prevent self-deactivation
+  if (!active && req.session.adminId === id) {
+    res.status(400).json({ error: "You cannot deactivate your own account" });
+    return;
+  }
+
+  try {
+    const [updated] = await db
+      .update(adminsTable)
+      .set({ active })
+      .where(eq(adminsTable.id, id))
+      .returning({ id: adminsTable.id, active: adminsTable.active });
+
+    if (!updated) {
+      res.status(404).json({ error: "Admin not found" });
+      return;
+    }
+
+    logger.info({ adminId: id, active }, "Admin active status updated");
+    res.json({ admin: updated });
+  } catch (err) {
+    logger.error({ err }, "Update admin error");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 export default router;

@@ -1,9 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { format } from "date-fns";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   useGetSettings,
   useUpdateSettings,
@@ -28,6 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
@@ -64,6 +65,266 @@ function SectionHeading({
     </div>
   );
 }
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+interface AdminAccount {
+  id: string;
+  email: string;
+  fullName: string;
+  role: string;
+  active: boolean;
+  lastLoginAt: string | null;
+  createdAt: string;
+}
+
+// ─── Add-Admin form schema ────────────────────────────────────────────────────
+
+const addAdminSchema = z.object({
+  email: z.string().email("Valid email required"),
+  fullName: z.string().min(2, "Full name is required"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  role: z.enum(["admin", "teacher"]),
+});
+type AddAdminValues = z.infer<typeof addAdminSchema>;
+
+// ─── AdminAccountsSection ─────────────────────────────────────────────────────
+
+function AdminAccountsSection() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [showForm, setShowForm] = useState(false);
+
+  // Fetch admin list
+  const { data, isLoading } = useQuery<{ admins: AdminAccount[] }>({
+    queryKey: ["admin-accounts"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/admins", { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to load admins");
+      return res.json() as Promise<{ admins: AdminAccount[] }>;
+    },
+  });
+
+  const admins = data?.admins ?? [];
+
+  // Toggle active/inactive
+  const toggleMutation = useMutation({
+    mutationFn: async ({ id, active }: { id: string; active: boolean }) => {
+      const res = await fetch(`/api/admin/admins/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ active }),
+      });
+      if (!res.ok) {
+        const body = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(body.error ?? "Failed to update admin");
+      }
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["admin-accounts"] });
+      toast({ title: "Admin updated" });
+    },
+    onError: (err: Error) => {
+      toast({ title: "Update failed", description: err.message, variant: "destructive" });
+    },
+  });
+
+  // Add new admin
+  const addForm = useForm<AddAdminValues>({
+    resolver: zodResolver(addAdminSchema),
+    defaultValues: { email: "", fullName: "", password: "", role: "teacher" },
+  });
+
+  const addMutation = useMutation({
+    mutationFn: async (values: AddAdminValues) => {
+      const res = await fetch("/api/admin/admins", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(values),
+      });
+      if (!res.ok) {
+        const body = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(body.error ?? "Failed to create admin");
+      }
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["admin-accounts"] });
+      addForm.reset();
+      setShowForm(false);
+      toast({ title: "Admin account created", description: "They can now log in with their email and password." });
+    },
+    onError: (err: Error) => {
+      toast({ title: "Creation failed", description: err.message, variant: "destructive" });
+    },
+  });
+
+  return (
+    <section className="mb-14">
+      <SectionHeading
+        title="Admin Accounts"
+        description="Manage who has access to this admin portal. Deactivating an account immediately ends all active sessions."
+      />
+
+      {/* Current admins table */}
+      {isLoading ? (
+        <p className="text-sm text-muted-foreground">Loading…</p>
+      ) : (
+        <div className="border border-secondary/20 overflow-hidden mb-6">
+          <table className="w-full text-sm">
+            <thead className="bg-secondary/5 text-xs uppercase tracking-widest text-secondary">
+              <tr>
+                <th className="text-left px-4 py-3 font-semibold">Name</th>
+                <th className="text-left px-4 py-3 font-semibold">Email</th>
+                <th className="text-left px-4 py-3 font-semibold">Role</th>
+                <th className="text-left px-4 py-3 font-semibold">Status</th>
+                <th className="text-left px-4 py-3 font-semibold">Last login</th>
+                <th className="px-4 py-3" />
+              </tr>
+            </thead>
+            <tbody>
+              {admins.map((admin, i) => (
+                <tr key={admin.id} className={i % 2 === 0 ? "bg-background" : "bg-card"}>
+                  <td className="px-4 py-3 font-medium text-foreground">{admin.fullName}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{admin.email}</td>
+                  <td className="px-4 py-3">
+                    <Badge variant={admin.role === "admin" ? "default" : "secondary"} className="capitalize text-xs">
+                      {admin.role}
+                    </Badge>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={`inline-flex items-center gap-1.5 text-xs font-medium ${admin.active ? "text-green-700" : "text-muted-foreground"}`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${admin.active ? "bg-green-600" : "bg-gray-400"}`} />
+                      {admin.active ? "Active" : "Inactive"}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-muted-foreground text-xs">
+                    {admin.lastLoginAt
+                      ? format(new Date(admin.lastLoginAt), "d MMM yyyy")
+                      : "Never"}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className={`text-xs rounded-none border ${admin.active ? "border-red-200 text-red-700 hover:bg-red-50" : "border-secondary/30 text-muted-foreground hover:bg-secondary/10"}`}
+                      disabled={toggleMutation.isPending}
+                      onClick={() => toggleMutation.mutate({ id: admin.id, active: !admin.active })}
+                    >
+                      {admin.active ? "Deactivate" : "Reactivate"}
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+              {admins.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground text-sm">
+                    No admin accounts found.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Add admin form toggle */}
+      {!showForm ? (
+        <Button
+          type="button"
+          variant="outline"
+          className="rounded-none border-secondary/40 text-sm"
+          onClick={() => setShowForm(true)}
+        >
+          + Add admin account
+        </Button>
+      ) : (
+        <div className="border border-secondary/20 bg-card p-6">
+          <h4 className="font-medium text-foreground mb-6">New admin account</h4>
+          <form
+            onSubmit={addForm.handleSubmit((v) => addMutation.mutate(v))}
+            className="space-y-5"
+          >
+            <div className="grid md:grid-cols-2 gap-5">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Full name *</label>
+                <Input
+                  placeholder="e.g. Priya Sharma"
+                  {...addForm.register("fullName")}
+                  className={inputClass}
+                />
+                {addForm.formState.errors.fullName && (
+                  <p className="text-xs text-destructive">{addForm.formState.errors.fullName.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Email address *</label>
+                <Input
+                  type="email"
+                  placeholder="priya@kalakendra.se"
+                  {...addForm.register("email")}
+                  className={inputClass}
+                />
+                {addForm.formState.errors.email && (
+                  <p className="text-xs text-destructive">{addForm.formState.errors.email.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Password *</label>
+                <Input
+                  type="password"
+                  placeholder="Min. 8 characters"
+                  {...addForm.register("password")}
+                  className={inputClass}
+                />
+                {addForm.formState.errors.password && (
+                  <p className="text-xs text-destructive">{addForm.formState.errors.password.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Role *</label>
+                <select
+                  {...addForm.register("role")}
+                  className={`w-full h-10 px-3 text-sm border border-secondary/40 bg-background focus:outline-none focus:ring-2 focus:ring-primary`}
+                >
+                  <option value="teacher">Teacher</option>
+                  <option value="admin">Admin</option>
+                </select>
+                <p className="text-xs text-muted-foreground">
+                  Admins can manage all settings. Teachers have read access only.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              <Button
+                type="submit"
+                disabled={addMutation.isPending}
+                className="rounded-none bg-primary text-primary-foreground px-8"
+              >
+                {addMutation.isPending ? "Creating…" : "Create account"}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                className="rounded-none"
+                onClick={() => { setShowForm(false); addForm.reset(); }}
+              >
+                Cancel
+              </Button>
+            </div>
+          </form>
+        </div>
+      )}
+    </section>
+  );
+}
+
+// ─── Main Settings page ───────────────────────────────────────────────────────
 
 export default function Settings() {
   const { toast } = useToast();
@@ -150,6 +411,9 @@ export default function Settings() {
           </p>
         )}
       </div>
+
+      {/* ── Admin Accounts ─────────────────────────────────────── */}
+      <AdminAccountsSection />
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-14">
