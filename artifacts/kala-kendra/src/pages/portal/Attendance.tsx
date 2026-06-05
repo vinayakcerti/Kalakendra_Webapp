@@ -28,7 +28,7 @@ export default function PortalAttendance() {
   const [filter, setFilter] = useState("all");
 
   useEffect(() => {
-    fetch(`${(import.meta.env.VITE_API_URL ?? "https://kalakendra-api.onrender.com")}/api/portal/attendance`, { credentials: "include" })
+    fetch(`/api/portal/attendance`, { credentials: "include" })
       .then(r => r.json())
       .then(data => { setRecords(data); setLoading(false); })
       .catch(() => setLoading(false));

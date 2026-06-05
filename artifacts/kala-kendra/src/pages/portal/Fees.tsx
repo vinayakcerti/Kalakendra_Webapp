@@ -54,7 +54,7 @@ function PaymentForm({
     setError("");
     try {
       const res = await fetch(
-        `${(import.meta.env.VITE_API_URL ?? "https://kalakendra-api.onrender.com")}/api/portal/fees/${fee.id}/payment-request`,
+        `/api/portal/fees/${fee.id}/payment-request`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -169,7 +169,7 @@ export default function PortalFees() {
   const [activeForm, setActiveForm] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(`${(import.meta.env.VITE_API_URL ?? "https://kalakendra-api.onrender.com")}/api/portal/fees`, { credentials: "include" })
+    fetch(`/api/portal/fees`, { credentials: "include" })
       .then(r => r.json())
       .then(data => { setFees(data); setLoading(false); })
       .catch(() => setLoading(false));

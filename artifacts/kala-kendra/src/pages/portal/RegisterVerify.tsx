@@ -18,7 +18,7 @@ export default function PortalRegisterVerify() {
       return;
     }
 
-    fetch(`${(import.meta.env.VITE_API_URL ?? "https://kalakendra-api.onrender.com")}/api/portal/register/verify?token=${encodeURIComponent(token)}`, {
+    fetch(`/api/portal/register/verify?token=${encodeURIComponent(token)}`, {
       credentials: "include",
     })
       .then(async r => {
