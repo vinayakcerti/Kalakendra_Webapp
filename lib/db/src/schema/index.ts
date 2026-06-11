@@ -10,5 +10,6 @@ export * from "./audit_log";
 export * from "./student_notes";
 export * from "./reminder_job_runs";
 export * from "./consent_forms";
+export * from "./announcements";
 export * from "./student_tokens";
 export * from "./portal_registration_requests";
