@@ -327,7 +327,7 @@ export default function Fees() {
             {fees.map((fee) => {
               const cfg = FEE_STATUS_CONFIG[fee.status as keyof typeof FEE_STATUS_CONFIG] ?? FEE_STATUS_CONFIG.pending;
               return (
-                <div key={fee.id} className="flex items-start gap-4 px-6 py-4 hover:bg-secondary/5 transition-colors">
+                <div key={fee.id} className="flex flex-col sm:flex-row sm:items-start gap-3 px-4 sm:px-6 py-4 hover:bg-secondary/5 transition-colors">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-baseline gap-2 mb-1">
                       <Link href={`/admin/students/${fee.studentId}`}>
@@ -354,7 +354,7 @@ export default function Fees() {
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 shrink-0 mt-0.5">
+                  <div className="flex flex-wrap items-center gap-2 sm:shrink-0 sm:mt-0.5">
                     <Badge variant="outline" className={`rounded-none text-xs border ${cfg.badgeClass}`}>
                       <cfg.Icon className="h-3 w-3 mr-1" />
                       {cfg.label}
