@@ -50,9 +50,11 @@ app.use(
 );
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow Vercel deployments, localhost dev, and no-origin requests (curl/health checks)
+    // Allow the production domain, Vercel deployments, localhost dev, and no-origin requests (curl/health checks)
     if (!origin) return callback(null, true);
     if (
+      origin === "https://kalakendra.se" ||
+      origin === "https://www.kalakendra.se" ||
       origin.endsWith(".vercel.app") ||
       origin.startsWith("http://localhost")
     ) return callback(null, true);
